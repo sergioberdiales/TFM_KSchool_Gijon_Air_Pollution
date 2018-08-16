@@ -1,0 +1,54 @@
+---
+title: "Gijon_Air_Pollution"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Gijon Air Pollution notes
+
+Notes about the development of my capstone final project of my Master on Data Science in KSchool.
+
+### Project goals:
+
+  - Construct a web dashboard to visualize the evolution of the main air pollution indicators of Gijon city. (Asturias; Spain).
+  - Build a model to try to predict the probability of exceeding the pollution limits established by the EU in the city of Gijon (one day in advance).
+
+#### History
+
+2018-08-16 
+I created my github repository.
+I set the main goals of the project.
+
+
+
+#### Data gathering
+
+Loading packages
+```{r }
+library(readr)
+library(dplyr)
+
+```
+
+
+First of all I have to check if I will have the basic data to make the analysis. I need air pollution and weather data of the Gijon area. 
+The town hall of Gijon has an open data web portal here https://transparencia.gijon.es/. We can download pollution air data on several formats from year 2000 to 2017 here: https://transparencia.gijon.es/search/risp_dataset/page/1808-catalogo-de-datos?utf8=%E2%9C%93&search=aire+&search_sector=&search_format=&commit=Buscar&authenticity_token=j8%2F3CvCuPcDkrRe%2F1NR5RBp0t%2FOOosiA7724w3T2mB4%3D
+
+I download the data of the year 2017 with csv format.
+
+I import the csv file to R in order to give a first lood to the data
+
+```{r }
+air_data_2017 <- read_csv('data/air_data_2017.csv', locale = locale(encoding = "ISO-8859-1"), col_types = cols(.default = "c"))
+head(air_data_2017)
+```
+
+
+```{r }
+glimpse(air_data_2017)
+```
+
+
