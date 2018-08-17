@@ -22,7 +22,10 @@ Notes about the development of my capstone final project of my Master on Data Sc
 I created my github repository.
 I set the main goals of the project.
 
+#### References
 
+- OpenAir package web: http://davidcarslaw.github.io/openair/
+- Breezometer: https://breezometer.com/real-time-air-quality
 
 #### Data gathering
 
@@ -30,6 +33,7 @@ Loading packages
 ```{r }
 library(readr)
 library(dplyr)
+library(openair) # http://davidcarslaw.github.io/openair/
 
 ```
 
@@ -42,13 +46,13 @@ I download the data of the year 2017 with csv format.
 I import the csv file to R in order to give a first lood to the data
 
 ```{r }
-air_data_2017 <- read_csv('data/air_data_2017.csv', locale = locale(encoding = "ISO-8859-1"), col_types = cols(.default = "c"))
+air_data_2017 <- read_csv('data/air_data_2017.csv', locale = locale(encoding = "ISO-8859-1"))
 head(air_data_2017)
 ```
 
 
 ```{r }
-glimpse(air_data_2017)
+summary(air_data_2017)
 ```
 
 

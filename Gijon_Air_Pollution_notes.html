@@ -138,6 +138,13 @@ $(document).ready(function () {
 <h4>History</h4>
 <p>2018-08-16 I created my github repository. I set the main goals of the project.</p>
 </div>
+<div id="references" class="section level4">
+<h4>References</h4>
+<ul>
+<li>OpenAir package web: <a href="http://davidcarslaw.github.io/openair/" class="uri">http://davidcarslaw.github.io/openair/</a></li>
+<li></li>
+</ul>
+</div>
 <div id="data-gathering" class="section level4">
 <h4>Data gathering</h4>
 <p>Loading packages</p>
@@ -152,48 +159,96 @@ $(document).ready(function () {
 <pre><code>## The following objects are masked from 'package:base':
 ## 
 ##     intersect, setdiff, setequal, union</code></pre>
+<pre class="r"><code>library(openair) # http://davidcarslaw.github.io/openair/</code></pre>
+<pre><code>## Warning: package 'openair' was built under R version 3.5.1</code></pre>
 <p>First of all I have to check if I will have the basic data to make the analysis. I need air pollution and weather data of the Gijon area. The town hall of Gijon has an open data web portal here <a href="https://transparencia.gijon.es/" class="uri">https://transparencia.gijon.es/</a>. We can download pollution air data on several formats from year 2000 to 2017 here: <a href="https://transparencia.gijon.es/search/risp_dataset/page/1808-catalogo-de-datos?utf8=%E2%9C%93&amp;search=aire+&amp;search_sector">https://transparencia.gijon.es/search/risp_dataset/page/1808-catalogo-de-datos?utf8=%E2%9C%93&amp;search=aire+&amp;search_sector</a>=&amp;search_format=&amp;commit=Buscar&amp;authenticity_token=j8%2F3CvCuPcDkrRe%2F1NR5RBp0t%2FOOosiA7724w3T2mB4%3D</p>
 <p>I download the data of the year 2017 with csv format.</p>
 <p>I import the csv file to R in order to give a first lood to the data</p>
-<pre class="r"><code>air_data_2017 &lt;- read_csv('data/air_data_2017.csv', locale = locale(encoding = &quot;ISO-8859-1&quot;), col_types = cols(.default = &quot;c&quot;))
-head(air_data_2017)</code></pre>
+<pre class="r"><code>air_data_2017 &lt;- read_csv('data/air_data_2017.csv', locale = locale(encoding = &quot;ISO-8859-1&quot;))</code></pre>
+<pre><code>## Parsed with column specification:
+## cols(
+##   .default = col_integer(),
+##   Título = col_character(),
+##   latitud = col_double(),
+##   longitud = col_double(),
+##   `Fecha Solar (UTC)` = col_datetime(format = &quot;&quot;),
+##   CO = col_double(),
+##   vv = col_double(),
+##   TMP = col_double(),
+##   LL = col_double(),
+##   BEN = col_double(),
+##   TOL = col_double(),
+##   MXIL = col_double()
+## )</code></pre>
+<pre><code>## See spec(...) for full column specifications.</code></pre>
+<pre><code>## Warning in rbind(names(probs), probs_f): number of columns of result is not
+## a multiple of vector length (arg 1)</code></pre>
+<pre><code>## Warning: 573 parsing failures.
+## row # A tibble: 5 x 5 col     row col   expected               actual file                     expected   &lt;int&gt; &lt;chr&gt; &lt;chr&gt;                  &lt;chr&gt;  &lt;chr&gt;                    actual 1 35764 SO2   no trailing characters .3     'data/air_data_2017.csv' file 2 35764 NO    no trailing characters .1     'data/air_data_2017.csv' row 3 35764 NO2   no trailing characters .9     'data/air_data_2017.csv' col 4 35765 SO2   no trailing characters .6     'data/air_data_2017.csv' expected 5 35765 NO    no trailing characters .3     'data/air_data_2017.csv'
+## ... ................. ... .................................................................... ........ .................................................................... ...... .................................................................... .... .................................................................... ... .................................................................... ... .................................................................... ........ ....................................................................
+## See problems(...) for more details.</code></pre>
+<pre class="r"><code>head(air_data_2017)</code></pre>
 <pre><code>## # A tibble: 6 x 22
-##   Estación Título     latitud  longitud `Fecha Solar (U~ SO2   NO    NO2  
-##   &lt;chr&gt;    &lt;chr&gt;      &lt;chr&gt;    &lt;chr&gt;    &lt;chr&gt;            &lt;chr&gt; &lt;chr&gt; &lt;chr&gt;
-## 1 1        Estación ~ 43.5298~ -5.6734~ 2017-01-01T01:0~ 3     51    44   
-## 2 1        Estación ~ 43.5298~ -5.6734~ 2017-01-01T02:0~ 5     36    41   
-## 3 1        Estación ~ 43.5298~ -5.6734~ 2017-01-01T03:0~ 7     32    40   
-## 4 1        Estación ~ 43.5298~ -5.6734~ 2017-01-01T04:0~ 8     24    39   
-## 5 1        Estación ~ 43.5298~ -5.6734~ 2017-01-01T05:0~ 10    22    37   
-## 6 1        Estación ~ 43.5298~ -5.6734~ 2017-01-01T06:0~ 13    25    40   
-## # ... with 14 more variables: CO &lt;chr&gt;, PM10 &lt;chr&gt;, O3 &lt;chr&gt;, dd &lt;chr&gt;,
-## #   vv &lt;chr&gt;, TMP &lt;chr&gt;, HR &lt;chr&gt;, PRB &lt;chr&gt;, RS &lt;chr&gt;, LL &lt;chr&gt;,
-## #   BEN &lt;chr&gt;, TOL &lt;chr&gt;, MXIL &lt;chr&gt;, PM25 &lt;chr&gt;</code></pre>
-<pre class="r"><code>glimpse(air_data_2017)</code></pre>
-<pre><code>## Observations: 52,560
-## Variables: 22
-## $ Estación            &lt;chr&gt; &quot;1&quot;, &quot;1&quot;, &quot;1&quot;, &quot;1&quot;, &quot;1&quot;, &quot;1&quot;, &quot;1&quot;, &quot;1&quot;, &quot;1...
-## $ Título              &lt;chr&gt; &quot;Estación Avenida Constitución&quot;, &quot;Estación...
-## $ latitud             &lt;chr&gt; &quot;43.529806&quot;, &quot;43.529806&quot;, &quot;43.529806&quot;, &quot;43...
-## $ longitud            &lt;chr&gt; &quot;-5.673428&quot;, &quot;-5.673428&quot;, &quot;-5.673428&quot;, &quot;-5...
-## $ `Fecha Solar (UTC)` &lt;chr&gt; &quot;2017-01-01T01:00:00&quot;, &quot;2017-01-01T02:00:0...
-## $ SO2                 &lt;chr&gt; &quot;3&quot;, &quot;5&quot;, &quot;7&quot;, &quot;8&quot;, &quot;10&quot;, &quot;13&quot;, &quot;12&quot;, &quot;12&quot;...
-## $ NO                  &lt;chr&gt; &quot;51&quot;, &quot;36&quot;, &quot;32&quot;, &quot;24&quot;, &quot;22&quot;, &quot;25&quot;, &quot;23&quot;, ...
-## $ NO2                 &lt;chr&gt; &quot;44&quot;, &quot;41&quot;, &quot;40&quot;, &quot;39&quot;, &quot;37&quot;, &quot;40&quot;, &quot;38&quot;, ...
-## $ CO                  &lt;chr&gt; &quot;1.19&quot;, &quot;1.17&quot;, &quot;1.17&quot;, &quot;1.09&quot;, &quot;1.04&quot;, &quot;1...
-## $ PM10                &lt;chr&gt; &quot;38&quot;, &quot;35&quot;, &quot;36&quot;, &quot;31&quot;, &quot;22&quot;, &quot;32&quot;, &quot;21&quot;, ...
-## $ O3                  &lt;chr&gt; &quot;1&quot;, &quot;1&quot;, &quot;1&quot;, &quot;1&quot;, &quot;1&quot;, &quot;1&quot;, &quot;1&quot;, &quot;1&quot;, &quot;3...
-## $ dd                  &lt;chr&gt; &quot;277&quot;, &quot;271&quot;, &quot;291&quot;, &quot;276&quot;, &quot;284&quot;, &quot;294&quot;, ...
-## $ vv                  &lt;chr&gt; &quot;0.11&quot;, &quot;0.11&quot;, &quot;0.1&quot;, &quot;0.11&quot;, &quot;0.12&quot;, &quot;0....
-## $ TMP                 &lt;chr&gt; &quot;3.2&quot;, &quot;2.7&quot;, &quot;2.3&quot;, &quot;2&quot;, &quot;2.2&quot;, &quot;2&quot;, &quot;1.9...
-## $ HR                  &lt;chr&gt; &quot;76&quot;, &quot;77&quot;, &quot;78&quot;, &quot;77&quot;, &quot;75&quot;, &quot;73&quot;, &quot;71&quot;, ...
-## $ PRB                 &lt;chr&gt; &quot;1027&quot;, &quot;1026&quot;, &quot;1026&quot;, &quot;1026&quot;, &quot;1025&quot;, &quot;1...
-## $ RS                  &lt;chr&gt; &quot;54&quot;, &quot;54&quot;, &quot;54&quot;, &quot;54&quot;, &quot;54&quot;, &quot;54&quot;, &quot;54&quot;, ...
-## $ LL                  &lt;chr&gt; &quot;0&quot;, &quot;0&quot;, &quot;0&quot;, &quot;0&quot;, &quot;0&quot;, &quot;0&quot;, &quot;0&quot;, &quot;0&quot;, &quot;0...
-## $ BEN                 &lt;chr&gt; &quot;0.04&quot;, &quot;0.04&quot;, &quot;0.04&quot;, &quot;0.04&quot;, &quot;0.04&quot;, &quot;0...
-## $ TOL                 &lt;chr&gt; &quot;0.03&quot;, &quot;0.03&quot;, &quot;0.03&quot;, &quot;0.03&quot;, &quot;0.03&quot;, &quot;0...
-## $ MXIL                &lt;chr&gt; &quot;0.13&quot;, &quot;0.13&quot;, &quot;0.13&quot;, &quot;0.13&quot;, &quot;0.13&quot;, &quot;0...
-## $ PM25                &lt;chr&gt; &quot;36&quot;, &quot;28&quot;, &quot;24&quot;, &quot;32&quot;, &quot;21&quot;, &quot;29&quot;, &quot;29&quot;, ...</code></pre>
+##   Estación Título   latitud longitud `Fecha Solar (UTC)`   SO2    NO   NO2
+##      &lt;int&gt; &lt;chr&gt;      &lt;dbl&gt;    &lt;dbl&gt; &lt;dttm&gt;              &lt;int&gt; &lt;int&gt; &lt;int&gt;
+## 1        1 Estació~    43.5    -5.67 2017-01-01 01:00:00     3    51    44
+## 2        1 Estació~    43.5    -5.67 2017-01-01 02:00:00     5    36    41
+## 3        1 Estació~    43.5    -5.67 2017-01-01 03:00:00     7    32    40
+## 4        1 Estació~    43.5    -5.67 2017-01-01 04:00:00     8    24    39
+## 5        1 Estació~    43.5    -5.67 2017-01-01 05:00:00    10    22    37
+## 6        1 Estació~    43.5    -5.67 2017-01-01 06:00:00    13    25    40
+## # ... with 14 more variables: CO &lt;dbl&gt;, PM10 &lt;int&gt;, O3 &lt;int&gt;, dd &lt;int&gt;,
+## #   vv &lt;dbl&gt;, TMP &lt;dbl&gt;, HR &lt;int&gt;, PRB &lt;int&gt;, RS &lt;int&gt;, LL &lt;dbl&gt;,
+## #   BEN &lt;dbl&gt;, TOL &lt;dbl&gt;, MXIL &lt;dbl&gt;, PM25 &lt;int&gt;</code></pre>
+<pre class="r"><code>summary(air_data_2017)</code></pre>
+<pre><code>##     Estación         Título             latitud         longitud     
+##  Min.   : 1.000   Length:52560       Min.   :43.52   Min.   :-5.699  
+##  1st Qu.: 2.000   Class :character   1st Qu.:43.52   1st Qu.:-5.691  
+##  Median : 3.500   Mode  :character   Median :43.53   Median :-5.673  
+##  Mean   : 5.167                      Mean   :43.53   Mean   :-5.673  
+##  3rd Qu.:10.000                      3rd Qu.:43.54   3rd Qu.:-5.658  
+##  Max.   :11.000                      Max.   :43.54   Max.   :-5.646  
+##                                                                      
+##  Fecha Solar (UTC)                  SO2                NO        
+##  Min.   :2017-01-01 01:00:00   Min.   :  1.000   Min.   :  1.00  
+##  1st Qu.:2017-04-02 06:45:00   1st Qu.:  3.000   1st Qu.:  3.00  
+##  Median :2017-07-02 12:30:00   Median :  5.000   Median :  6.00  
+##  Mean   :2017-07-02 12:30:00   Mean   :  6.393   Mean   : 13.14  
+##  3rd Qu.:2017-10-01 18:15:00   3rd Qu.:  8.000   3rd Qu.: 13.00  
+##  Max.   :2018-01-01 00:00:00   Max.   :122.000   Max.   :452.00  
+##                                NA's   :9457      NA's   :665     
+##       NO2               CO             PM10             O3        
+##  Min.   :  1.00   Min.   :0.080   Min.   :  0.0   Min.   :  0.00  
+##  1st Qu.: 12.00   1st Qu.:0.230   1st Qu.: 14.0   1st Qu.: 18.00  
+##  Median : 20.00   Median :0.330   Median : 21.0   Median : 40.00  
+##  Mean   : 24.54   Mean   :0.439   Mean   : 24.2   Mean   : 39.97  
+##  3rd Qu.: 33.00   3rd Qu.:0.550   3rd Qu.: 30.0   3rd Qu.: 59.00  
+##  Max.   :261.00   Max.   :9.560   Max.   :325.0   Max.   :187.00  
+##  NA's   :709      NA's   :9151    NA's   :9096    NA's   :9485    
+##        dd              vv             TMP              HR        
+##  Min.   :  0.0   Min.   : 0.00   Min.   :-40.0   Min.   :  0.00  
+##  1st Qu.:145.0   1st Qu.: 0.16   1st Qu.: 11.4   1st Qu.: 66.00  
+##  Median :205.0   Median : 0.57   Median : 15.1   Median : 78.00  
+##  Mean   :206.8   Mean   : 0.92   Mean   : 14.9   Mean   : 76.73  
+##  3rd Qu.:305.8   3rd Qu.: 1.27   3rd Qu.: 18.8   3rd Qu.: 89.00  
+##  Max.   :360.0   Max.   :29.75   Max.   : 33.7   Max.   :100.00  
+##  NA's   :35094   NA's   :35094   NA's   :35097   NA's   :35097   
+##       PRB              RS              LL             BEN       
+##  Min.   : 800    Min.   :  0.0   Min.   : 0.00   Min.   : 0.02  
+##  1st Qu.:1013    1st Qu.:  9.0   1st Qu.: 0.00   1st Qu.: 0.19  
+##  Median :1017    Median : 55.0   Median : 0.00   Median : 0.36  
+##  Mean   :1017    Mean   :146.7   Mean   : 0.09   Mean   : 0.55  
+##  3rd Qu.:1022    3rd Qu.:191.0   3rd Qu.: 0.00   3rd Qu.: 0.70  
+##  Max.   :1040    Max.   :831.0   Max.   :13.00   Max.   :10.20  
+##  NA's   :35097   NA's   :35097   NA's   :35097   NA's   :43863  
+##       TOL              MXIL            PM25       
+##  Min.   :  0.00   Min.   : 0.00   Min.   :  1.00  
+##  1st Qu.:  0.90   1st Qu.: 0.29   1st Qu.:  5.00  
+##  Median :  1.75   Median : 0.89   Median :  9.00  
+##  Mean   :  3.32   Mean   : 2.11   Mean   : 10.99  
+##  3rd Qu.:  3.51   3rd Qu.: 2.24   3rd Qu.: 14.00  
+##  Max.   :192.00   Max.   :59.50   Max.   :221.00  
+##  NA's   :43863    NA's   :43863   NA's   :26443</code></pre>
 </div>
 </div>
 </div>
