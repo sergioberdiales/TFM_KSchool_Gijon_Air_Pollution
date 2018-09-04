@@ -162,9 +162,37 @@ $(document).ready(function () {
 <pre class="r"><code>library(openair) # http://davidcarslaw.github.io/openair/</code></pre>
 <pre><code>## Warning: package 'openair' was built under R version 3.5.1</code></pre>
 <p>First of all I have to check if I will have the basic data to make the analysis. I need air pollution and weather data of the Gijon area. The town hall of Gijon has an open data web portal here <a href="https://transparencia.gijon.es/" class="uri">https://transparencia.gijon.es/</a>. We can download pollution air data on several formats from year 2000 to 2017 here: <a href="https://transparencia.gijon.es/search/risp_dataset/page/1808-catalogo-de-datos?utf8=%E2%9C%93&amp;search=aire+&amp;search_sector">https://transparencia.gijon.es/search/risp_dataset/page/1808-catalogo-de-datos?utf8=%E2%9C%93&amp;search=aire+&amp;search_sector</a>=&amp;search_format=&amp;commit=Buscar&amp;authenticity_token=j8%2F3CvCuPcDkrRe%2F1NR5RBp0t%2FOOosiA7724w3T2mB4%3D</p>
-<p>I download the data of the year 2017 with csv format.</p>
-<p>I import the csv file to R in order to give a first lood to the data</p>
-<pre class="r"><code>air_data_2017 &lt;- read_csv('data/air_data_2017.csv', locale = locale(encoding = &quot;ISO-8859-1&quot;))</code></pre>
+<p>I downloaded 18 csv files with air pollution and weather data of Gijón from years 2000 to 2017. I saved them in the “data” folder. I downloaded two more files from this web, a csv file with the description of the variables and another csv file with information about the measuremente stations.</p>
+<pre class="r"><code>variables &lt;- read_csv('data/air_data_descriptors.csv', locale = locale(encoding = &quot;ISO-8859-1&quot;))</code></pre>
+<pre><code>## Parsed with column specification:
+## cols(
+##   Parametro = col_character(),
+##   `Descripción Parámetro` = col_character(),
+##   TAG = col_character(),
+##   Unidad = col_character()
+## )</code></pre>
+<pre class="r"><code>variables</code></pre>
+<pre><code>## # A tibble: 17 x 4
+##    Parametro `Descripción Parámetro`            TAG   Unidad
+##    &lt;chr&gt;     &lt;chr&gt;                              &lt;chr&gt; &lt;chr&gt; 
+##  1 BEN       Benceno                            BEN   µg/m³ 
+##  2 CO        Concentracion de CO                CO    mg/m³ 
+##  3 DD        Direccion del viento               DD    Grados
+##  4 HR        Humedad relativa                   HR    %hr   
+##  5 LL        Precipitacion                      LL    l/m²  
+##  6 MXIL      MXileno                            MXIL  µg/m³ 
+##  7 NO        Concentracion de NO                NO    µg/m³ 
+##  8 NO2       Concentracion de NO2               NO2   µg/m³ 
+##  9 O3        Concentracion de Ozono             O3    µg/m³ 
+## 10 PM10      Particulas en suspension &lt;10 µg/m³ PM10  µg/m³ 
+## 11 PM25      Particulas en Suspension PM 2,5    PM25  µg/m³ 
+## 12 PRB       Presion Atmosferica                PRB   mb    
+## 13 RS        Radiacion Solar                    RS    W/m²  
+## 14 SO2       Concentracion de SO2               SO2   µg/m³ 
+## 15 TMP       Temperatura Seca                   TMP   ºC    
+## 16 TOL       Tolueno                            TOL   µg/m³ 
+## 17 VV        Velocidad del viento               VV    m/s</code></pre>
+<pre class="r"><code>air_data &lt;- read_csv('data/air_data_2017.csv', locale = locale(encoding = &quot;ISO-8859-1&quot;))</code></pre>
 <pre><code>## Parsed with column specification:
 ## cols(
 ##   .default = col_integer(),
@@ -187,7 +215,7 @@ $(document).ready(function () {
 ## row # A tibble: 5 x 5 col     row col   expected               actual file                     expected   &lt;int&gt; &lt;chr&gt; &lt;chr&gt;                  &lt;chr&gt;  &lt;chr&gt;                    actual 1 35764 SO2   no trailing characters .3     'data/air_data_2017.csv' file 2 35764 NO    no trailing characters .1     'data/air_data_2017.csv' row 3 35764 NO2   no trailing characters .9     'data/air_data_2017.csv' col 4 35765 SO2   no trailing characters .6     'data/air_data_2017.csv' expected 5 35765 NO    no trailing characters .3     'data/air_data_2017.csv'
 ## ... ................. ... .................................................................... ........ .................................................................... ...... .................................................................... .... .................................................................... ... .................................................................... ... .................................................................... ........ ....................................................................
 ## See problems(...) for more details.</code></pre>
-<pre class="r"><code>head(air_data_2017)</code></pre>
+<pre class="r"><code>head(air_data)</code></pre>
 <pre><code>## # A tibble: 6 x 22
 ##   Estación Título   latitud longitud `Fecha Solar (UTC)`   SO2    NO   NO2
 ##      &lt;int&gt; &lt;chr&gt;      &lt;dbl&gt;    &lt;dbl&gt; &lt;dttm&gt;              &lt;int&gt; &lt;int&gt; &lt;int&gt;
@@ -200,7 +228,7 @@ $(document).ready(function () {
 ## # ... with 14 more variables: CO &lt;dbl&gt;, PM10 &lt;int&gt;, O3 &lt;int&gt;, dd &lt;int&gt;,
 ## #   vv &lt;dbl&gt;, TMP &lt;dbl&gt;, HR &lt;int&gt;, PRB &lt;int&gt;, RS &lt;int&gt;, LL &lt;dbl&gt;,
 ## #   BEN &lt;dbl&gt;, TOL &lt;dbl&gt;, MXIL &lt;dbl&gt;, PM25 &lt;int&gt;</code></pre>
-<pre class="r"><code>summary(air_data_2017)</code></pre>
+<pre class="r"><code>summary(air_data)</code></pre>
 <pre><code>##     Estación         Título             latitud         longitud     
 ##  Min.   : 1.000   Length:52560       Min.   :43.52   Min.   :-5.699  
 ##  1st Qu.: 2.000   Class :character   1st Qu.:43.52   1st Qu.:-5.691  
