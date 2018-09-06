@@ -34,6 +34,8 @@ Loading packages
 library(readr)
 library(dplyr)
 library(openair) # http://davidcarslaw.github.io/openair/
+library(purrr)
+library(lubridate)
 
 ```
 
@@ -52,13 +54,57 @@ variables
 
 
 ```{r }
-air_data <- read_csv('data/air_data_2017.csv', locale = locale(encoding = "ISO-8859-1"))
-head(air_data)
-```
+data_files <- list.files(path = "data", pattern = "air_data_20*")
+air_data_0 <- data_files %>% 
+    map(function(x) {
+        read_csv(paste0("./data/", x), locale = locale(encoding = "ISO-8859-1"))
+    }) %>%
+    reduce(rbind)
+
+air_data_1 <- air_data_0 %>% rename(station = `Estación`,
+                                    station_name = `Título`,
+                                    date_time_utc = `Fecha Solar (UTC)`)
+
+air_data_1$station <- as.factor(air_data_1$station)
+air_data_1$station_name <- as.factor(air_data_1$station_name)
+air_data_1$BEN <- as.numeric(air_data_1$BEN)
+air_data_1$TOL <- as.numeric(air_data_1$TOL)
+air_data_1$MXIL <- as.numeric(air_data_1$MXIL)
+air_data_1$PM25 <- as.numeric(air_data_1$PM25)
+
+summary(air_data_1)
+
+glimpse(air_data_1)
+
+  hist(air_data_1$SO2)
+air <- air_data_1 %>% filter(SO2 != '-9999')
+
+air_data_2 <- air_data_1 %>% mutate(SO2 = replace(SO2, SO2 < 0, NA),
+                                    NO = replace(NO, NO < 0, NA),
+                                    NO2 = replace(NO2, NO2 < 0, NA),
+                                    PM10 = replace(PM10, PM10 < 0, NA),
+                                    O3 = replace(03, 03 < 0, NA))
+
+summary(air_data_2)
+
+nas <- air_data_2 %>% 
+  group_by(station_name, year(date_time_utc)) %>%
+  select(everything()) %>%  
+  summarise_all(funs(sum(is.na(.))))
+
+nas_per <- air_data_2 %>% 
+  group_by(station_name, year(date_time_utc)) %>%
+  select(everything()) %>%  
+  summarise_all(funs(sum(is.na(.))/n()))
 
 
-```{r }
-summary(air_data)
+
+# air_data_2 <- map_df(data_files, read_csv,  "./data/", locale = locale(encoding = "ISO-8859-1"))
+
+
+
+
 ```
+
 
 
