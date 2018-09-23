@@ -30,7 +30,7 @@ I set the main goals of the project.
 #### Data gathering
 
 Loading packages
-```{r }
+```{r , warning= FALSE, message= FALSE}
 library(readr)
 library(dplyr)
 library(openair) # http://davidcarslaw.github.io/openair/
@@ -46,21 +46,31 @@ The town hall of Gijon has an open data web portal here https://transparencia.gi
 I downloaded 18 csv files with air pollution and weather data of Gijón from years 2000 to 2017. I saved them in the "data" folder.
 I downloaded two more files from this web, a csv file with the description of the variables and another csv file with information about the measuremente stations. 
 
-```{r }
+```{r warning= FALSE, message= FALSE}
 variables <- read_csv('data/air_data_descriptors.csv', locale = locale(encoding = "ISO-8859-1"))
 variables
 
 ```
 
+We create a file list, data_files, with the csv files downloaded previously. 
 
-```{r }
+```{r warning= FALSE, message= FALSE}
 data_files <- list.files(path = "data", pattern = "air_data_20*")
+```
+
+We map the function read_csv on this list in order to import every file and finally merge them in a unique dataframe (air_data_0) with reduce(rbind). 
+
+```{r warning= FALSE, message= FALSE}
 air_data_0 <- data_files %>% 
     map(function(x) {
-        read_csv(paste0("./data/", x), locale = locale(encoding = "ISO-8859-1"))
+        read_csv(paste0("./data/", x), locale = locale(encoding = "ISO-8859-1"), col_types = cols(.default = "c"))
     }) %>%
     reduce(rbind)
+```
 
+We make some changes to the names and formats of the variables
+
+```{r warning= FALSE, message= FALSE}
 air_data_1 <- air_data_0 %>% rename(station = `Estación`,
                                     station_name = `Título`,
                                     date_time_utc = `Fecha Solar (UTC)`)
@@ -74,10 +84,6 @@ air_data_1$PM25 <- as.numeric(air_data_1$PM25)
 
 summary(air_data_1)
 
-glimpse(air_data_1)
-
-  hist(air_data_1$SO2)
-air <- air_data_1 %>% filter(SO2 != '-9999')
 
 air_data_2 <- air_data_1 %>% mutate(SO2 = replace(SO2, SO2 < 0, NA),
                                     NO = replace(NO, NO < 0, NA),
@@ -93,7 +99,7 @@ nas <- air_data_2 %>%
   summarise_all(funs(sum(is.na(.))))
 
 nas_per <- air_data_2 %>% 
-  group_by(station_name, station year(date_time_utc)) %>%
+  group_by(station_name, station, year(date_time_utc)) %>%
   select(everything()) %>%  
   summarise_all(funs(round(sum(is.na(.))/n(), 2)))
 
