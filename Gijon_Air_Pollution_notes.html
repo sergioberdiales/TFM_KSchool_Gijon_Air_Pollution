@@ -161,6 +161,14 @@ $(document).ready(function () {
 ##     intersect, setdiff, setequal, union</code></pre>
 <pre class="r"><code>library(openair) # http://davidcarslaw.github.io/openair/</code></pre>
 <pre><code>## Warning: package 'openair' was built under R version 3.5.1</code></pre>
+<pre class="r"><code>library(purrr)
+library(lubridate)</code></pre>
+<pre><code>## Warning: package 'lubridate' was built under R version 3.5.1</code></pre>
+<pre><code>## 
+## Attaching package: 'lubridate'</code></pre>
+<pre><code>## The following object is masked from 'package:base':
+## 
+##     date</code></pre>
 <p>First of all I have to check if I will have the basic data to make the analysis. I need air pollution and weather data of the Gijon area. The town hall of Gijon has an open data web portal here <a href="https://transparencia.gijon.es/" class="uri">https://transparencia.gijon.es/</a>. We can download pollution air data on several formats from year 2000 to 2017 here: <a href="https://transparencia.gijon.es/search/risp_dataset/page/1808-catalogo-de-datos?utf8=%E2%9C%93&amp;search=aire+&amp;search_sector">https://transparencia.gijon.es/search/risp_dataset/page/1808-catalogo-de-datos?utf8=%E2%9C%93&amp;search=aire+&amp;search_sector</a>=&amp;search_format=&amp;commit=Buscar&amp;authenticity_token=j8%2F3CvCuPcDkrRe%2F1NR5RBp0t%2FOOosiA7724w3T2mB4%3D</p>
 <p>I downloaded 18 csv files with air pollution and weather data of Gijón from years 2000 to 2017. I saved them in the “data” folder. I downloaded two more files from this web, a csv file with the description of the variables and another csv file with information about the measuremente stations.</p>
 <pre class="r"><code>variables &lt;- read_csv('data/air_data_descriptors.csv', locale = locale(encoding = &quot;ISO-8859-1&quot;))</code></pre>
@@ -192,7 +200,331 @@ $(document).ready(function () {
 ## 15 TMP       Temperatura Seca                   TMP   ºC    
 ## 16 TOL       Tolueno                            TOL   µg/m³ 
 ## 17 VV        Velocidad del viento               VV    m/s</code></pre>
-<pre class="r"><code>air_data &lt;- read_csv('data/air_data_2017.csv', locale = locale(encoding = &quot;ISO-8859-1&quot;))</code></pre>
+<pre class="r"><code>data_files &lt;- list.files(path = &quot;data&quot;, pattern = &quot;air_data_20*&quot;)
+air_data_0 &lt;- data_files %&gt;% 
+    map(function(x) {
+        read_csv(paste0(&quot;./data/&quot;, x), locale = locale(encoding = &quot;ISO-8859-1&quot;))
+    }) %&gt;%
+    reduce(rbind)</code></pre>
+<pre><code>## Parsed with column specification:
+## cols(
+##   .default = col_integer(),
+##   Título = col_character(),
+##   latitud = col_double(),
+##   longitud = col_double(),
+##   `Fecha Solar (UTC)` = col_datetime(format = &quot;&quot;),
+##   CO = col_double(),
+##   vv = col_double(),
+##   TMP = col_double(),
+##   BEN = col_character(),
+##   TOL = col_character(),
+##   MXIL = col_character(),
+##   PM25 = col_character()
+## )</code></pre>
+<pre><code>## See spec(...) for full column specifications.</code></pre>
+<pre><code>## Warning in rbind(names(probs), probs_f): number of columns of result is not
+## a multiple of vector length (arg 1)</code></pre>
+<pre><code>## Warning: 621 parsing failures.
+## row # A tibble: 5 x 5 col     row col   expected               actual file                       expected   &lt;int&gt; &lt;chr&gt; &lt;chr&gt;                  &lt;chr&gt;  &lt;chr&gt;                      actual 1  1432 LL    no trailing characters .2     './data/air_data_2000.csv' file 2  1434 LL    no trailing characters .1     './data/air_data_2000.csv' row 3  1448 LL    no trailing characters .1     './data/air_data_2000.csv' col 4  1451 LL    no trailing characters .1     './data/air_data_2000.csv' expected 5  1452 LL    no trailing characters .2     './data/air_data_2000.csv'
+## ... ................. ... ...................................................................... ........ ...................................................................... ...... ...................................................................... .... ...................................................................... ... ...................................................................... ... ...................................................................... ........ ......................................................................
+## See problems(...) for more details.</code></pre>
+<pre><code>## Parsed with column specification:
+## cols(
+##   .default = col_integer(),
+##   Título = col_character(),
+##   latitud = col_double(),
+##   longitud = col_double(),
+##   `Fecha Solar (UTC)` = col_datetime(format = &quot;&quot;),
+##   CO = col_double(),
+##   vv = col_double(),
+##   TMP = col_double(),
+##   LL = col_double(),
+##   BEN = col_character(),
+##   TOL = col_character(),
+##   MXIL = col_character(),
+##   PM25 = col_character()
+## )
+## See spec(...) for full column specifications.</code></pre>
+<pre><code>## Parsed with column specification:
+## cols(
+##   .default = col_integer(),
+##   Título = col_character(),
+##   latitud = col_double(),
+##   longitud = col_double(),
+##   `Fecha Solar (UTC)` = col_datetime(format = &quot;&quot;),
+##   CO = col_double(),
+##   vv = col_double(),
+##   TMP = col_double(),
+##   LL = col_double(),
+##   BEN = col_character(),
+##   TOL = col_character(),
+##   MXIL = col_character(),
+##   PM25 = col_character()
+## )</code></pre>
+<pre><code>## See spec(...) for full column specifications.</code></pre>
+<pre><code>## Parsed with column specification:
+## cols(
+##   .default = col_integer(),
+##   Título = col_character(),
+##   latitud = col_double(),
+##   longitud = col_double(),
+##   `Fecha Solar (UTC)` = col_datetime(format = &quot;&quot;),
+##   CO = col_double(),
+##   vv = col_double(),
+##   TMP = col_double(),
+##   LL = col_double(),
+##   BEN = col_character(),
+##   TOL = col_character(),
+##   MXIL = col_character(),
+##   PM25 = col_character()
+## )</code></pre>
+<pre><code>## See spec(...) for full column specifications.</code></pre>
+<pre><code>## Parsed with column specification:
+## cols(
+##   .default = col_integer(),
+##   Título = col_character(),
+##   latitud = col_double(),
+##   longitud = col_double(),
+##   `Fecha Solar (UTC)` = col_datetime(format = &quot;&quot;),
+##   CO = col_double(),
+##   vv = col_double(),
+##   TMP = col_double(),
+##   LL = col_double(),
+##   BEN = col_character(),
+##   TOL = col_character(),
+##   MXIL = col_character(),
+##   PM25 = col_character()
+## )</code></pre>
+<pre><code>## See spec(...) for full column specifications.</code></pre>
+<pre><code>## Parsed with column specification:
+## cols(
+##   .default = col_integer(),
+##   Título = col_character(),
+##   latitud = col_double(),
+##   longitud = col_double(),
+##   `Fecha Solar (UTC)` = col_datetime(format = &quot;&quot;),
+##   CO = col_double(),
+##   vv = col_double(),
+##   TMP = col_double(),
+##   LL = col_double(),
+##   BEN = col_character(),
+##   TOL = col_character(),
+##   MXIL = col_character(),
+##   PM25 = col_character()
+## )</code></pre>
+<pre><code>## See spec(...) for full column specifications.</code></pre>
+<pre><code>## Parsed with column specification:
+## cols(
+##   .default = col_integer(),
+##   Título = col_character(),
+##   latitud = col_double(),
+##   longitud = col_double(),
+##   `Fecha Solar (UTC)` = col_datetime(format = &quot;&quot;),
+##   CO = col_double(),
+##   vv = col_double(),
+##   TMP = col_double(),
+##   LL = col_double(),
+##   BEN = col_character(),
+##   TOL = col_character(),
+##   MXIL = col_character(),
+##   PM25 = col_character()
+## )</code></pre>
+<pre><code>## See spec(...) for full column specifications.</code></pre>
+<pre><code>## Warning in rbind(names(probs), probs_f): number of columns of result is not
+## a multiple of vector length (arg 1)</code></pre>
+<pre><code>## Warning: 6693 parsing failures.
+## row # A tibble: 5 x 5 col     row col   expected               actual file                       expected   &lt;int&gt; &lt;chr&gt; &lt;chr&gt;                  &lt;chr&gt;  &lt;chr&gt;                      actual 1  7274 PRB   no trailing characters .26    './data/air_data_2006.csv' file 2  7275 PRB   no trailing characters .8     './data/air_data_2006.csv' row 3  7276 PRB   no trailing characters .09    './data/air_data_2006.csv' col 4  7277 PRB   no trailing characters .29    './data/air_data_2006.csv' expected 5  7278 PRB   no trailing characters .52    './data/air_data_2006.csv'
+## ... ................. ... ...................................................................... ........ ...................................................................... ...... ...................................................................... .... ...................................................................... ... ...................................................................... ... ...................................................................... ........ ......................................................................
+## See problems(...) for more details.</code></pre>
+<pre><code>## Parsed with column specification:
+## cols(
+##   .default = col_double(),
+##   Estación = col_integer(),
+##   Título = col_character(),
+##   `Fecha Solar (UTC)` = col_datetime(format = &quot;&quot;),
+##   SO2 = col_integer(),
+##   NO = col_integer(),
+##   NO2 = col_integer(),
+##   PM10 = col_integer(),
+##   O3 = col_integer(),
+##   dd = col_integer(),
+##   HR = col_integer(),
+##   RS = col_integer(),
+##   PM25 = col_character()
+## )
+## See spec(...) for full column specifications.</code></pre>
+<pre><code>## Warning in rbind(names(probs), probs_f): number of columns of result is not
+## a multiple of vector length (arg 1)</code></pre>
+<pre><code>## Warning: 31239 parsing failures.
+## row # A tibble: 5 x 5 col     row col   expected               actual file                       expected   &lt;int&gt; &lt;chr&gt; &lt;chr&gt;                  &lt;chr&gt;  &lt;chr&gt;                      actual 1 26173 SO2   no trailing characters .9     './data/air_data_2007.csv' file 2 26173 NO2   no trailing characters .6     './data/air_data_2007.csv' row 3 26173 O3    no trailing characters .6     './data/air_data_2007.csv' col 4 26174 SO2   no trailing characters .1     './data/air_data_2007.csv' expected 5 26174 NO    no trailing characters .9     './data/air_data_2007.csv'
+## ... ................. ... ...................................................................... ........ ...................................................................... ...... ...................................................................... .... ...................................................................... ... ...................................................................... ... ...................................................................... ........ ......................................................................
+## See problems(...) for more details.</code></pre>
+<pre><code>## Parsed with column specification:
+## cols(
+##   .default = col_double(),
+##   Estación = col_integer(),
+##   Título = col_character(),
+##   `Fecha Solar (UTC)` = col_datetime(format = &quot;&quot;),
+##   SO2 = col_integer(),
+##   NO = col_integer(),
+##   NO2 = col_integer(),
+##   PM10 = col_integer(),
+##   O3 = col_integer(),
+##   dd = col_integer(),
+##   HR = col_integer(),
+##   RS = col_integer(),
+##   PM25 = col_character()
+## )
+## See spec(...) for full column specifications.</code></pre>
+<pre><code>## Warning in rbind(names(probs), probs_f): number of columns of result is not
+## a multiple of vector length (arg 1)</code></pre>
+<pre><code>## Warning: 26531 parsing failures.
+## row # A tibble: 5 x 5 col     row col   expected               actual file                       expected   &lt;int&gt; &lt;chr&gt; &lt;chr&gt;                  &lt;chr&gt;  &lt;chr&gt;                      actual 1 26353 NO    no trailing characters .7     './data/air_data_2008.csv' file 2 26353 NO2   no trailing characters .8     './data/air_data_2008.csv' row 3 26353 O3    no trailing characters .7     './data/air_data_2008.csv' col 4 26354 SO2   no trailing characters .3     './data/air_data_2008.csv' expected 5 26354 NO    no trailing characters .5     './data/air_data_2008.csv'
+## ... ................. ... ...................................................................... ........ ...................................................................... ...... ...................................................................... .... ...................................................................... ... ...................................................................... ... ...................................................................... ........ ......................................................................
+## See problems(...) for more details.</code></pre>
+<pre><code>## Parsed with column specification:
+## cols(
+##   .default = col_double(),
+##   Estación = col_integer(),
+##   Título = col_character(),
+##   `Fecha Solar (UTC)` = col_datetime(format = &quot;&quot;),
+##   SO2 = col_integer(),
+##   NO = col_integer(),
+##   NO2 = col_integer(),
+##   PM10 = col_integer(),
+##   O3 = col_integer(),
+##   dd = col_integer(),
+##   HR = col_integer(),
+##   RS = col_integer(),
+##   PM25 = col_integer()
+## )
+## See spec(...) for full column specifications.</code></pre>
+<pre><code>## Warning in rbind(names(probs), probs_f): number of columns of result is not
+## a multiple of vector length (arg 1)</code></pre>
+<pre><code>## Warning: 31152 parsing failures.
+## row # A tibble: 5 x 5 col     row col   expected               actual file                       expected   &lt;int&gt; &lt;chr&gt; &lt;chr&gt;                  &lt;chr&gt;  &lt;chr&gt;                      actual 1 30783 SO2   no trailing characters .2     './data/air_data_2009.csv' file 2 30783 NO    no trailing characters .2     './data/air_data_2009.csv' row 3 30783 NO2   no trailing characters .7     './data/air_data_2009.csv' col 4 30783 O3    no trailing characters .1     './data/air_data_2009.csv' expected 5 30784 NO2   no trailing characters .3     './data/air_data_2009.csv'
+## ... ................. ... ...................................................................... ........ ...................................................................... ...... ...................................................................... .... ...................................................................... ... ...................................................................... ... ...................................................................... ........ ......................................................................
+## See problems(...) for more details.</code></pre>
+<pre><code>## Parsed with column specification:
+## cols(
+##   .default = col_integer(),
+##   Título = col_character(),
+##   latitud = col_double(),
+##   longitud = col_double(),
+##   `Fecha Solar (UTC)` = col_datetime(format = &quot;&quot;),
+##   CO = col_double(),
+##   vv = col_double(),
+##   TMP = col_double(),
+##   LL = col_double(),
+##   BEN = col_double(),
+##   TOL = col_double(),
+##   MXIL = col_double()
+## )
+## See spec(...) for full column specifications.</code></pre>
+<pre><code>## Warning in rbind(names(probs), probs_f): number of columns of result is not
+## a multiple of vector length (arg 1)</code></pre>
+<pre><code>## Warning: 23797 parsing failures.
+## row # A tibble: 5 x 5 col     row col   expected               actual file                       expected   &lt;int&gt; &lt;chr&gt; &lt;chr&gt;                  &lt;chr&gt;  &lt;chr&gt;                      actual 1 35041 SO2   no trailing characters .9     './data/air_data_2010.csv' file 2 35041 NO    no trailing characters .2     './data/air_data_2010.csv' row 3 35041 NO2   no trailing characters .2     './data/air_data_2010.csv' col 4 35041 O3    no trailing characters .1     './data/air_data_2010.csv' expected 5 35042 SO2   no trailing characters .4     './data/air_data_2010.csv'
+## ... ................. ... ...................................................................... ........ ...................................................................... ...... ...................................................................... .... ...................................................................... ... ...................................................................... ... ...................................................................... ........ ......................................................................
+## See problems(...) for more details.</code></pre>
+<pre><code>## Parsed with column specification:
+## cols(
+##   .default = col_integer(),
+##   Título = col_character(),
+##   latitud = col_double(),
+##   longitud = col_double(),
+##   `Fecha Solar (UTC)` = col_datetime(format = &quot;&quot;),
+##   CO = col_double(),
+##   vv = col_double(),
+##   TMP = col_double(),
+##   LL = col_double(),
+##   BEN = col_double(),
+##   TOL = col_double(),
+##   MXIL = col_double()
+## )
+## See spec(...) for full column specifications.</code></pre>
+<pre><code>## Warning in rbind(names(probs), probs_f): number of columns of result is not
+## a multiple of vector length (arg 1)</code></pre>
+<pre><code>## Warning: 22310 parsing failures.
+## row # A tibble: 5 x 5 col     row col   expected               actual file                       expected   &lt;int&gt; &lt;chr&gt; &lt;chr&gt;                  &lt;chr&gt;  &lt;chr&gt;                      actual 1 35041 NO    no trailing characters .1     './data/air_data_2011.csv' file 2 35041 NO2   no trailing characters .9     './data/air_data_2011.csv' row 3 35041 O3    no trailing characters .1     './data/air_data_2011.csv' col 4 35042 SO2   no trailing characters .8     './data/air_data_2011.csv' expected 5 35042 NO    no trailing characters .7     './data/air_data_2011.csv'
+## ... ................. ... ...................................................................... ........ ...................................................................... ...... ...................................................................... .... ...................................................................... ... ...................................................................... ... ...................................................................... ........ ......................................................................
+## See problems(...) for more details.</code></pre>
+<pre><code>## Parsed with column specification:
+## cols(
+##   .default = col_integer(),
+##   Título = col_character(),
+##   latitud = col_double(),
+##   longitud = col_double(),
+##   `Fecha Solar (UTC)` = col_datetime(format = &quot;&quot;),
+##   CO = col_double(),
+##   vv = col_double(),
+##   TMP = col_double(),
+##   LL = col_double(),
+##   BEN = col_double(),
+##   TOL = col_double(),
+##   MXIL = col_double()
+## )
+## See spec(...) for full column specifications.</code></pre>
+<pre><code>## Warning in rbind(names(probs), probs_f): number of columns of result is not
+## a multiple of vector length (arg 1)</code></pre>
+<pre><code>## Warning: 27781 parsing failures.
+## row # A tibble: 5 x 5 col     row col   expected               actual file                       expected   &lt;int&gt; &lt;chr&gt; &lt;chr&gt;                  &lt;chr&gt;  &lt;chr&gt;                      actual 1 35137 SO2   no trailing characters .7     './data/air_data_2012.csv' file 2 35137 NO    no trailing characters .9     './data/air_data_2012.csv' row 3 35137 NO2   no trailing characters .8     './data/air_data_2012.csv' col 4 35138 SO2   no trailing characters .2     './data/air_data_2012.csv' expected 5 35138 NO2   no trailing characters .5     './data/air_data_2012.csv'
+## ... ................. ... ...................................................................... ........ ...................................................................... ...... ...................................................................... .... ...................................................................... ... ...................................................................... ... ...................................................................... ........ ......................................................................
+## See problems(...) for more details.</code></pre>
+<pre><code>## Parsed with column specification:
+## cols(
+##   .default = col_integer(),
+##   Título = col_character(),
+##   latitud = col_double(),
+##   longitud = col_double(),
+##   `Fecha Solar (UTC)` = col_datetime(format = &quot;&quot;),
+##   CO = col_double(),
+##   vv = col_double(),
+##   TMP = col_double(),
+##   LL = col_double(),
+##   BEN = col_double(),
+##   TOL = col_double(),
+##   MXIL = col_double()
+## )
+## See spec(...) for full column specifications.</code></pre>
+<pre><code>## Warning in rbind(names(probs), probs_f): number of columns of result is not
+## a multiple of vector length (arg 1)</code></pre>
+<pre><code>## Warning: 19727 parsing failures.
+## row # A tibble: 5 x 5 col     row col   expected               actual file                       expected   &lt;int&gt; &lt;chr&gt; &lt;chr&gt;                  &lt;chr&gt;  &lt;chr&gt;                      actual 1 35041 SO2   no trailing characters .1     './data/air_data_2013.csv' file 2 35041 NO2   no trailing characters .3     './data/air_data_2013.csv' row 3 35041 O3    no trailing characters .4     './data/air_data_2013.csv' col 4 35042 NO    no trailing characters .9     './data/air_data_2013.csv' expected 5 35042 NO2   no trailing characters .3     './data/air_data_2013.csv'
+## ... ................. ... ...................................................................... ........ ...................................................................... ...... ...................................................................... .... ...................................................................... ... ...................................................................... ... ...................................................................... ........ ......................................................................
+## See problems(...) for more details.</code></pre>
+<pre><code>## Parsed with column specification:
+## cols(
+##   .default = col_integer(),
+##   Título = col_character(),
+##   latitud = col_double(),
+##   longitud = col_double(),
+##   `Fecha Solar (UTC)` = col_datetime(format = &quot;&quot;),
+##   CO = col_double(),
+##   vv = col_double(),
+##   TMP = col_double(),
+##   LL = col_double(),
+##   BEN = col_double(),
+##   TOL = col_double(),
+##   MXIL = col_double()
+## )
+## See spec(...) for full column specifications.</code></pre>
+<pre><code>## Parsed with column specification:
+## cols(
+##   .default = col_integer(),
+##   Título = col_character(),
+##   latitud = col_double(),
+##   longitud = col_double(),
+##   `Fecha Solar (UTC)` = col_datetime(format = &quot;&quot;),
+##   CO = col_double(),
+##   vv = col_double(),
+##   TMP = col_double(),
+##   LL = col_double(),
+##   BEN = col_double(),
+##   TOL = col_double(),
+##   MXIL = col_double()
+## )</code></pre>
+<pre><code>## See spec(...) for full column specifications.</code></pre>
 <pre><code>## Parsed with column specification:
 ## cols(
 ##   .default = col_integer(),
@@ -211,72 +543,189 @@ $(document).ready(function () {
 <pre><code>## See spec(...) for full column specifications.</code></pre>
 <pre><code>## Warning in rbind(names(probs), probs_f): number of columns of result is not
 ## a multiple of vector length (arg 1)</code></pre>
-<pre><code>## Warning: 573 parsing failures.
-## row # A tibble: 5 x 5 col     row col   expected               actual file                     expected   &lt;int&gt; &lt;chr&gt; &lt;chr&gt;                  &lt;chr&gt;  &lt;chr&gt;                    actual 1 35764 SO2   no trailing characters .3     'data/air_data_2017.csv' file 2 35764 NO    no trailing characters .1     'data/air_data_2017.csv' row 3 35764 NO2   no trailing characters .9     'data/air_data_2017.csv' col 4 35765 SO2   no trailing characters .6     'data/air_data_2017.csv' expected 5 35765 NO    no trailing characters .3     'data/air_data_2017.csv'
-## ... ................. ... .................................................................... ........ .................................................................... ...... .................................................................... .... .................................................................... ... .................................................................... ... .................................................................... ........ ....................................................................
+<pre><code>## Warning: 964 parsing failures.
+## row # A tibble: 5 x 5 col     row col   expected               actual file                       expected   &lt;int&gt; &lt;chr&gt; &lt;chr&gt;                  &lt;chr&gt;  &lt;chr&gt;                      actual 1 36557 SO2   no trailing characters .5     './data/air_data_2016.csv' file 2 36557 NO    no trailing characters .8     './data/air_data_2016.csv' row 3 36557 O3    no trailing characters .6     './data/air_data_2016.csv' col 4 36558 SO2   no trailing characters .8     './data/air_data_2016.csv' expected 5 36558 NO2   no trailing characters .8     './data/air_data_2016.csv'
+## ... ................. ... ...................................................................... ........ ...................................................................... ...... ...................................................................... .... ...................................................................... ... ...................................................................... ... ...................................................................... ........ ......................................................................
 ## See problems(...) for more details.</code></pre>
-<pre class="r"><code>head(air_data)</code></pre>
-<pre><code>## # A tibble: 6 x 22
-##   Estación Título   latitud longitud `Fecha Solar (UTC)`   SO2    NO   NO2
-##      &lt;int&gt; &lt;chr&gt;      &lt;dbl&gt;    &lt;dbl&gt; &lt;dttm&gt;              &lt;int&gt; &lt;int&gt; &lt;int&gt;
-## 1        1 Estació~    43.5    -5.67 2017-01-01 01:00:00     3    51    44
-## 2        1 Estació~    43.5    -5.67 2017-01-01 02:00:00     5    36    41
-## 3        1 Estació~    43.5    -5.67 2017-01-01 03:00:00     7    32    40
-## 4        1 Estació~    43.5    -5.67 2017-01-01 04:00:00     8    24    39
-## 5        1 Estació~    43.5    -5.67 2017-01-01 05:00:00    10    22    37
-## 6        1 Estació~    43.5    -5.67 2017-01-01 06:00:00    13    25    40
-## # ... with 14 more variables: CO &lt;dbl&gt;, PM10 &lt;int&gt;, O3 &lt;int&gt;, dd &lt;int&gt;,
-## #   vv &lt;dbl&gt;, TMP &lt;dbl&gt;, HR &lt;int&gt;, PRB &lt;int&gt;, RS &lt;int&gt;, LL &lt;dbl&gt;,
-## #   BEN &lt;dbl&gt;, TOL &lt;dbl&gt;, MXIL &lt;dbl&gt;, PM25 &lt;int&gt;</code></pre>
-<pre class="r"><code>summary(air_data)</code></pre>
-<pre><code>##     Estación         Título             latitud         longitud     
-##  Min.   : 1.000   Length:52560       Min.   :43.52   Min.   :-5.699  
-##  1st Qu.: 2.000   Class :character   1st Qu.:43.52   1st Qu.:-5.691  
-##  Median : 3.500   Mode  :character   Median :43.53   Median :-5.673  
-##  Mean   : 5.167                      Mean   :43.53   Mean   :-5.673  
-##  3rd Qu.:10.000                      3rd Qu.:43.54   3rd Qu.:-5.658  
-##  Max.   :11.000                      Max.   :43.54   Max.   :-5.646  
-##                                                                      
-##  Fecha Solar (UTC)                  SO2                NO        
-##  Min.   :2017-01-01 01:00:00   Min.   :  1.000   Min.   :  1.00  
-##  1st Qu.:2017-04-02 06:45:00   1st Qu.:  3.000   1st Qu.:  3.00  
-##  Median :2017-07-02 12:30:00   Median :  5.000   Median :  6.00  
-##  Mean   :2017-07-02 12:30:00   Mean   :  6.393   Mean   : 13.14  
-##  3rd Qu.:2017-10-01 18:15:00   3rd Qu.:  8.000   3rd Qu.: 13.00  
-##  Max.   :2018-01-01 00:00:00   Max.   :122.000   Max.   :452.00  
-##                                NA's   :9457      NA's   :665     
-##       NO2               CO             PM10             O3        
-##  Min.   :  1.00   Min.   :0.080   Min.   :  0.0   Min.   :  0.00  
-##  1st Qu.: 12.00   1st Qu.:0.230   1st Qu.: 14.0   1st Qu.: 18.00  
-##  Median : 20.00   Median :0.330   Median : 21.0   Median : 40.00  
-##  Mean   : 24.54   Mean   :0.439   Mean   : 24.2   Mean   : 39.97  
-##  3rd Qu.: 33.00   3rd Qu.:0.550   3rd Qu.: 30.0   3rd Qu.: 59.00  
-##  Max.   :261.00   Max.   :9.560   Max.   :325.0   Max.   :187.00  
-##  NA's   :709      NA's   :9151    NA's   :9096    NA's   :9485    
-##        dd              vv             TMP              HR        
-##  Min.   :  0.0   Min.   : 0.00   Min.   :-40.0   Min.   :  0.00  
-##  1st Qu.:145.0   1st Qu.: 0.16   1st Qu.: 11.4   1st Qu.: 66.00  
-##  Median :205.0   Median : 0.57   Median : 15.1   Median : 78.00  
-##  Mean   :206.8   Mean   : 0.92   Mean   : 14.9   Mean   : 76.73  
-##  3rd Qu.:305.8   3rd Qu.: 1.27   3rd Qu.: 18.8   3rd Qu.: 89.00  
-##  Max.   :360.0   Max.   :29.75   Max.   : 33.7   Max.   :100.00  
-##  NA's   :35094   NA's   :35094   NA's   :35097   NA's   :35097   
-##       PRB              RS              LL             BEN       
-##  Min.   : 800    Min.   :  0.0   Min.   : 0.00   Min.   : 0.02  
-##  1st Qu.:1013    1st Qu.:  9.0   1st Qu.: 0.00   1st Qu.: 0.19  
-##  Median :1017    Median : 55.0   Median : 0.00   Median : 0.36  
-##  Mean   :1017    Mean   :146.7   Mean   : 0.09   Mean   : 0.55  
-##  3rd Qu.:1022    3rd Qu.:191.0   3rd Qu.: 0.00   3rd Qu.: 0.70  
-##  Max.   :1040    Max.   :831.0   Max.   :13.00   Max.   :10.20  
-##  NA's   :35097   NA's   :35097   NA's   :35097   NA's   :43863  
-##       TOL              MXIL            PM25       
-##  Min.   :  0.00   Min.   : 0.00   Min.   :  1.00  
-##  1st Qu.:  0.90   1st Qu.: 0.29   1st Qu.:  5.00  
-##  Median :  1.75   Median : 0.89   Median :  9.00  
-##  Mean   :  3.32   Mean   : 2.11   Mean   : 10.99  
-##  3rd Qu.:  3.51   3rd Qu.: 2.24   3rd Qu.: 14.00  
-##  Max.   :192.00   Max.   :59.50   Max.   :221.00  
-##  NA's   :43863    NA's   :43863   NA's   :26443</code></pre>
+<pre><code>## Parsed with column specification:
+## cols(
+##   .default = col_integer(),
+##   Título = col_character(),
+##   latitud = col_double(),
+##   longitud = col_double(),
+##   `Fecha Solar (UTC)` = col_datetime(format = &quot;&quot;),
+##   CO = col_double(),
+##   vv = col_double(),
+##   TMP = col_double(),
+##   LL = col_double(),
+##   BEN = col_double(),
+##   TOL = col_double(),
+##   MXIL = col_double()
+## )
+## See spec(...) for full column specifications.</code></pre>
+<pre><code>## Warning in rbind(names(probs), probs_f): number of columns of result is not
+## a multiple of vector length (arg 1)</code></pre>
+<pre><code>## Warning: 573 parsing failures.
+## row # A tibble: 5 x 5 col     row col   expected               actual file                       expected   &lt;int&gt; &lt;chr&gt; &lt;chr&gt;                  &lt;chr&gt;  &lt;chr&gt;                      actual 1 35764 SO2   no trailing characters .3     './data/air_data_2017.csv' file 2 35764 NO    no trailing characters .1     './data/air_data_2017.csv' row 3 35764 NO2   no trailing characters .9     './data/air_data_2017.csv' col 4 35765 SO2   no trailing characters .6     './data/air_data_2017.csv' expected 5 35765 NO    no trailing characters .3     './data/air_data_2017.csv'
+## ... ................. ... ...................................................................... ........ ...................................................................... ...... ...................................................................... .... ...................................................................... ... ...................................................................... ... ...................................................................... ........ ......................................................................
+## See problems(...) for more details.</code></pre>
+<pre class="r"><code>air_data_1 &lt;- air_data_0 %&gt;% rename(station = `Estación`,
+                                    station_name = `Título`,
+                                    date_time_utc = `Fecha Solar (UTC)`)
+
+air_data_1$station &lt;- as.factor(air_data_1$station)
+air_data_1$station_name &lt;- as.factor(air_data_1$station_name)
+air_data_1$BEN &lt;- as.numeric(air_data_1$BEN)
+air_data_1$TOL &lt;- as.numeric(air_data_1$TOL)
+air_data_1$MXIL &lt;- as.numeric(air_data_1$MXIL)
+air_data_1$PM25 &lt;- as.numeric(air_data_1$PM25)
+
+summary(air_data_1)</code></pre>
+<pre><code>##  station                                   station_name       latitud     
+##  1 :157727   Estación Avenida Argentina          :157798   Min.   :43.52  
+##  2 :157798   Estación Avenida Castilla           :157409   1st Qu.:43.53  
+##  3 :157666   Estación Avenida Constitución       :157727   Median :43.54  
+##  4 :157409   Estación Avenida Hermanos Felgueroso:157666   Mean   :43.53  
+##  10: 74630   Estación de Montevil                : 74630   3rd Qu.:43.54  
+##  11: 17544   Estación Santa Bárbara              : 17544   Max.   :43.54  
+##                                                                           
+##     longitud      date_time_utc                      SO2          
+##  Min.   :-5.699   Min.   :2000-01-01 00:00:00   Min.   :-9999.00  
+##  1st Qu.:-5.673   1st Qu.:2005-02-25 05:00:00   1st Qu.:    4.00  
+##  Median :-5.672   Median :2010-02-23 11:00:00   Median :    6.00  
+##  Mean   :-5.670   Mean   :2009-09-06 07:33:13   Mean   :    9.95  
+##  3rd Qu.:-5.658   3rd Qu.:2014-04-09 06:00:00   3rd Qu.:   11.00  
+##  Max.   :-5.646   Max.   :2018-01-01 00:00:00   Max.   : 2662.00  
+##                                                 NA's   :79420     
+##        NO                NO2                 CO             PM10         
+##  Min.   :-9999.00   Min.   :-9999.00   Min.   : 0.00   Min.   :-9999.00  
+##  1st Qu.:    4.00   1st Qu.:   16.00   1st Qu.: 0.22   1st Qu.:   19.00  
+##  Median :   10.00   Median :   28.00   Median : 0.36   Median :   30.00  
+##  Mean   :   21.71   Mean   :   32.25   Mean   : 0.49   Mean   :   35.88  
+##  3rd Qu.:   24.00   3rd Qu.:   45.00   3rd Qu.: 0.59   3rd Qu.:   46.00  
+##  Max.   : 1248.00   Max.   :  956.00   Max.   :58.20   Max.   : 1000.00  
+##  NA's   :64633      NA's   :64496      NA's   :90390   NA's   :88598     
+##        O3                 dd               vv              TMP        
+##  Min.   :-9999.00   Min.   :  0.0    Min.   : 0.0     Min.   :-40.0   
+##  1st Qu.:   17.00   1st Qu.: 96.0    1st Qu.: 0.2     1st Qu.: 10.9   
+##  Median :   37.00   Median :159.0    Median : 0.7     Median : 14.7   
+##  Mean   :   38.96   Mean   :161.8    Mean   : 1.0     Mean   : 14.6   
+##  3rd Qu.:   57.00   3rd Qu.:228.0    3rd Qu.: 1.5     3rd Qu.: 18.4   
+##  Max.   :  998.00   Max.   :360.0    Max.   :29.8     Max.   : 47.4   
+##  NA's   :79438      NA's   :494134   NA's   :493893   NA's   :494151  
+##        HR              PRB               RS               LL        
+##  Min.   :  0.0    Min.   : 800     Min.   :  -1.0   Min.   : 0.0    
+##  1st Qu.: 69.0    1st Qu.:1007     1st Qu.:  17.0   1st Qu.: 0.0    
+##  Median : 80.0    Median :1013     Median :  46.0   Median : 0.0    
+##  Mean   : 78.3    Mean   :1012     Mean   : 125.2   Mean   : 0.1    
+##  3rd Qu.: 89.0    3rd Qu.:1018     3rd Qu.: 149.0   3rd Qu.: 0.0    
+##  Max.   :123.0    Max.   :1282     Max.   :1470.0   Max.   :24.6    
+##  NA's   :494176   NA's   :495393   NA's   :494273   NA's   :494745  
+##       BEN              TOL              MXIL             PM25       
+##  Min.   : 0.0     Min.   : -0.2    Min.   : -0.3    Min.   :  0.0   
+##  1st Qu.: 0.1     1st Qu.:  0.4    1st Qu.:  0.2    1st Qu.:  5.0   
+##  Median : 0.3     Median :  1.0    Median :  0.3    Median :  9.0   
+##  Mean   : 0.5     Mean   :  2.5    Mean   :  1.3    Mean   : 11.3   
+##  3rd Qu.: 0.5     3rd Qu.:  2.5    3rd Qu.:  0.9    3rd Qu.: 15.0   
+##  Max.   :22.5     Max.   :196.0    Max.   :220.0    Max.   :947.0   
+##  NA's   :629358   NA's   :629380   NA's   :635123   NA's   :554185</code></pre>
+<pre class="r"><code>glimpse(air_data_1)</code></pre>
+<pre><code>## Observations: 722,774
+## Variables: 22
+## $ station       &lt;fct&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, ...
+## $ station_name  &lt;fct&gt; Estación Avenida Constitución, Estación Avenida ...
+## $ latitud       &lt;dbl&gt; 43.52981, 43.52981, 43.52981, 43.52981, 43.52981...
+## $ longitud      &lt;dbl&gt; -5.673428, -5.673428, -5.673428, -5.673428, -5.6...
+## $ date_time_utc &lt;dttm&gt; 2000-01-01 00:00:00, 2000-01-01 01:00:00, 2000-...
+## $ SO2           &lt;int&gt; 23, 29, 40, 50, 39, 39, 40, 43, 38, 39, 48, 66, ...
+## $ NO            &lt;int&gt; 89, 73, 53, 46, 35, 26, 27, 37, 30, 32, 33, 35, ...
+## $ NO2           &lt;int&gt; 65, 60, 57, 53, 50, 49, 51, 48, 46, 39, 36, 39, ...
+## $ CO            &lt;dbl&gt; 1.97, 1.61, 1.13, 1.06, 0.95, 0.82, 0.83, 0.88, ...
+## $ PM10          &lt;int&gt; 53, 63, 56, 58, 50, 50, 57, 53, 40, 53, 54, 52, ...
+## $ O3            &lt;int&gt; 9, 8, 7, 5, 6, 7, 7, 4, 5, 6, 10, 9, 11, 9, 18, ...
+## $ dd            &lt;int&gt; 245, 222, 228, 239, 244, 218, 240, 248, 244, 235...
+## $ vv            &lt;dbl&gt; 0.34, 1.06, 0.71, 0.84, 0.89, 0.71, 0.80, 1.11, ...
+## $ TMP           &lt;dbl&gt; 5.7, 5.4, 5.3, 5.1, 4.6, 4.6, 4.5, 4.1, 3.8, 3.8...
+## $ HR            &lt;int&gt; 76, 73, 72, 71, 72, 69, 68, 69, 70, 70, 64, 59, ...
+## $ PRB           &lt;dbl&gt; 1026, 1025, 1025, 1025, 1024, 1024, 1024, 1026, ...
+## $ RS            &lt;int&gt; 33, 33, 33, 33, 33, 33, 33, 33, 35, 112, 171, 36...
+## $ LL            &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ...
+## $ BEN           &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, ...
+## $ TOL           &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, ...
+## $ MXIL          &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, ...
+## $ PM25          &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, ...</code></pre>
+<pre class="r"><code>  hist(air_data_1$SO2)</code></pre>
+<p><img src="data:image/png;base64,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" width="672" /></p>
+<pre class="r"><code>air &lt;- air_data_1 %&gt;% filter(SO2 != '-9999')
+
+air_data_2 &lt;- air_data_1 %&gt;% mutate(SO2 = replace(SO2, SO2 &lt; 0, NA),
+                                    NO = replace(NO, NO &lt; 0, NA),
+                                    NO2 = replace(NO2, NO2 &lt; 0, NA),
+                                    PM10 = replace(PM10, PM10 &lt; 0, NA),
+                                    O3 = replace(03, 03 &lt; 0, NA))
+
+summary(air_data_2)</code></pre>
+<pre><code>##  station                                   station_name       latitud     
+##  1 :157727   Estación Avenida Argentina          :157798   Min.   :43.52  
+##  2 :157798   Estación Avenida Castilla           :157409   1st Qu.:43.53  
+##  3 :157666   Estación Avenida Constitución       :157727   Median :43.54  
+##  4 :157409   Estación Avenida Hermanos Felgueroso:157666   Mean   :43.53  
+##  10: 74630   Estación de Montevil                : 74630   3rd Qu.:43.54  
+##  11: 17544   Estación Santa Bárbara              : 17544   Max.   :43.54  
+##                                                                           
+##     longitud      date_time_utc                      SO2         
+##  Min.   :-5.699   Min.   :2000-01-01 00:00:00   Min.   :   0.00  
+##  1st Qu.:-5.673   1st Qu.:2005-02-25 05:00:00   1st Qu.:   4.00  
+##  Median :-5.672   Median :2010-02-23 11:00:00   Median :   6.00  
+##  Mean   :-5.670   Mean   :2009-09-06 07:33:13   Mean   :  10.33  
+##  3rd Qu.:-5.658   3rd Qu.:2014-04-09 06:00:00   3rd Qu.:  11.00  
+##  Max.   :-5.646   Max.   :2018-01-01 00:00:00   Max.   :2662.00  
+##                                                 NA's   :79474    
+##        NO               NO2               CO             PM10        
+##  Min.   :   0.00   Min.   :  0.00   Min.   : 0.00   Min.   :   0.00  
+##  1st Qu.:   4.00   1st Qu.: 16.00   1st Qu.: 0.22   1st Qu.:  19.00  
+##  Median :  10.00   Median : 28.00   Median : 0.36   Median :  30.00  
+##  Mean   :  22.08   Mean   : 32.62   Mean   : 0.49   Mean   :  36.26  
+##  3rd Qu.:  24.00   3rd Qu.: 45.00   3rd Qu.: 0.59   3rd Qu.:  46.00  
+##  Max.   :1248.00   Max.   :956.00   Max.   :58.20   Max.   :1000.00  
+##  NA's   :64657     NA's   :64520    NA's   :90390   NA's   :88622    
+##        O3          dd               vv              TMP        
+##  Min.   :3   Min.   :  0.0    Min.   : 0.0     Min.   :-40.0   
+##  1st Qu.:3   1st Qu.: 96.0    1st Qu.: 0.2     1st Qu.: 10.9   
+##  Median :3   Median :159.0    Median : 0.7     Median : 14.7   
+##  Mean   :3   Mean   :161.8    Mean   : 1.0     Mean   : 14.6   
+##  3rd Qu.:3   3rd Qu.:228.0    3rd Qu.: 1.5     3rd Qu.: 18.4   
+##  Max.   :3   Max.   :360.0    Max.   :29.8     Max.   : 47.4   
+##              NA's   :494134   NA's   :493893   NA's   :494151  
+##        HR              PRB               RS               LL        
+##  Min.   :  0.0    Min.   : 800     Min.   :  -1.0   Min.   : 0.0    
+##  1st Qu.: 69.0    1st Qu.:1007     1st Qu.:  17.0   1st Qu.: 0.0    
+##  Median : 80.0    Median :1013     Median :  46.0   Median : 0.0    
+##  Mean   : 78.3    Mean   :1012     Mean   : 125.2   Mean   : 0.1    
+##  3rd Qu.: 89.0    3rd Qu.:1018     3rd Qu.: 149.0   3rd Qu.: 0.0    
+##  Max.   :123.0    Max.   :1282     Max.   :1470.0   Max.   :24.6    
+##  NA's   :494176   NA's   :495393   NA's   :494273   NA's   :494745  
+##       BEN              TOL              MXIL             PM25       
+##  Min.   : 0.0     Min.   : -0.2    Min.   : -0.3    Min.   :  0.0   
+##  1st Qu.: 0.1     1st Qu.:  0.4    1st Qu.:  0.2    1st Qu.:  5.0   
+##  Median : 0.3     Median :  1.0    Median :  0.3    Median :  9.0   
+##  Mean   : 0.5     Mean   :  2.5    Mean   :  1.3    Mean   : 11.3   
+##  3rd Qu.: 0.5     3rd Qu.:  2.5    3rd Qu.:  0.9    3rd Qu.: 15.0   
+##  Max.   :22.5     Max.   :196.0    Max.   :220.0    Max.   :947.0   
+##  NA's   :629358   NA's   :629380   NA's   :635123   NA's   :554185</code></pre>
+<pre class="r"><code>nas &lt;- air_data_2 %&gt;% 
+  group_by(station_name, year(date_time_utc)) %&gt;%
+  select(everything()) %&gt;%  
+  summarise_all(funs(sum(is.na(.))))
+
+nas_per &lt;- air_data_2 %&gt;% 
+  group_by(station_name, year(date_time_utc)) %&gt;%
+  select(everything()) %&gt;%  
+  summarise_all(funs(sum(is.na(.))/n()))
+
+
+
+# air_data_2 &lt;- map_df(data_files, read_csv,  &quot;./data/&quot;, locale = locale(encoding = &quot;ISO-8859-1&quot;))</code></pre>
 </div>
 </div>
 </div>
