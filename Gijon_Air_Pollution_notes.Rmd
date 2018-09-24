@@ -37,6 +37,7 @@ library(openair) # http://davidcarslaw.github.io/openair/
 library(purrr)
 library(lubridate)
 library(ggplot2)
+library(stringr)
 
 ```
 
@@ -50,14 +51,16 @@ I downloaded two more files from this web, a csv file with the description of th
 We take a look to the information included in  the stations_info.csv file. It includes the stations addresses, longitude, latitude and their IDs and names. All this information, as we will see, is included in the csv files with pollution and weather data too. So, we are not going to use this file anymore.
 
 
-```{r warning= FALSE, message= FALSE}
+```{r , warning= FALSE, message= FALSE}
 stations <- read_delim('data/stations_info.csv',
                        delim = ';',
                        escape_double = FALSE, 
-                       trim_ws = FALSE,
+                       trim_ws = TRUE,
                        locale = locale(encoding = "ISO-8859-1"),
                        col_types = cols(.default = "c"))
 stations
+
+
 
 ```
 
@@ -65,7 +68,7 @@ We can see on this caption the location of each station. Source: "Informe de cal
 
 ![Caption for the picture.](imgs/gijon_stations_map.jpg)
 
-```{r warning= FALSE, message= FALSE}
+```{r, warning= FALSE, message= FALSE}
 variables <- read_csv('data/air_data_descriptors.csv', locale = locale(encoding = "ISO-8859-1"))
 variables
 
@@ -89,34 +92,57 @@ air_data_0 <- data_files %>%
 
 We make some changes to the names and formats of the variables
 
-
-
 ```{r warning= FALSE, message= FALSE}
 air_data_1 <- air_data_0 %>% rename(station = `Estación`,
                                     station_name = `Título`,
                                     date_time_utc = `Fecha Solar (UTC)`)
+
 air_data_1$date_time_utc <- ymd_hms(air_data_1$date_time_utc)
+
 air_data_1$station <- as.factor(air_data_1$station)
 air_data_1$station_name <- as.factor(air_data_1$station_name)
-air_data_1$BEN <- as.numeric(air_data_1$BEN)
-air_data_1$TOL <- as.numeric(air_data_1$TOL)
-air_data_1$MXIL <- as.numeric(air_data_1$MXIL)
-air_data_1$PM25 <- as.numeric(air_data_1$PM25)
-air_data_1$PM10 <- as.numeric(air_data_1$PM10)
-air_data_1$CO <- as.numeric(air_data_1$CO)
-air_data_1$O3 <- as.numeric(air_data_1$O3)
 
+# We create a vector with all the variables we want to be numeric
+num <- colnames(air_data_1)[6:22]
+
+# We make the conversion to numeric 
+air_data_1 <- air_data_1 %>% mutate_at(num, as.numeric)
+
+
+```
+
+
+```{r, warning= FALSE, message = FALSE}
 summary(air_data_1)
+```
 
+There are several variables which minimun values are -9999. It is very likely to be an error. So, we replace these values by nas (to do: ask the owner of the data about this detail).
+```{r warning = FALSE, message = FALSE}
 
-air_data_2 <- air_data_1 %>% mutate(SO2 = replace(SO2, SO2 < 0, NA),
-                                    NO = replace(NO, NO < 0, NA),
-                                    NO2 = replace(NO2, NO2 < 0, NA),
-                                    PM10 = replace(PM10, PM10 < 0, NA),
-                                    O3 = replace(O3, O3 < 0, NA))
+air_data_2 <- air_data_1 %>% mutate(SO2 = replace(SO2, SO2 == -9999, NA),
+                                    NO = replace(NO, NO == -9999, NA),
+                                    NO2 = replace(NO2, NO2 == -9999, NA),
+                                    PM10 = replace(PM10, PM10 == -9999, NA),
+                                    O3 = replace(O3, O3 == -9999, NA))
 
 summary(air_data_2)
 
+```
+
+We replace by zeros the negatives values of certain variables (to do: ask the owner of the data about this detail).
+
+```{r warning = FALSE, message = FALSE}
+air_data_2 <- air_data_2 %>% mutate(SO2 = replace(SO2, SO2 < 0, 0),
+                                    RS = replace(RS, RS < 0, 0),
+                                    TOL = replace(TOL, TOL < 0, 0),
+                                    MXIL = replace(MXIL, MXIL < 0, 0))
+
+summary(air_data_2)
+
+```
+
+we take a look to the data completion. What proportion of nas do we have by variable, station, year, etc?
+```{r warning = FALSE, message = FALSE}
 nas <- air_data_2 %>% 
   group_by(station_name, year(date_time_utc)) %>%
   select(everything()) %>%  
@@ -132,8 +158,10 @@ data_completion <- air_data_2 %>%
   select(everything()) %>%  
   summarise_all(funs(round(sum(!is.na(.))/n(), 2)))
 
+```
 
 
+```{r warning = FALSE, message = FALSE}
 constitucion_data <- data_completion %>% filter(station == '1')
 # constitución: desde el anho 2000 tiene registrados datos de SO2, NO, NO2, CO, PM10, 03, dd, vv, TMP, 
 # HR, PRB, HS y LL, 
