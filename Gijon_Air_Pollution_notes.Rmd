@@ -195,7 +195,16 @@ air_data_2$year <- year(air_data_2$date_time_utc)
 observations_by_year <- air_data_2 %>% group_by(year) %>%
                         summarise(n = n())
 
+# We remove the only 6 observations of 2018
 air_data_2 <- air_data_2 %>% filter(year != '2018')
+
+# We add variables for the month, month day and week day
+
+air_data_2$month <- month(air_data_2$date_time_utc)
+air_data_2$week_day <- wday(air_data_2$date_time_utc)
+air_data_2$hour <- hour(air_data_2$date_time_utc)
+air_data_2$year_month_day <- ymd(air_data_2$date_time_utc)
+
 ```
 
 We take a look to the general trend of several indicators through the last 18 years
@@ -230,6 +239,29 @@ year_o3 <- air_data_2 %>% select(O3, year, station_name) %>%
 ggplot(year_o3, aes(year, O3_mean, colour = station_name)) + 
    geom_line()
 
+hour_o3 <- air_data_2 %>% select(O3, hour) %>% 
+                      group_by(hour) %>%
+                      summarise(O3_mean = round(mean(O3, na.rm = TRUE),1))
+
+ggplot(hour_o3, aes(hour, O3_mean)) + 
+   geom_line()
+
+hour_pm10 <- air_data_2 %>% select(PM10, hour) %>% 
+                      group_by(hour) %>%
+                      summarise(PM10_mean = round(mean(PM10, na.rm = TRUE),1))
+
+ggplot(hour_pm10, aes(hour, PM10_mean)) + 
+   geom_line()
+
+hour_pm25 <- air_data_2 %>% select(PM25, hour) %>% 
+                      group_by(hour) %>%
+                      summarise(PM25_mean = round(mean(PM25, na.rm = TRUE),1))
+
+ggplot(hour_pm25, aes(hour, PM25_mean)) + 
+   geom_line()
+
 
 
 ```
+
+
