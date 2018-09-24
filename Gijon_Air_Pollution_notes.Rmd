@@ -36,6 +36,7 @@ library(dplyr)
 library(openair) # http://davidcarslaw.github.io/openair/
 library(purrr)
 library(lubridate)
+library(ggplot2)
 
 ```
 
@@ -47,24 +48,22 @@ I downloaded 18 csv files with air pollution and weather data of Gijón from yea
 I downloaded two more files from this web, a csv file with the description of the variables and another csv file with information about the measurement stations. 
 
 We take a look to the information included in  the stations_info.csv file. It includes the stations addresses, longitude, latitude and their IDs and names. All this information, as we will see, is included in the csv files with pollution and weather data too. So, we are not going to use this file anymore.
-![Caption for the picture.](imgs/gijon_stations_map.jpg)
 
 
 ```{r warning= FALSE, message= FALSE}
 stations <- read_delim('data/stations_info.csv',
-                       delim = ";",
+                       delim = ';',
                        escape_double = FALSE, 
-                       trim_ws = TRUE,
-                       locale = locale(encoding = "ISO-8859-1"))
+                       trim_ws = FALSE,
+                       locale = locale(encoding = "ISO-8859-1"),
+                       col_types = cols(.default = "c"))
 stations
 
 ```
 
+We can see on this caption the location of each station. Source: "Informe de calidad del aire del Principado de Asturias (2016)". http://movil.asturias.es/medioambiente/articulos/ficheros/Informe%20de%20calidad%20del%20aire%20en%20Asturias%202016.pdf
 
-
-
-
-
+![Caption for the picture.](imgs/gijon_stations_map.jpg)
 
 ```{r warning= FALSE, message= FALSE}
 variables <- read_csv('data/air_data_descriptors.csv', locale = locale(encoding = "ISO-8859-1"))
@@ -90,17 +89,22 @@ air_data_0 <- data_files %>%
 
 We make some changes to the names and formats of the variables
 
+
+
 ```{r warning= FALSE, message= FALSE}
 air_data_1 <- air_data_0 %>% rename(station = `Estación`,
                                     station_name = `Título`,
                                     date_time_utc = `Fecha Solar (UTC)`)
-
+air_data_1$date_time_utc <- ymd_hms(air_data_1$date_time_utc)
 air_data_1$station <- as.factor(air_data_1$station)
 air_data_1$station_name <- as.factor(air_data_1$station_name)
 air_data_1$BEN <- as.numeric(air_data_1$BEN)
 air_data_1$TOL <- as.numeric(air_data_1$TOL)
 air_data_1$MXIL <- as.numeric(air_data_1$MXIL)
 air_data_1$PM25 <- as.numeric(air_data_1$PM25)
+air_data_1$PM10 <- as.numeric(air_data_1$PM10)
+air_data_1$CO <- as.numeric(air_data_1$CO)
+air_data_1$O3 <- as.numeric(air_data_1$O3)
 
 summary(air_data_1)
 
@@ -109,7 +113,7 @@ air_data_2 <- air_data_1 %>% mutate(SO2 = replace(SO2, SO2 < 0, NA),
                                     NO = replace(NO, NO < 0, NA),
                                     NO2 = replace(NO2, NO2 < 0, NA),
                                     PM10 = replace(PM10, PM10 < 0, NA),
-                                    O3 = replace(03, 03 < 0, NA))
+                                    O3 = replace(O3, O3 < 0, NA))
 
 summary(air_data_2)
 
@@ -156,10 +160,48 @@ barbara_data <- data_completion %>% filter(station == '11')
 
 # air_data_2 <- map_df(data_files, read_csv,  "./data/", locale = locale(encoding = "ISO-8859-1"))
 
+# We add a new variable with the year 
+
+air_data_2$year <- year(air_data_2$date_time_utc)
+
+observations_by_year <- air_data_2 %>% group_by(year) %>%
+                        summarise(n = n())
+
+air_data_2 <- air_data_2 %>% filter(year != '2018')
+```
+
+We take a look to the general trend of several indicators through the last 18 years
+
+```{r warning= FALSE, message= FALSE}
+
+year_pm10 <- air_data_2 %>% select(PM10, year, station_name) %>% 
+                      group_by(year, station_name) %>%
+                      summarise(PM10_mean = mean(PM10, na.rm = TRUE))
+
+ggplot(year_pm10, aes(year, PM10_mean, colour = station_name)) + 
+    geom_line()
+
+year_co <- air_data_2 %>% select(CO, year, station_name) %>% 
+                      group_by(year, station_name) %>%
+                      summarise(CO_mean = mean(CO, na.rm = TRUE))
+
+ggplot(year_co, aes(year, CO_mean, colour = station_name)) + 
+    geom_line()
+
+year_pm25 <- air_data_2 %>% select(PM25, year, station_name) %>% 
+                      group_by(year, station_name) %>%
+                      summarise(PM25_mean = mean(PM25, na.rm = TRUE))
+
+ggplot(year_pm25, aes(year, PM25_mean, colour = station_name)) + 
+    geom_line()
+
+year_o3 <- air_data_2 %>% select(O3, year, station_name) %>% 
+                      group_by(year, station_name) %>%
+                      summarise(O3_mean = mean(O3, na.rm = TRUE))
+
+ggplot(year_o3, aes(year, O3_mean, colour = station_name)) + 
+   geom_line()
 
 
 
 ```
-
-
-
