@@ -16,12 +16,6 @@ Notes about the development of my capstone final project of my Master on Data Sc
   - Construct a web dashboard to visualize the evolution of the main air pollution indicators of Gijon city. (Asturias; Spain).
   - Build a model to try to predict the probability of exceeding the pollution limits established by the EU in the city of Gijon (one day in advance).
 
-#### History
-
-2018-08-16 
-I created my github repository.
-I set the main goals of the project.
-
 #### References
 
 - OpenAir package web: http://davidcarslaw.github.io/openair/
@@ -75,7 +69,7 @@ variables
 
 ```
 
-We create a file list, data_files, with the csv files downloaded previously. 
+We create a file list, data_files, with the csv files previously downloaded. 
 
 ```{r warning= FALSE, message= FALSE}
 data_files <- list.files(path = "data", pattern = "air_data_20*")
@@ -91,31 +85,51 @@ air_data_0 <- data_files %>%
     reduce(rbind)
 ```
 
+We take a look to the basic attributes of the dataset variables with the glimpse and the summary functions:
+```{r warning= FALSE, message= FALSE}
+glimpse(air_data_0)
+
+```
+
+```{r, warning= FALSE, message = FALSE}
+summary(air_data_0)
+```
+
 We make some changes to the names and formats of the variables
 
 ```{r warning= FALSE, message= FALSE}
+
+# Variables names changing
 air_data_1 <- air_data_0 %>% rename(station = `Estación`,
                                     station_name = `Título`,
-                                    date_time_utc = `Fecha Solar (UTC)`)
+                                    date_time_utc = `Fecha Solar (UTC)`,
+                                    latitude = latitud,
+                                    longitude = longitud)
 
+# We change the date_time_utc format from character to date time. 
 air_data_1$date_time_utc <- ymd_hms(air_data_1$date_time_utc)
 
+
+
+# We change the station and station_name formats from character to factor.
 air_data_1$station <- as.factor(air_data_1$station)
 air_data_1$station_name <- as.factor(air_data_1$station_name)
 
-# In order to add a new variable with more conveniente station names we create a dictionary with an alias for each station
+# We create a dictionary with an alias for each station in order to add a new variable with more
+# convenient station names
 
 alias_dict <- data.frame(
       station = c("1", "2", "3", "4", "10", "11"),
       station_alias = c("Constitución", "Argentina", "H. Felgueroso", "Castilla", "Montevil", "Santa Bárbara")
 )
 
-# We join the alias dictionary to the air_data_1 dataframe
+# We join the alias dictionary to the air_data_1 data frame in order to add the new variable to the data 
+# set.
 
 air_data_1 <- air_data_1 %>% left_join(alias_dict, by = 'station')
 
 # We create a vector with all the variables we want to be numeric
-num <- colnames(air_data_1)[6:22]
+num <- colnames(air_data_1)[c(3, 4, 6:22)]
 
 # We make the conversion to numeric 
 air_data_1 <- air_data_1 %>% mutate_at(num, as.numeric)
@@ -123,10 +137,6 @@ air_data_1 <- air_data_1 %>% mutate_at(num, as.numeric)
 
 ```
 
-
-```{r, warning= FALSE, message = FALSE}
-summary(air_data_1)
-```
 
 There are several variables which minimun values are -9999. It is very likely to be an error. So, we replace these values by nas (to do: ask the owner of the data about this detail).
 ```{r warning = FALSE, message = FALSE}
@@ -263,7 +273,7 @@ ggplot(avg_pm10, aes(x = year, y = value)) +
 
 ```
 
-```{r warning= FALSE, message= FALSE}
+```{r warning= FALSE, message= FALSE, out.width= '\\textwidth'}
 
 # year_means <- air_data_
 
