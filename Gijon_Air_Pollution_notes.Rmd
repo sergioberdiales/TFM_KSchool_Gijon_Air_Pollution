@@ -7,14 +7,11 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## Gijon Air Pollution notes
-
-Notes about the development of my capstone final project of my Master on Data Science in KSchool.
 
 ### Project goals:
 
   - Construct a web dashboard to visualize the evolution of the main air pollution indicators of Gijon city. (Asturias; Spain).
-  - Build a model to try to predict the probability of exceeding the pollution limits established by the EU in the city of Gijon (one day in advance).
+  - Build a model to predict in the short term (<24h) the evolution of air pollutants concentration by monitoring station.
 
 #### References
 
@@ -33,6 +30,7 @@ library(purrr)
 library(lubridate)
 library(ggplot2)
 library(stringr)
+library(knitr)
 
 ```
 
@@ -151,11 +149,16 @@ air_data_2 <- air_data_1 %>% mutate(SO2 = replace(SO2, SO2 == -9999, NA),
                                     PM10 = replace(PM10, PM10 == -9999, NA),
                                     O3 = replace(O3, O3 == -9999, NA))
 
-summary(air_data_2)
-
 ```
 
-We check again the output of summary. Some variables values are negative. We replace them by NAs (to do: ask the owner of the data about this detail).
+
+We check again the output of summary. 
+
+```{r warning = FALSE, message = FALSE}
+summary(air_data_2)
+```
+
+Some variables values are negative. We replace them by NAs (to do: ask the owner of the data about this detail).
 
 ```{r warning = FALSE, message = FALSE}
 air_data_2 <- air_data_2 %>% mutate(SO2 = replace(SO2, SO2 < 0, NA),
@@ -169,53 +172,62 @@ summary(air_data_2)
 
 we take a look to the data completion. What proportion of nas do we have by variable, station, year, etc?
 ```{r warning = FALSE, message = FALSE}
-nas <- air_data_2 %>% 
-  group_by(station_alias, year(date_time_utc)) %>%
-  select(everything()) %>%  
-  summarise_all(funs(sum(is.na(.))))
-
-nas_per <- air_data_2 %>% 
-  group_by(station_alias, year(date_time_utc)) %>%
-  select(everything()) %>%  
-  summarise_all(funs(round(sum(is.na(.))/n(), 2)))
 
 data_completion <- air_data_2 %>% 
-  group_by(station_alias, year(date_time_utc)) %>%
-  select(everything()) %>%  
-  summarise_all(funs(round(sum(!is.na(.))/n(), 2)))
+  group_by(station_alias, year = year(date_time_utc)) %>% 
+  summarise_all(funs(round(sum(!is.na(.))/n(), 2))) %>%
+  select(-c(3:7, 25:28)) # These columns do not have any na. We exclude them.
 
+kable(head(data_completion, 10))
+
+```
+
+We are going to check the data completion by station:
+
+constitución: desde el anho 2000 tiene registrados datos de SO2, NO, NO2, CO, PM10, 03, dd, vv, TMP,  HR, PRB, HS y LL, 
+A partir del anho 2007 tambien existen datos de BEN, TOL y MXIL. Y a partir de 2009 se empieza a medir # las particulas PM25.
+en el anho 2008 desciende la completacion de los datos hasta el 88% de las variables dd, vv, TMP, 
+HR, PRB, HS, LL, BEN, TOL y MXIL (comprobar que no haya sido un problema de importacion de los datos)
+```{r warning = FALSE, message = FALSE}
+constitucion_data <- data_completion %>% filter(station_alias == 'Constitución')
+kable(constitucion_data)
+```
+
+ argentina: datos desde el anho 2000. Solo de las variables SO2, NO, NO2, CO, PM10 y 03.
+```{r warning = FALSE, message = FALSE}
+argentina_data <- data_completion %>% filter(station_alias == 'Argentina')
+kable(argentina_data)
+```
+
+felgueroso: datos desde el anho 2000. Solo de las variables SO2, NO, NO2, CO, PM10 y 03.
+```{r warning = FALSE, message = FALSE}
+felgueroso_data <- data_completion %>% filter(station_alias == 'H.Felgueroso')
+kable(felgueroso_data)
+```
+
+castilla: datos desde el anho 2000. Solo de las variables SO2, NO, NO2, CO, PM10 y 03.
+```{r warning = FALSE, message = FALSE}
+castilla_data <- data_completion %>% filter(station_alias == 'Castilla')
+kable(castilla_data)
+```
+
+montevil: datos desde 2009. Solo datos de las variables SO2, NO, NO2, 03, dd, vv, TMP, HR, PRB, HS, 
+LL y PM25
+sin datos de las variables CO, PM10, BEN, TOL y MXIL
+```{r warning = FALSE, message = FALSE}
+montevil_data <- data_completion %>% filter(station_alias == 'Montevil')
+kable(montevil_data)
+```
+
+barbara: solo datos de 2016 y 2017 de las variables NO, NO2, CO, PM10, 03 y PM25
+```{r warning = FALSE, message = FALSE}
+barbara_data <- data_completion %>% filter(station_alias == 'Santa Bárbara')
+kable(barbara_data)
 ```
 
 
 ```{r warning = FALSE, message = FALSE}
-constitucion_data <- data_completion %>% filter(station == '1')
-# constitución: desde el anho 2000 tiene registrados datos de SO2, NO, NO2, CO, PM10, 03, dd, vv, TMP, 
-# HR, PRB, HS y LL, 
-# A partir del anho 2007 tambien existen datos de BEN, TOL y MXIL. Y a partir de 2009 se empieza a medir # las particulas PM25.
-# en el anho 2008 desciende la completacion de los datos hasta el 88% de las variables dd, vv, TMP, 
-# HR, PRB, HS, LL, BEN, TOL y MXIL (comprobar que no haya sido un problema de importacion de los datos)
-
-argentina_data <- data_completion %>% filter(station == '2')
-# argentina: datos desde el anho 2000. Solo de las variables SO2, NO, NO2, CO, PM10 y 03. 
-
-felgueroso_data <- data_completion %>% filter(station == '3')
-# felgueroso: datos desde el anho 2000. Solo de las variables SO2, NO, NO2, CO, PM10 y 03. 
-
-castilla_data <- data_completion %>% filter(station == '4')
-# castilla: datos desde el anho 2000. Solo de las variables SO2, NO, NO2, CO, PM10 y 03.
-
-montevil_data <- data_completion %>% filter(station == '10')
-# montevil: datos desde 2009. Solo datos de las variables SO2, NO, NO2, 03, dd, vv, TMP, HR, PRB, HS, 
-# LL y PM25
-# sin datos de las variables CO, PM10, BEN, TOL y MXIL
-
-barbara_data <- data_completion %>% filter(station == '11')
-# barbara: solo datos de 2016 y 2017 de las variables NO, NO2, CO, PM10, 03 y PM25
-
-# air_data_2 <- map_df(data_files, read_csv,  "./data/", locale = locale(encoding = "ISO-8859-1"))
-
 # We add a new variable with the year 
-
 air_data_2$year <- year(air_data_2$date_time_utc)
 
 observations_by_year <- air_data_2 %>% group_by(year) %>%

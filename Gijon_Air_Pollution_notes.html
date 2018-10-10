@@ -125,14 +125,11 @@ $(document).ready(function () {
 </div>
 
 
-<div id="gijon-air-pollution-notes" class="section level2">
-<h2>Gijon Air Pollution notes</h2>
-<p>Notes about the development of my capstone final project of my Master on Data Science in KSchool.</p>
 <div id="project-goals" class="section level3">
 <h3>Project goals:</h3>
 <ul>
 <li>Construct a web dashboard to visualize the evolution of the main air pollution indicators of Gijon city. (Asturias; Spain).</li>
-<li>Build a model to try to predict the probability of exceeding the pollution limits established by the EU in the city of Gijon (one day in advance).</li>
+<li>Build a model to predict in the short term (&lt;24h) the evolution of air pollutants concentration by monitoring station.</li>
 </ul>
 <div id="references" class="section level4">
 <h4>References</h4>
@@ -151,7 +148,8 @@ library(openair) # http://davidcarslaw.github.io/openair/
 library(purrr)
 library(lubridate)
 library(ggplot2)
-library(stringr)</code></pre>
+library(stringr)
+library(knitr)</code></pre>
 <p>First of all I have to check if I will have the basic data to make the analysis. I need air pollution and weather data of the Gijon area. The town hall of Gijon has an open data web portal here <a href="https://transparencia.gijon.es/" class="uri">https://transparencia.gijon.es/</a>. We can download pollution air data on csv format from year 2000 to 2017 here: <a href="https://transparencia.gijon.es/search/risp_dataset/page/1808-catalogo-de-datos?utf8=%E2%9C%93&amp;search=aire+&amp;search_sector">https://transparencia.gijon.es/search/risp_dataset/page/1808-catalogo-de-datos?utf8=%E2%9C%93&amp;search=aire+&amp;search_sector</a>=&amp;search_format=&amp;commit=Buscar&amp;authenticity_token=j8%2F3CvCuPcDkrRe%2F1NR5RBp0t%2FOOosiA7724w3T2mB4%3D</p>
 <p>I downloaded 18 csv files with air pollution and weather data of Gijón from years 2000 to 2017. I saved them in the “data” folder. I downloaded two more files from this web, a csv file with the description of the variables and another csv file with information about the measurement stations.</p>
 <p>We take a look to the information included in the stations_info.csv file. It includes the stations addresses, longitude, latitude and their IDs and names. All this information, as we will see, is included in the csv files with pollution and weather data too. So, we are not going to use this file anymore.</p>
@@ -318,9 +316,9 @@ air_data_1$station_name &lt;- as.factor(air_data_1$station_name)</code></pre>
                                     NO = replace(NO, NO == -9999, NA),
                                     NO2 = replace(NO2, NO2 == -9999, NA),
                                     PM10 = replace(PM10, PM10 == -9999, NA),
-                                    O3 = replace(O3, O3 == -9999, NA))
-
-summary(air_data_2)</code></pre>
+                                    O3 = replace(O3, O3 == -9999, NA))</code></pre>
+<p>We check again the output of summary.</p>
+<pre class="r"><code>summary(air_data_2)</code></pre>
 <pre><code>##  station                                   station_name       latitude    
 ##  1 :157727   Estación Avenida Argentina          :157798   Min.   :43.52  
 ##  10: 74630   Estación Avenida Castilla           :157409   1st Qu.:43.53  
@@ -377,7 +375,7 @@ summary(air_data_2)</code></pre>
 ##  Montevil     : 74630  
 ##  Santa Bárbara: 17544  
 ## </code></pre>
-<p>We check again the output of summary. Some variables values are negative. We replace them by NAs (to do: ask the owner of the data about this detail).</p>
+<p>Some variables values are negative. We replace them by NAs (to do: ask the owner of the data about this detail).</p>
 <pre class="r"><code>air_data_2 &lt;- air_data_2 %&gt;% mutate(SO2 = replace(SO2, SO2 &lt; 0, NA),
                                     RS = replace(RS, RS &lt; 0, NA),
                                     TOL = replace(TOL, TOL &lt; 0, NA),
@@ -441,48 +439,1875 @@ summary(air_data_2)</code></pre>
 ##  Santa Bárbara: 17544  
 ## </code></pre>
 <p>we take a look to the data completion. What proportion of nas do we have by variable, station, year, etc?</p>
-<pre class="r"><code>nas &lt;- air_data_2 %&gt;% 
-  group_by(station_alias, year(date_time_utc)) %&gt;%
-  select(everything()) %&gt;%  
-  summarise_all(funs(sum(is.na(.))))
+<pre class="r"><code>data_completion &lt;- air_data_2 %&gt;% 
+  group_by(station_alias, year = year(date_time_utc)) %&gt;% 
+  summarise_all(funs(round(sum(!is.na(.))/n(), 2))) %&gt;%
+  select(-c(3:7, 25:28)) # These columns do not have any na. We exclude them.
 
-nas_per &lt;- air_data_2 %&gt;% 
-  group_by(station_alias, year(date_time_utc)) %&gt;%
-  select(everything()) %&gt;%  
-  summarise_all(funs(round(sum(is.na(.))/n(), 2)))
-
-data_completion &lt;- air_data_2 %&gt;% 
-  group_by(station_alias, year(date_time_utc)) %&gt;%
-  select(everything()) %&gt;%  
-  summarise_all(funs(round(sum(!is.na(.))/n(), 2)))</code></pre>
-<pre class="r"><code>constitucion_data &lt;- data_completion %&gt;% filter(station == '1')
-# constitución: desde el anho 2000 tiene registrados datos de SO2, NO, NO2, CO, PM10, 03, dd, vv, TMP, 
-# HR, PRB, HS y LL, 
-# A partir del anho 2007 tambien existen datos de BEN, TOL y MXIL. Y a partir de 2009 se empieza a medir # las particulas PM25.
-# en el anho 2008 desciende la completacion de los datos hasta el 88% de las variables dd, vv, TMP, 
-# HR, PRB, HS, LL, BEN, TOL y MXIL (comprobar que no haya sido un problema de importacion de los datos)
-
-argentina_data &lt;- data_completion %&gt;% filter(station == '2')
-# argentina: datos desde el anho 2000. Solo de las variables SO2, NO, NO2, CO, PM10 y 03. 
-
-felgueroso_data &lt;- data_completion %&gt;% filter(station == '3')
-# felgueroso: datos desde el anho 2000. Solo de las variables SO2, NO, NO2, CO, PM10 y 03. 
-
-castilla_data &lt;- data_completion %&gt;% filter(station == '4')
-# castilla: datos desde el anho 2000. Solo de las variables SO2, NO, NO2, CO, PM10 y 03.
-
-montevil_data &lt;- data_completion %&gt;% filter(station == '10')
-# montevil: datos desde 2009. Solo datos de las variables SO2, NO, NO2, 03, dd, vv, TMP, HR, PRB, HS, 
-# LL y PM25
-# sin datos de las variables CO, PM10, BEN, TOL y MXIL
-
-barbara_data &lt;- data_completion %&gt;% filter(station == '11')
-# barbara: solo datos de 2016 y 2017 de las variables NO, NO2, CO, PM10, 03 y PM25
-
-# air_data_2 &lt;- map_df(data_files, read_csv,  &quot;./data/&quot;, locale = locale(encoding = &quot;ISO-8859-1&quot;))
-
-# We add a new variable with the year 
-
+kable(head(data_completion, 10))</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">station_alias</th>
+<th align="right">year</th>
+<th align="right">SO2</th>
+<th align="right">NO</th>
+<th align="right">NO2</th>
+<th align="right">CO</th>
+<th align="right">PM10</th>
+<th align="right">O3</th>
+<th align="right">dd</th>
+<th align="right">vv</th>
+<th align="right">TMP</th>
+<th align="right">HR</th>
+<th align="right">PRB</th>
+<th align="right">RS</th>
+<th align="right">LL</th>
+<th align="right">BEN</th>
+<th align="right">TOL</th>
+<th align="right">MXIL</th>
+<th align="right">PM25</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Argentina</td>
+<td align="right">2000</td>
+<td align="right">0.99</td>
+<td align="right">0.97</td>
+<td align="right">0.97</td>
+<td align="right">0.96</td>
+<td align="right">0.94</td>
+<td align="right">0.97</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">Argentina</td>
+<td align="right">2001</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.98</td>
+<td align="right">0.97</td>
+<td align="right">0.99</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">Argentina</td>
+<td align="right">2002</td>
+<td align="right">1.00</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">1.00</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">Argentina</td>
+<td align="right">2003</td>
+<td align="right">0.99</td>
+<td align="right">0.98</td>
+<td align="right">0.98</td>
+<td align="right">0.98</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">Argentina</td>
+<td align="right">2004</td>
+<td align="right">0.98</td>
+<td align="right">0.96</td>
+<td align="right">0.97</td>
+<td align="right">0.99</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">Argentina</td>
+<td align="right">2005</td>
+<td align="right">0.98</td>
+<td align="right">0.96</td>
+<td align="right">0.98</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">Argentina</td>
+<td align="right">2006</td>
+<td align="right">0.92</td>
+<td align="right">0.90</td>
+<td align="right">0.92</td>
+<td align="right">0.92</td>
+<td align="right">0.93</td>
+<td align="right">0.93</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">Argentina</td>
+<td align="right">2007</td>
+<td align="right">0.98</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.98</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">Argentina</td>
+<td align="right">2008</td>
+<td align="right">0.98</td>
+<td align="right">0.96</td>
+<td align="right">0.98</td>
+<td align="right">0.97</td>
+<td align="right">0.98</td>
+<td align="right">0.98</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">Argentina</td>
+<td align="right">2009</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">0.98</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+</tbody>
+</table>
+<p>We are going to check the data completion by station:</p>
+<p>constitución: desde el anho 2000 tiene registrados datos de SO2, NO, NO2, CO, PM10, 03, dd, vv, TMP, HR, PRB, HS y LL, A partir del anho 2007 tambien existen datos de BEN, TOL y MXIL. Y a partir de 2009 se empieza a medir # las particulas PM25. en el anho 2008 desciende la completacion de los datos hasta el 88% de las variables dd, vv, TMP, HR, PRB, HS, LL, BEN, TOL y MXIL (comprobar que no haya sido un problema de importacion de los datos)</p>
+<pre class="r"><code>constitucion_data &lt;- data_completion %&gt;% filter(station_alias == 'Constitución')
+kable(constitucion_data)</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">station_alias</th>
+<th align="right">year</th>
+<th align="right">SO2</th>
+<th align="right">NO</th>
+<th align="right">NO2</th>
+<th align="right">CO</th>
+<th align="right">PM10</th>
+<th align="right">O3</th>
+<th align="right">dd</th>
+<th align="right">vv</th>
+<th align="right">TMP</th>
+<th align="right">HR</th>
+<th align="right">PRB</th>
+<th align="right">RS</th>
+<th align="right">LL</th>
+<th align="right">BEN</th>
+<th align="right">TOL</th>
+<th align="right">MXIL</th>
+<th align="right">PM25</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Constitución</td>
+<td align="right">2000</td>
+<td align="right">0.97</td>
+<td align="right">0.95</td>
+<td align="right">0.95</td>
+<td align="right">0.97</td>
+<td align="right">0.92</td>
+<td align="right">0.93</td>
+<td align="right">0.96</td>
+<td align="right">0.98</td>
+<td align="right">0.96</td>
+<td align="right">0.95</td>
+<td align="right">0.97</td>
+<td align="right">0.95</td>
+<td align="right">0.96</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+</tr>
+<tr class="even">
+<td align="left">Constitución</td>
+<td align="right">2001</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.98</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">0.99</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+</tr>
+<tr class="odd">
+<td align="left">Constitución</td>
+<td align="right">2002</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+</tr>
+<tr class="even">
+<td align="left">Constitución</td>
+<td align="right">2003</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.98</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+</tr>
+<tr class="odd">
+<td align="left">Constitución</td>
+<td align="right">2004</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+</tr>
+<tr class="even">
+<td align="left">Constitución</td>
+<td align="right">2005</td>
+<td align="right">0.98</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+</tr>
+<tr class="odd">
+<td align="left">Constitución</td>
+<td align="right">2006</td>
+<td align="right">0.91</td>
+<td align="right">0.91</td>
+<td align="right">0.91</td>
+<td align="right">0.90</td>
+<td align="right">0.91</td>
+<td align="right">0.91</td>
+<td align="right">0.91</td>
+<td align="right">0.91</td>
+<td align="right">0.91</td>
+<td align="right">0.91</td>
+<td align="right">0.91</td>
+<td align="right">0.91</td>
+<td align="right">0.91</td>
+<td align="right">0.01</td>
+<td align="right">0.01</td>
+<td align="right">0.01</td>
+<td align="right">0.00</td>
+</tr>
+<tr class="even">
+<td align="left">Constitución</td>
+<td align="right">2007</td>
+<td align="right">0.98</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.97</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.00</td>
+</tr>
+<tr class="odd">
+<td align="left">Constitución</td>
+<td align="right">2008</td>
+<td align="right">0.98</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">1.00</td>
+<td align="right">0.88</td>
+<td align="right">0.88</td>
+<td align="right">0.88</td>
+<td align="right">0.88</td>
+<td align="right">0.88</td>
+<td align="right">0.88</td>
+<td align="right">0.88</td>
+<td align="right">0.88</td>
+<td align="right">0.88</td>
+<td align="right">0.88</td>
+<td align="right">0.02</td>
+</tr>
+<tr class="even">
+<td align="left">Constitución</td>
+<td align="right">2009</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+</tr>
+<tr class="odd">
+<td align="left">Constitución</td>
+<td align="right">2010</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+</tr>
+<tr class="even">
+<td align="left">Constitución</td>
+<td align="right">2011</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.98</td>
+<td align="right">0.98</td>
+<td align="right">0.98</td>
+<td align="right">0.99</td>
+</tr>
+<tr class="odd">
+<td align="left">Constitución</td>
+<td align="right">2012</td>
+<td align="right">0.97</td>
+<td align="right">0.97</td>
+<td align="right">0.97</td>
+<td align="right">0.96</td>
+<td align="right">0.97</td>
+<td align="right">0.96</td>
+<td align="right">0.97</td>
+<td align="right">0.97</td>
+<td align="right">0.97</td>
+<td align="right">0.97</td>
+<td align="right">0.97</td>
+<td align="right">0.97</td>
+<td align="right">0.97</td>
+<td align="right">0.96</td>
+<td align="right">0.96</td>
+<td align="right">0.96</td>
+<td align="right">0.97</td>
+</tr>
+<tr class="even">
+<td align="left">Constitución</td>
+<td align="right">2013</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">1.00</td>
+<td align="right">0.99</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">1.00</td>
+</tr>
+<tr class="odd">
+<td align="left">Constitución</td>
+<td align="right">2014</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">1.00</td>
+</tr>
+<tr class="even">
+<td align="left">Constitución</td>
+<td align="right">2015</td>
+<td align="right">0.98</td>
+<td align="right">0.98</td>
+<td align="right">0.98</td>
+<td align="right">0.98</td>
+<td align="right">0.99</td>
+<td align="right">0.98</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.98</td>
+<td align="right">0.98</td>
+<td align="right">0.32</td>
+<td align="right">0.98</td>
+</tr>
+<tr class="odd">
+<td align="left">Constitución</td>
+<td align="right">2016</td>
+<td align="right">0.95</td>
+<td align="right">0.95</td>
+<td align="right">0.95</td>
+<td align="right">0.95</td>
+<td align="right">0.95</td>
+<td align="right">0.95</td>
+<td align="right">0.98</td>
+<td align="right">0.98</td>
+<td align="right">0.97</td>
+<td align="right">0.97</td>
+<td align="right">0.97</td>
+<td align="right">0.97</td>
+<td align="right">0.97</td>
+<td align="right">0.90</td>
+<td align="right">0.90</td>
+<td align="right">0.90</td>
+<td align="right">0.95</td>
+</tr>
+<tr class="even">
+<td align="left">Constitución</td>
+<td align="right">2017</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">1.00</td>
+<td align="right">0.99</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">1.00</td>
+</tr>
+<tr class="odd">
+<td align="left">Constitución</td>
+<td align="right">2018</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+</tr>
+</tbody>
+</table>
+<p>argentina: datos desde el anho 2000. Solo de las variables SO2, NO, NO2, CO, PM10 y 03.</p>
+<pre class="r"><code>argentina_data &lt;- data_completion %&gt;% filter(station_alias == 'Argentina')
+kable(argentina_data)</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">station_alias</th>
+<th align="right">year</th>
+<th align="right">SO2</th>
+<th align="right">NO</th>
+<th align="right">NO2</th>
+<th align="right">CO</th>
+<th align="right">PM10</th>
+<th align="right">O3</th>
+<th align="right">dd</th>
+<th align="right">vv</th>
+<th align="right">TMP</th>
+<th align="right">HR</th>
+<th align="right">PRB</th>
+<th align="right">RS</th>
+<th align="right">LL</th>
+<th align="right">BEN</th>
+<th align="right">TOL</th>
+<th align="right">MXIL</th>
+<th align="right">PM25</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Argentina</td>
+<td align="right">2000</td>
+<td align="right">0.99</td>
+<td align="right">0.97</td>
+<td align="right">0.97</td>
+<td align="right">0.96</td>
+<td align="right">0.94</td>
+<td align="right">0.97</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">Argentina</td>
+<td align="right">2001</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.98</td>
+<td align="right">0.97</td>
+<td align="right">0.99</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">Argentina</td>
+<td align="right">2002</td>
+<td align="right">1.00</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">1.00</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">Argentina</td>
+<td align="right">2003</td>
+<td align="right">0.99</td>
+<td align="right">0.98</td>
+<td align="right">0.98</td>
+<td align="right">0.98</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">Argentina</td>
+<td align="right">2004</td>
+<td align="right">0.98</td>
+<td align="right">0.96</td>
+<td align="right">0.97</td>
+<td align="right">0.99</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">Argentina</td>
+<td align="right">2005</td>
+<td align="right">0.98</td>
+<td align="right">0.96</td>
+<td align="right">0.98</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">Argentina</td>
+<td align="right">2006</td>
+<td align="right">0.92</td>
+<td align="right">0.90</td>
+<td align="right">0.92</td>
+<td align="right">0.92</td>
+<td align="right">0.93</td>
+<td align="right">0.93</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">Argentina</td>
+<td align="right">2007</td>
+<td align="right">0.98</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.98</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">Argentina</td>
+<td align="right">2008</td>
+<td align="right">0.98</td>
+<td align="right">0.96</td>
+<td align="right">0.98</td>
+<td align="right">0.97</td>
+<td align="right">0.98</td>
+<td align="right">0.98</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">Argentina</td>
+<td align="right">2009</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">0.98</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">Argentina</td>
+<td align="right">2010</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">1.00</td>
+<td align="right">0.99</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">Argentina</td>
+<td align="right">2011</td>
+<td align="right">0.98</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.98</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">Argentina</td>
+<td align="right">2012</td>
+<td align="right">0.99</td>
+<td align="right">0.96</td>
+<td align="right">0.96</td>
+<td align="right">0.96</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">Argentina</td>
+<td align="right">2013</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">1.00</td>
+<td align="right">0.99</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">Argentina</td>
+<td align="right">2014</td>
+<td align="right">1.00</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">Argentina</td>
+<td align="right">2015</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">Argentina</td>
+<td align="right">2016</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">Argentina</td>
+<td align="right">2017</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">Argentina</td>
+<td align="right">2018</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+</tbody>
+</table>
+<p>felgueroso: datos desde el anho 2000. Solo de las variables SO2, NO, NO2, CO, PM10 y 03.</p>
+<pre class="r"><code>felgueroso_data &lt;- data_completion %&gt;% filter(station_alias == 'H.Felgueroso')
+kable(felgueroso_data)</code></pre>
+<p>station_alias year SO2 NO NO2 CO PM10 O3 dd vv TMP HR PRB RS LL BEN TOL MXIL PM25 ————– —– —- — —- — —– — — — —- — —- — — —- —- —– —–</p>
+<p>castilla: datos desde el anho 2000. Solo de las variables SO2, NO, NO2, CO, PM10 y 03.</p>
+<pre class="r"><code>castilla_data &lt;- data_completion %&gt;% filter(station_alias == 'Castilla')
+kable(castilla_data)</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">station_alias</th>
+<th align="right">year</th>
+<th align="right">SO2</th>
+<th align="right">NO</th>
+<th align="right">NO2</th>
+<th align="right">CO</th>
+<th align="right">PM10</th>
+<th align="right">O3</th>
+<th align="right">dd</th>
+<th align="right">vv</th>
+<th align="right">TMP</th>
+<th align="right">HR</th>
+<th align="right">PRB</th>
+<th align="right">RS</th>
+<th align="right">LL</th>
+<th align="right">BEN</th>
+<th align="right">TOL</th>
+<th align="right">MXIL</th>
+<th align="right">PM25</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Castilla</td>
+<td align="right">2000</td>
+<td align="right">0.97</td>
+<td align="right">0.97</td>
+<td align="right">0.97</td>
+<td align="right">0.97</td>
+<td align="right">0.97</td>
+<td align="right">0.95</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">Castilla</td>
+<td align="right">2001</td>
+<td align="right">0.98</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.98</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">Castilla</td>
+<td align="right">2002</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.97</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">Castilla</td>
+<td align="right">2003</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.98</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">Castilla</td>
+<td align="right">2004</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.98</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">Castilla</td>
+<td align="right">2005</td>
+<td align="right">0.99</td>
+<td align="right">0.95</td>
+<td align="right">0.95</td>
+<td align="right">0.98</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">Castilla</td>
+<td align="right">2006</td>
+<td align="right">0.91</td>
+<td align="right">0.91</td>
+<td align="right">0.91</td>
+<td align="right">0.91</td>
+<td align="right">0.92</td>
+<td align="right">0.93</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">Castilla</td>
+<td align="right">2007</td>
+<td align="right">0.99</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">0.99</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">Castilla</td>
+<td align="right">2008</td>
+<td align="right">0.95</td>
+<td align="right">0.96</td>
+<td align="right">0.96</td>
+<td align="right">0.95</td>
+<td align="right">0.96</td>
+<td align="right">0.96</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">Castilla</td>
+<td align="right">2009</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">1.00</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">Castilla</td>
+<td align="right">2010</td>
+<td align="right">0.92</td>
+<td align="right">0.93</td>
+<td align="right">0.93</td>
+<td align="right">0.93</td>
+<td align="right">0.93</td>
+<td align="right">0.93</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">Castilla</td>
+<td align="right">2011</td>
+<td align="right">0.97</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.98</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">Castilla</td>
+<td align="right">2012</td>
+<td align="right">0.97</td>
+<td align="right">0.98</td>
+<td align="right">0.98</td>
+<td align="right">0.98</td>
+<td align="right">0.98</td>
+<td align="right">0.98</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">Castilla</td>
+<td align="right">2013</td>
+<td align="right">1.00</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">Castilla</td>
+<td align="right">2014</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">1.00</td>
+<td align="right">0.99</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">Castilla</td>
+<td align="right">2015</td>
+<td align="right">0.77</td>
+<td align="right">0.76</td>
+<td align="right">0.76</td>
+<td align="right">0.77</td>
+<td align="right">0.76</td>
+<td align="right">0.77</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">Castilla</td>
+<td align="right">2016</td>
+<td align="right">0.98</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.97</td>
+<td align="right">0.98</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">Castilla</td>
+<td align="right">2017</td>
+<td align="right">0.97</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.98</td>
+<td align="right">0.97</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">Castilla</td>
+<td align="right">2018</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+</tbody>
+</table>
+<p>montevil: datos desde 2009. Solo datos de las variables SO2, NO, NO2, 03, dd, vv, TMP, HR, PRB, HS, LL y PM25 sin datos de las variables CO, PM10, BEN, TOL y MXIL</p>
+<pre class="r"><code>montevil_data &lt;- data_completion %&gt;% filter(station_alias == 'Montevil')
+kable(montevil_data)</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">station_alias</th>
+<th align="right">year</th>
+<th align="right">SO2</th>
+<th align="right">NO</th>
+<th align="right">NO2</th>
+<th align="right">CO</th>
+<th align="right">PM10</th>
+<th align="right">O3</th>
+<th align="right">dd</th>
+<th align="right">vv</th>
+<th align="right">TMP</th>
+<th align="right">HR</th>
+<th align="right">PRB</th>
+<th align="right">RS</th>
+<th align="right">LL</th>
+<th align="right">BEN</th>
+<th align="right">TOL</th>
+<th align="right">MXIL</th>
+<th align="right">PM25</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Montevil</td>
+<td align="right">2009</td>
+<td align="right">0.91</td>
+<td align="right">0.93</td>
+<td align="right">0.93</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0.93</td>
+<td align="right">0.93</td>
+<td align="right">0.93</td>
+<td align="right">0.93</td>
+<td align="right">0.93</td>
+<td align="right">0.93</td>
+<td align="right">0.93</td>
+<td align="right">0.93</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0.93</td>
+</tr>
+<tr class="even">
+<td align="left">Montevil</td>
+<td align="right">2010</td>
+<td align="right">0.99</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0.92</td>
+</tr>
+<tr class="odd">
+<td align="left">Montevil</td>
+<td align="right">2011</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0.99</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">1.00</td>
+</tr>
+<tr class="even">
+<td align="left">Montevil</td>
+<td align="right">2012</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">1.00</td>
+<td align="right">0.98</td>
+<td align="right">0.98</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">1.00</td>
+</tr>
+<tr class="odd">
+<td align="left">Montevil</td>
+<td align="right">2013</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">1.00</td>
+</tr>
+<tr class="even">
+<td align="left">Montevil</td>
+<td align="right">2014</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">1.00</td>
+</tr>
+<tr class="odd">
+<td align="left">Montevil</td>
+<td align="right">2015</td>
+<td align="right">0.99</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">1.00</td>
+</tr>
+<tr class="even">
+<td align="left">Montevil</td>
+<td align="right">2016</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0.99</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">1.00</td>
+</tr>
+<tr class="odd">
+<td align="left">Montevil</td>
+<td align="right">2017</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0.99</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0.99</td>
+</tr>
+<tr class="even">
+<td align="left">Montevil</td>
+<td align="right">2018</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">1.00</td>
+</tr>
+</tbody>
+</table>
+<p>barbara: solo datos de 2016 y 2017 de las variables NO, NO2, CO, PM10, 03 y PM25</p>
+<pre class="r"><code>barbara_data &lt;- data_completion %&gt;% filter(station_alias == 'Santa Bárbara')
+kable(barbara_data)</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">station_alias</th>
+<th align="right">year</th>
+<th align="right">SO2</th>
+<th align="right">NO</th>
+<th align="right">NO2</th>
+<th align="right">CO</th>
+<th align="right">PM10</th>
+<th align="right">O3</th>
+<th align="right">dd</th>
+<th align="right">vv</th>
+<th align="right">TMP</th>
+<th align="right">HR</th>
+<th align="right">PRB</th>
+<th align="right">RS</th>
+<th align="right">LL</th>
+<th align="right">BEN</th>
+<th align="right">TOL</th>
+<th align="right">MXIL</th>
+<th align="right">PM25</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Santa Bárbara</td>
+<td align="right">2016</td>
+<td align="right">0</td>
+<td align="right">0.97</td>
+<td align="right">0.97</td>
+<td align="right">0.98</td>
+<td align="right">0.98</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0.98</td>
+</tr>
+<tr class="even">
+<td align="left">Santa Bárbara</td>
+<td align="right">2017</td>
+<td align="right">0</td>
+<td align="right">0.98</td>
+<td align="right">0.98</td>
+<td align="right">0.99</td>
+<td align="right">1.00</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">1.00</td>
+</tr>
+<tr class="odd">
+<td align="left">Santa Bárbara</td>
+<td align="right">2018</td>
+<td align="right">0</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">1.00</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">1.00</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code># We add a new variable with the year 
 air_data_2$year &lt;- year(air_data_2$date_time_utc)
 
 observations_by_year &lt;- air_data_2 %&gt;% group_by(year) %&gt;%
@@ -578,7 +2403,6 @@ ggplot(week_day_avgs_largo, aes(x = week_day, y = value)) +
   facet_grid(contaminante~station_alias,scales=&quot;free_y&quot;) +
    theme(axis.text = element_text(size = 6))</code></pre>
 <p><img src="data:image/png;base64,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" width="\textwidth" /></p>
-</div>
 </div>
 </div>
 

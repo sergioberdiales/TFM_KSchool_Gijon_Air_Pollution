@@ -31,3 +31,16 @@ year_o3 <- air_data_2 %>% select(O3, year, station_alias) %>%
 
 ggplot(year_o3, aes(year, O3_mean, colour = station_alias)) + 
   geom_line()
+
+
+# recorte este codigo sobre nas:
+
+nas <- air_data_2 %>% 
+  group_by(station_alias, year(date_time_utc)) %>%
+  select(everything()) %>%  
+  summarise_all(funs(sum(is.na(.))))
+
+nas_per <- air_data_2 %>% 
+  group_by(station_alias, year(date_time_utc)) %>%
+  select(everything()) %>%  
+  summarise_all(funs(round(sum(is.na(.))/n(), 2)))
