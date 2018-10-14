@@ -62,14 +62,14 @@ We can see on this image the location of each station. http://movil.asturias.es/
 ![Source: "Informe de calidad del aire del Principado de Asturias (2016)".](imgs/gijon_stations_map.jpg)
 ººº
 
-The air_data_descriptors.csv file contains information about the nature of the elements measured by the stations. Names, descriptions and units.
+The air_data_descriptors.csv file contains information about the nature of the elements monitored by the stations. Names, descriptions and units.
 ```{r , warning= FALSE, message= FALSE}
 variables <- read_csv('data/air_data_descriptors.csv', locale = locale(encoding = "ISO-8859-1"))
 variables
 
 ```
 
-In order to import the data from the 18 csv files we have to create a file list with them. 
+In order to import the data from the 18 csv files we list all the files in the object data_files. 
 
 ```{r warning= FALSE, message= FALSE}
 data_files <- list.files(path = "data", pattern = "air_data_20*")
@@ -84,6 +84,11 @@ air_data_0 <- data_files %>%
     }) %>%
     reduce(rbind)
 ```
+We take a look to the data set
+```{r warning= FALSE, message= FALSE}
+glimpse(air_data_0)
+```
+
 
 We change the names of some variables.
 
@@ -115,7 +120,7 @@ We create a vector with all the variables we want to be numeric
 ```{r warning= FALSE, message= FALSE}
 num <- colnames(air_data_1)[c(3, 4, 6:22)]
 ```
-We make the conversion to numeric 
+We make the conversion of this set of variables to numeric 
 ```{r warning= FALSE, message= FALSE}
 air_data_1 <- air_data_1 %>% mutate_at(num, as.numeric)
 ```
@@ -134,13 +139,23 @@ set.
 air_data_1 <- air_data_1 %>% left_join(alias_dict, by = 'station')
 ```
 
-We take a look to the data set
+We call the summary function to inspect the data main indicators
 ```{r warning= FALSE, message= FALSE}
-glimpse(air_data_1)
 summary(air_data_1)
 ```
 
-There are several variables which minimun values are -9999. It is very likely to be an error. So, we replace these values by nas (to do: ask the owner of the data about this detail).
+There are several variables which minimun values are -9999.
+
+```{r warning = FALSE, message = FALSE}
+
+kable(air_data_1 %>% filter(SO2 == -9999))
+
+
+```
+
+They are all from the same day (2000-01-27) and from the same station ('H. Felgueroso'). All the variables from that day, excepts the 'CO' indicator, are equal to '-9999'. 
+
+So, we replace these values by NAs. 
 ```{r warning = FALSE, message = FALSE}
 
 air_data_2 <- air_data_1 %>% mutate(SO2 = replace(SO2, SO2 == -9999, NA),
@@ -158,9 +173,36 @@ We check again the output of summary.
 summary(air_data_2)
 ```
 
-Some variables values are negative. We replace them by NAs (to do: ask the owner of the data about this detail).
+Some variables values are negative. 
+
+30 SO2 observations between 2015-12-25 and 2015-12-28 from the Montevil station:
 
 ```{r warning = FALSE, message = FALSE}
+kable(neg_SO2 <- air_data_2 %>% filter(SO2 < 0))
+```
+
+2 RS observations from the Constitucion station:
+
+```{r warning = FALSE, message = FALSE}
+kable(neg_RS <- air_data_2 %>% filter(RS < 0))
+```
+
+27 TOL observations between the 2008-12-11 and the 2008-12-15 from the Constitucion station:
+
+```{r warning = FALSE, message = FALSE}
+kable(neg_TOL <- air_data_2 %>% filter(TOL < 0))
+```
+
+59 MXIL observations between the 2008-12-10 and the 2008-12-15 from the Constitucion station:
+
+```{r warning = FALSE, message = FALSE}
+kable(neg_MXIL <- air_data_2 %>% filter(MXIL < 0))
+```
+
+We replace them all by NAs.
+
+```{r warning = FALSE, message = FALSE}
+
 air_data_2 <- air_data_2 %>% mutate(SO2 = replace(SO2, SO2 < 0, NA),
                                     RS = replace(RS, RS < 0, NA),
                                     TOL = replace(TOL, TOL < 0, NA),
