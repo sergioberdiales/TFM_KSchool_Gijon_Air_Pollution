@@ -13,11 +13,6 @@ knitr::opts_chunk$set(echo = TRUE)
   - Construct a web dashboard to visualize the evolution of the main air pollution indicators of Gijon city. (Asturias; Spain).
   - Build a model to predict in the short term (<24h) the evolution of air pollutants concentration by monitoring station.
 
-#### References
-
-- OpenAir package web: http://davidcarslaw.github.io/openair/
-- Breezometer: https://breezometer.com/real-time-air-quality
-
 #### Data gathering
 
 Loading packages
@@ -59,8 +54,7 @@ stations
 
 We can see on this image the location of each station. http://movil.asturias.es/medioambiente/articulos/ficheros/Informe%20de%20calidad%20del%20aire%20en%20Asturias%202016.pdf
 
-![Source: "Informe de calidad del aire del Principado de Asturias (2016)".](imgs/gijon_stations_map.jpg)
-ººº
+![Image source: "Informe de calidad del aire del Principado de Asturias (2016)".](imgs/gijon_stations_map.jpg)
 
 The air_data_descriptors.csv file contains information about the nature of the elements monitored by the stations. Names, descriptions and units.
 ```{r , warning= FALSE, message= FALSE}
@@ -133,7 +127,7 @@ alias_dict <- data.frame(
       station_alias = c("Constitución", "Argentina", "H. Felgueroso", "Castilla", "Montevil", "Santa Bárbara")
 )
 ```
-We join the alias dictionary to the air_data_1 data frame in order to add the new variable to the data 
+We join the alias dictionary to the air_data_1 data frame to add the new variable to the data 
 set.
 ```{r warning= FALSE, message= FALSE}
 air_data_1 <- air_data_1 %>% left_join(alias_dict, by = 'station')
@@ -173,7 +167,7 @@ We check again the output of summary.
 summary(air_data_2)
 ```
 
-Some variables values are negative. 
+Some pollutant variables have as minimum negative values. It does not make much sense. We take a look to the data in order to quantify the problem.
 
 30 SO2 observations between 2015-12-25 and 2015-12-28 from the Montevil station:
 
@@ -199,7 +193,7 @@ kable(neg_TOL <- air_data_2 %>% filter(TOL < 0))
 kable(neg_MXIL <- air_data_2 %>% filter(MXIL < 0))
 ```
 
-We replace them all by NAs.
+There are not many cases. We replace them all by NAs (to do: ask to the data owner about this detail) 
 
 ```{r warning = FALSE, message = FALSE}
 
@@ -212,7 +206,7 @@ summary(air_data_2)
 
 ```
 
-we take a look to the data completion. What proportion of nas do we have by variable, station, year, etc?
+We take a look to the data completion. What proportion of nas do we have by variable, station, year, etc?
 ```{r warning = FALSE, message = FALSE}
 
 data_completion <- air_data_2 %>% 
@@ -243,7 +237,7 @@ kable(argentina_data)
 
 felgueroso: datos desde el anho 2000. Solo de las variables SO2, NO, NO2, CO, PM10 y 03.
 ```{r warning = FALSE, message = FALSE}
-felgueroso_data <- data_completion %>% filter(station_alias == 'H.Felgueroso')
+felgueroso_data <- data_completion %>% filter(station_alias == 'H. Felgueroso')
 kable(felgueroso_data)
 ```
 
@@ -390,4 +384,9 @@ ggplot(week_day_avgs_largo, aes(x = week_day, y = value)) +
    theme(axis.text = element_text(size = 6))
 ```
 
+
+#### References
+
+- OpenAir package web: http://davidcarslaw.github.io/openair/
+- Breezometer: https://breezometer.com/real-time-air-quality
 
