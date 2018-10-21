@@ -13,7 +13,7 @@ knitr::opts_chunk$set(echo = TRUE)
   - Construct a web dashboard to visualize the evolution of the main air pollution indicators of Gijon city. (Asturias; Spain).
   - Build a model to predict in the short term (<24h) the evolution of air pollutants concentration by monitoring station.
 
-#### Data gathering
+### Data gathering
 
 Loading packages
 ```{r , warning= FALSE, message= FALSE}
@@ -206,44 +206,44 @@ summary(air_data_2)
 
 ```
 
-We take a look to the data completion. What proportion of nas do we have by variable, station, year, etc?
+We take a look to the data completeness. What proportion of nas do we have by variable, station, year, etc?
 ```{r warning = FALSE, message = FALSE}
 
-data_completion <- air_data_2 %>% 
+data_completeness <- air_data_2 %>% 
   group_by(station_alias, year = year(date_time_utc)) %>% 
   summarise_all(funs(round(sum(!is.na(.))/n(), 2))) %>%
   select(-c(3:7, 25:28)) # These columns do not have any na. We exclude them.
 
-kable(head(data_completion, 10))
+kable(head(data_completeness, 10))
 
 ```
 
-We are going to check the data completion by station:
+We are going to check the data completeness by station:
 
-constitución: desde el anho 2000 tiene registrados datos de SO2, NO, NO2, CO, PM10, 03, dd, vv, TMP,  HR, PRB, HS y LL, 
-A partir del anho 2007 tambien existen datos de BEN, TOL y MXIL (en 2006 sólo el 0,01% del año). Y a partir de 2009 se empieza a medir las particulas PM25 (en 2008 sólo el 0,02% del año).
+Constitución: There is data registered from the variables SO2, NO, NO2, CO, PM10, 03, dd, vv, TMP,  HR, PRB, HS and LL since the year 2000.
+There are measurements of the variables BEN, TOL and MXIL since the year 2006 (only 0.01% ). Y a partir de 2009 se empieza a medir las particulas PM25 (en 2008 sólo el 0,02% del año).
 en el anho 2008 desciende la completacion de los datos hasta el 88% de las variables dd, vv, TMP, 
 HR, PRB, HS, LL, BEN, TOL y MXIL (comprobar que no haya sido un problema de importacion de los datos)
 ```{r warning = FALSE, message = FALSE}
-constitucion_data <- data_completion %>% filter(station_alias == 'Constitución')
+constitucion_data <- data_completeness %>% filter(station_alias == 'Constitución')
 kable(constitucion_data)
 ```
 
  argentina: datos desde el anho 2000. Solo de las variables SO2, NO, NO2, CO, PM10 y 03.
 ```{r warning = FALSE, message = FALSE}
-argentina_data <- data_completion %>% filter(station_alias == 'Argentina')
+argentina_data <- data_completeness %>% filter(station_alias == 'Argentina')
 kable(argentina_data)
 ```
 
 felgueroso: datos desde el anho 2000. Solo de las variables SO2, NO, NO2, CO, PM10 y 03.
 ```{r warning = FALSE, message = FALSE}
-felgueroso_data <- data_completion %>% filter(station_alias == 'H. Felgueroso')
+felgueroso_data <- data_completeness %>% filter(station_alias == 'H. Felgueroso')
 kable(felgueroso_data)
 ```
 
 castilla: datos desde el anho 2000. Solo de las variables SO2, NO, NO2, CO, PM10 y 03.
 ```{r warning = FALSE, message = FALSE}
-castilla_data <- data_completion %>% filter(station_alias == 'Castilla')
+castilla_data <- data_completeness %>% filter(station_alias == 'Castilla')
 kable(castilla_data)
 ```
 
@@ -251,13 +251,13 @@ montevil: datos desde 2009. Solo datos de las variables SO2, NO, NO2, 03, dd, vv
 LL y PM25
 sin datos de las variables CO, PM10, BEN, TOL y MXIL
 ```{r warning = FALSE, message = FALSE}
-montevil_data <- data_completion %>% filter(station_alias == 'Montevil')
+montevil_data <- data_completeness %>% filter(station_alias == 'Montevil')
 kable(montevil_data)
 ```
 
 barbara: solo datos de 2016 y 2017 de las variables NO, NO2, CO, PM10, 03 y PM25
 ```{r warning = FALSE, message = FALSE}
-barbara_data <- data_completion %>% filter(station_alias == 'Santa Bárbara')
+barbara_data <- data_completeness %>% filter(station_alias == 'Santa Bárbara')
 kable(barbara_data)
 ```
 
@@ -386,6 +386,54 @@ ggplot(week_day_avgs_largo, aes(x = week_day, y = value)) +
   geom_line() + 
   facet_grid(contaminante~station_alias,scales="free_y") +
    theme(axis.text = element_text(size = 6))
+```
+
+
+### Prediction models
+
+We are going to use as base model for our predictions the ARIMA method. And, as first step we are going to try to predict the values of the PM10 pollutant for the Constitución station. 
+
+We create the dataset pm10 with PM10 values from the Constitución Station and we execute a summary
+
+
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+
+pm10 <- air_data_3 %>% filter(station_alias == 'Constitución') %>%
+                        select(date_time_utc, PM10)
+
+summary(pm10)
+
+
+```
+
+25% of the values are between 44.00 and 888.00. 888.00 is a value really extreme. How many extreme values (outliers) do we have in this series? We plot all the values to visualise this:
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+
+ggplot(pm10, aes(x = date_time_utc, y = PM10)) + 
+         geom_point(alpha = 0.1)
+
+```
+We have very few values greater than 250. So, it doesn't seem we have a problem with the outliers (Pending: A PM10 level of 880 is something possible or is it likely to be a monitoring error?).
+
+
+Daily averages
+
+We create a new dataset with the PM10 daily averages and we plot them in a new graphic. We add a trend line too. There is a clear downward trend in the measurements and we have many fewer extreme values during the last decade. It seems like we have two very clear "epochs" in the data, before and after the year 2008. 
+
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+
+
+pm10_day_avg <- pm10 %>% group_by(day = date(date_time_utc)) %>%
+                          summarise(day_avg = mean(PM10, na.rm = TRUE))
+
+ggplot(pm10_day_avg, aes(x = day, y = day_avg, , colour = day_avg)) + 
+         geom_point(alpha = 0.5) +
+         geom_smooth(color = "grey", alpha = 0.2) +
+         scale_colour_gradientn(colours = terrain.colors(10)) +
+         theme(legend.position = c(0.3, 0.9),
+                legend.background = element_rect(colour = "transparent", fill = NA), legend.direction = "horizontal") +
+         labs(colour = "PM10 daily average (colour scale)", x = "Year", y = "PM10 daily average", title = "PM10 daily average - 2000-2017 evolution (Constitución Station)")
+
 ```
 
 
