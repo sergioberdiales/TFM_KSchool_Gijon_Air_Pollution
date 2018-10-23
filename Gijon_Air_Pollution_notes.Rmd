@@ -26,6 +26,9 @@ library(lubridate)
 library(ggplot2)
 library(stringr)
 library(knitr)
+library(xts)
+library(zoo)
+library(gridExtra)
 
 ```
 
@@ -435,6 +438,49 @@ ggplot(pm10_day_avg, aes(x = day, y = day_avg, , colour = day_avg)) +
          labs(colour = "PM10 daily average (colour scale)", x = "Year", y = "PM10 daily average", title = "PM10 daily average - 2000-2017 evolution (Constitución Station)")
 
 ```
+
+We identify a very clear trend through the years on the last graph. But, as we already saw  before on the grid graphs there are other things happening  at the same time. 
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+
+year_const <- year_avgs_largo %>% filter(station_alias == "Constitución", contaminante == 'PM10')
+plot1 <- ggplot(year_const, aes(x = year, y = value)) + 
+  geom_line()
+
+month_const <- month_avgs_largo %>% filter(station_alias == "Constitución", contaminante == 'PM10')
+plot2 <- ggplot(month_const, aes(x = month, y = value)) + 
+  geom_line()
+
+week_day_const <- week_day_avgs_largo %>% filter(station_alias == "Constitución", contaminante == 'PM10')
+plot3 <- ggplot(week_day_const, aes(x = week_day, y = value)) + 
+  geom_line()
+
+hour_const <- hour_avgs_largo %>% filter(station_alias == "Constitución", contaminante == 'PM10')
+plot4 <- ggplot(hour_const, aes(x = hour, y = value)) + 
+  geom_line()
+
+grid.arrange(plot1, plot2, plot3, plot4, ncol = 2)
+
+```
+
+ 
+We convert the dataframe pm10 in a time series object
+
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+
+pm10_ts <- xts(x = pm10$PM10, order.by = pm10$date_time_utc)
+
+
+```
+
+We plot the entire series. It 
+
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+
+plot(pm10_ts)
+
+
+```
+
 
 
 #### References
