@@ -468,25 +468,27 @@ grid.arrange(plot1, plot2, plot3, plot4, ncol = 2)
 
 ```
 
+We create a time series object with the monthly averages. 
+
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+
+year_month_pm10 <- pm10 %>% group_by(year = year(date_time_utc), month = month(date_time_utc)) %>%
+                            summarise(year_month_avg = mean(PM10, na.rm = TRUE))
+
+year_month_pm10 <- year_month_pm10 %>% unite("year_month", c("year", "month"), sep = "-")
+                
+pm10_month_ts <- ts(year_month_pm10$year_month_avg, start = 2000, frequency = 12)            
+
+
+```
+And we plot it.
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+
+plot(pm10_month_ts)
+
+```
+
  
-We convert the dataframe pm10 in a time series object
-
-```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
-
-pm10_ts <- xts(x = pm10$PM10, order.by = pm10$date_time_utc)
-
-
-```
-
-We plot the entire series. It 
-
-```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
-
-plot(pm10_ts)
-
-
-```
-
 
 
 #### References
