@@ -29,6 +29,7 @@ library(knitr)
 library(xts)
 library(zoo)
 library(gridExtra)
+library(astsa)
 
 ```
 
@@ -468,7 +469,7 @@ grid.arrange(plot1, plot2, plot3, plot4, ncol = 2)
 
 ```
 
-We create a time series object with the monthly averages. 
+As a first step we are going to try to predict the monthly levels of PM10. We create a time series object with the monthly averages. 
 
 ```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
 
@@ -477,7 +478,13 @@ year_month_pm10 <- pm10 %>% group_by(year = year(date_time_utc), month = month(d
 
 year_month_pm10 <- year_month_pm10 %>% unite("year_month", c("year", "month"), sep = "-")
                 
-pm10_month_ts <- ts(year_month_pm10$year_month_avg, start = 2000, frequency = 12)            
+pm10_month_ts <- ts(year_month_pm10$year_month_avg, start = 2000, frequency = 12)  
+
+# We create another time series object with the period 2009-2016
+
+year_month_pm10_2 <- year_month_pm10 %>% filter(year_month > '2009-0')
+
+pm10_2nd_ts <- ts(year_month_pm10_2$year_month_avg, start = 2009, frequency = 12)  
 
 
 ```
@@ -487,9 +494,56 @@ And we plot it.
 plot(pm10_month_ts)
 
 ```
+We remove the trend with the "diff" and plot it.
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
 
- 
+plot(diff(pm10_month_ts))
 
+```
+
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+
+acf2(pm10_month_ts)
+
+```
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+
+sarima(pm10_month_ts, 0, 0, 1)
+
+```
+
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+
+sarima(pm10_month_ts, 1, 0, 0)
+
+```
+
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+
+sarima(pm10_month_ts, 1, 0, 1)
+
+```
+
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+
+sarima(pm10_month_ts, 1, 1, 1)
+
+```
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+
+sarima(pm10_month_ts, p = 1, d = 1, q = 1, P = 0, D = 1, Q = 1, S = 12)
+
+```
+
+As we saw before there are two clearly different periods in the data. We are going to use now only the second period.
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+
+
+sarima(pm10_2nd_ts, p = 1, d = 1, q = 1, P = 0, D = 1, Q = 1, S = 12)
+
+```
+
+The results are significantly better.
 
 #### References
 
