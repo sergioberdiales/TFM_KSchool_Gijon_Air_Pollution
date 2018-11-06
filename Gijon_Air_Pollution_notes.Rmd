@@ -30,6 +30,7 @@ library(xts)
 library(zoo)
 library(gridExtra)
 library(astsa)
+library(rvest)
 
 ```
 
@@ -544,6 +545,24 @@ sarima(pm10_2nd_ts, p = 1, d = 1, q = 1, P = 0, D = 1, Q = 1, S = 12)
 ```
 
 The results are significantly better.
+
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+
+
+sarima(pm10_2nd_ts, p = 1, d = 1, q = 1, P = 1, D = 1, Q = 1, S = 12)
+
+```
+
+
+Predicting 12 months
+
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+
+
+sarima.for(pm10_2nd_ts, n.ahead = 12, 1, 1, 1, 1, 1, 1, 12)
+
+```
+
 
 #### References
 
