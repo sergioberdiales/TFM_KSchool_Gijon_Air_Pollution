@@ -31,6 +31,7 @@ library(zoo)
 library(gridExtra)
 library(astsa)
 library(rvest)
+library(fpp2)
 
 ```
 
@@ -481,7 +482,13 @@ year_month_pm10 <- year_month_pm10 %>% unite("year_month", c("year", "month"), s
                 
 pm10_month_ts <- ts(year_month_pm10$year_month_avg, start = 2000, frequency = 12)  
 
-# We create another time series object with the period 2009-2016
+# We create another time series object with the period 2000-2008
+
+year_month_pm10_1 <- year_month_pm10 %>% filter(year_month <= '2009-01')
+
+pm10_1st_ts <- ts(year_month_pm10_1$year_month_avg, start = 2000, frequency = 12)  
+
+# We create another time series object with the period 2009-2017
 
 year_month_pm10_2 <- year_month_pm10 %>% filter(year_month > '2009-0')
 
@@ -489,83 +496,118 @@ pm10_2nd_ts <- ts(year_month_pm10_2$year_month_avg, start = 2009, frequency = 12
 
 
 ```
-And we plot it.
+
+We have a time series of 216 observations. 18 years x 12 months (2000-2017)
 ```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
 
-plot(pm10_month_ts)
+glimpse(pm10_month_ts)
+
 
 ```
-We remove the trend with the "diff" and plot it.
-```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
-
-plot(diff(pm10_month_ts))
-
-```
+We plot the complete series. As we saw before with the daily averages, we identify two obvious things at first sight: The general downward trend during the whole series and at least two very different cycles in the data, the first between 2000 and 2007, and the second from 2008 to the end of the series. Beyond this, the first cycle seems to be much more irregular than the second one. This fact can play an important role in choosing the period to fit a prediction model.
 
 ```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
 
-acf2(pm10_month_ts)
+autoplot(pm10_month_ts)
 
-```
-```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
-
-sarima(pm10_month_ts, 0, 0, 1)
 
 ```
 
+We plot a seasonal plot for all the data but it is not very easy to read. 
+
 ```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
 
-sarima(pm10_month_ts, 1, 0, 0)
+ggseasonplot(pm10_month_ts, year.labels=TRUE, year.labels.left=TRUE) +
+  ylab("PM10") +
+  ggtitle("Seasonal plot: PM10 - Constitución")
 
 ```
 
+If we reduce the period range to 2009-2017 we can observe more easily the seasonal trend of the data. The year starts with low PM10 levels (January and February). We have a peak in March and a decrease in April-May (with some exceptions). The levels use to increase during September and October and fall in November. And we finish the year with another increase in December. 
 ```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
 
-sarima(pm10_month_ts, 1, 0, 1)
-
-```
-
-```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
-
-sarima(pm10_month_ts, 1, 1, 1)
-
-```
-```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
-
-sarima(pm10_month_ts, p = 1, d = 1, q = 1, P = 0, D = 1, Q = 1, S = 12)
-
-```
-
-As we saw before there are two clearly different periods in the data. We are going to use now only the second period.
-```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
-
-
-sarima(pm10_2nd_ts, p = 1, d = 1, q = 1, P = 0, D = 1, Q = 1, S = 12)
-
-```
-
-The results are significantly better.
-
-```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
-
-
-sarima(pm10_2nd_ts, p = 1, d = 1, q = 1, P = 1, D = 1, Q = 1, S = 12)
+ggseasonplot(pm10_2nd_ts, year.labels=TRUE, year.labels.left=TRUE) +
+  ylab("PM10") +
+  ggtitle("Seasonal plot: PM10 - Constitución (2009-2017)")
 
 ```
 
 
-Predicting 12 months
 
 ```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
 
 
-sarima.for(pm10_2nd_ts, n.ahead = 12, 1, 1, 1, 1, 1, 1, 12)
+pm10_month_ts %>% ggtsdisplay(main="")
+
 
 ```
 
 
-#### References
+As the data is non-stationary, we apply the diff function 
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
 
-- OpenAir package web: http://davidcarslaw.github.io/openair/
-- Breezometer: https://breezometer.com/real-time-air-quality
+pm10_diff <- diff(pm10_month_ts) 
+
+
+```
+
+We plot the differenced series and the ACF and PACF plots
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+
+pm10_diff %>% ggtsdisplay(main="")
+
+```
+
+The auto-correlation graphs show certain patterns which could be caused by seasonal effects. 
+
+We generate an ARIMA model with the auto.arima function. 
+
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+
+fit <- auto.arima(pm10_month_ts)
+fit
+
+```
+
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+
+fit <- auto.arima(pm10_month_ts, approximation = FALSE, stepwise = FALSE)
+fit
+
+```
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+
+fit <- auto.arima(pm10_2nd_ts, approximation = FALSE, stepwise = FALSE)
+fit
+
+```
+
+
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+
+autoplot(forecast(fit))
+
+```
+
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+fit <- auto.arima(pm10_2nd_ts)
+
+fit
+```
+
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+
+autoplot(forecast(fit))
+
+```
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+fit <- auto.arima(pm10_2nd_ts, , approximation = FALSE)
+fit
+```
+
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+
+autoplot(forecast(fit))
+
+```
 
