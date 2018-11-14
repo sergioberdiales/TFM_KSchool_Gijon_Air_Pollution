@@ -601,13 +601,31 @@ autoplot(forecast(fit))
 
 ```
 ```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
-fit <- auto.arima(pm10_2nd_ts, , approximation = FALSE)
+fit <- auto.arima(pm10_2nd_ts, approximation = FALSE)
 fit
 ```
 
 ```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
 
-autoplot(forecast(fit))
+autoplot(forecast(fit, h = 12))
 
 ```
+
+We think that the model selected by the auto.arima function generate very flat forecasts. The forecast line for 2018 does not seem to collect the variability of the past series. We set the Q parameter to 1 in order to try to get a better result.
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+
+fit2 <- Arima(pm10_2nd_ts, order=c(1,1,1), seasonal=c(1,0,1))
+fit2
+
+```
+
+The shape of this new forecast seems to be more closed to the historical data (Pending: generate more differente models and compare their metrics)
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+
+autoplot(forecast(fit2, h = 12))
+
+```
+
+But we do not have 2018 data yet to test these forecasts. So, in order to test our models we will have to divide the data between in two groups, train and test. 
+
 
