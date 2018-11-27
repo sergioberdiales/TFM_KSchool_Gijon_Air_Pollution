@@ -32,6 +32,8 @@ library(gridExtra)
 library(astsa)
 library(rvest)
 library(fpp2)
+library(ranger)
+
 
 ```
 
@@ -287,6 +289,13 @@ air_data_2$month <- month(air_data_2$date_time_utc)
 air_data_2$year_month_day <- ymd(air_data_2$date_time_utc)
 air_data_2$week_day <- wday(air_data_2$date_time_utc, week_start = getOption("lubridate.week.start", 1))
 air_data_2$hour <- hour(air_data_2$date_time_utc)
+```
+
+We save this dataset as a rds object.
+```{r warning = FALSE, message = FALSE}
+
+saveRDS(air_data_2, file = "air_data_2.rds")
+
 ```
 
 We take a look to the general trend of several indicators through the last 18 years
@@ -598,82 +607,66 @@ lines(c(test_pm10$Arima))
 
 ```
 
-It doesn't seem like the Arima model is working very well. Maybe we should have to take a shorter period for the training data
 
+
+PM10 hourly prediction
+
+Prepare the variables
 ```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
 
-model_arima_2=auto.arima(train_pm10_2_ts,seasonal=TRUE,trace=TRUE)
-plot(forecast(model_arima_2,h=24))
-summary(model_arima_2)
+air_data_2 <- readRDS("air_data_2.rds")
 
-test_pm10$Arima_2=forecast(model_arima_2,h=12)$mean
+constitucion_data <- air_data_2 %>% filter(station == "1")
+pm10_var_2014_2016 <- constitucion_data %>% filter(year < 2017) %>% select(PM10, month, week_day, hour) %>% rename(pm10_0 = PM10)
+
+pm10_var_2017 <- constitucion_data %>% filter(year == 2017) %>% select(PM10, month, week_day, hour) %>% rename(pm10_0 = PM10)
+
+train <- pm10_var_2014_2016 
+test <- pm10_var_2017
+
+# Convert this code in a loop
+train <- train %>% mutate(pm10_1 = lag(pm10_0, 1),
+                  pm10_2 = lag(pm10_0, 2),
+                  pm10_3 = lag(pm10_0, 3),
+                  pm10_4 = lag(pm10_0, 4),
+                  pm10_5 = lag(pm10_0, 5),
+                  pm10_6 = lag(pm10_0, 6),
+                  pm10_7 = lag(pm10_0, 7),
+                  pm10_8 = lag(pm10_0, 8),
+                  pm10_9 = lag(pm10_0, 9),
+                  pm10_10 = lag(pm10_0, 10),
+                  pm10_11 = lag(pm10_0, 11),
+                  pm10_12 = lag(pm10_0, 12),
+                  pm10_13 = lag(pm10_0, 13),
+                  pm10_14 = lag(pm10_0, 14),
+                  pm10_15 = lag(pm10_0, 15),
+                  pm10_16 = lag(pm10_0, 16),
+                  pm10_17 = lag(pm10_0, 17),
+                  pm10_18 = lag(pm10_0, 18),
+                  pm10_19 = lag(pm10_0, 19),
+                  pm10_20 = lag(pm10_0, 20),
+                  pm10_21 = lag(pm10_0, 21),
+                  pm10_22 = lag(pm10_0, 22),
+                  pm10_23 = lag(pm10_0, 23),
+                  pm10_24 = lag(pm10_0, 24),
+                  pm10_168 = lag(pm10_0, 168)
+) %>% na.omit
+
 
 ```
 
 ```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
 
-fit <- auto.arima(pm10_month_ts)
-fit
+outcome <- "pm10_0"
+vars <- colnames(train)[2:29]
+(fmla <- paste(outcome, "~", paste(vars, collapse = " + ")))
 
-```
-
-```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
-
-fit <- auto.arima(pm10_month_ts, approximation = FALSE, stepwise = FALSE)
-fit
 
 ```
 ```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
-
-fit <- auto.arima(pm10_2nd_ts, approximation = FALSE, stepwise = FALSE)
-fit
-
+(pm10_model_rf <- ranger(fmla, 
+                         train, 
+                         num.trees = 1000, 
+                         respect.unordered.factors = "order", 
+                         seed = 42))
 ```
-
-
-```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
-
-autoplot(forecast(fit))
-
-```
-
-```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
-fit <- auto.arima(pm10_2nd_ts)
-
-fit
-```
-
-```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
-
-autoplot(forecast(fit))
-
-```
-```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
-fit <- auto.arima(pm10_2nd_ts, approximation = FALSE)
-fit
-```
-
-```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
-
-autoplot(forecast(fit, h = 12))
-
-```
-
-We think that the model selected by the auto.arima function generate very flat forecasts. The forecast line for 2018 does not seem to collect the variability of the past series. We set the Q parameter to 1 in order to try to get a better result.
-```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
-
-fit2 <- Arima(pm10_2nd_ts, order=c(1,1,1), seasonal=c(1,0,1))
-fit2
-
-```
-
-The shape of this new forecast seems to be more closed to the historical data (Pending: generate more differente models and compare their metrics)
-```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
-
-autoplot(forecast(fit2, h = 12))
-
-```
-
-But we do not have 2018 data yet to test these forecasts. So, in order to test our models we will have to divide the data between in two groups, train and test. 
-
-
