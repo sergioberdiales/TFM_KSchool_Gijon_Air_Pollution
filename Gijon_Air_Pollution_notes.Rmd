@@ -560,7 +560,55 @@ pm10_diff %>% ggtsdisplay(main="")
 
 The auto-correlation graphs show certain patterns which could be caused by seasonal effects. 
 
-We generate an ARIMA model with the auto.arima function. 
+We generate an ARIMA model with the auto.arima function from the forecast package. We divide the data in two datasets before, train and test. Training period = 2000-2016; Testing period = 2017
+
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+train_pm10 <- year_month_pm10 %>% filter(year_month <= '2017-01')
+train_pm10_ts <- ts(train_pm10$year_month_avg, start = 2000, frequency = 12) 
+
+test_pm10 <- year_month_pm10 %>% filter(year_month >= '2017-01')
+test_pm10_ts <- ts(test_pm10$year_month_avg, start = 2017, frequency = 12)
+
+train_pm10_2 <- year_month_pm10 %>% filter(year_month <= '2017-01',
+                                           year_month >= '2009-01')
+train_pm10_2_ts <- ts(train_pm10_2$year_month_avg, start = 2009, frequency = 12) 
+
+```
+
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+
+model_arima=auto.arima(train_pm10_ts,seasonal=TRUE,trace=TRUE)
+plot(forecast(model_arima,h=24))
+summary(model_arima)
+
+test_pm10$Arima=forecast(model_arima,h=12)$mean
+
+```
+
+
+
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+
+YMAX=max(test_pm10[,-1])
+YMIN=min(test_pm10[,-1])
+
+plot(test_pm10$year_month_avg, type="l", ylim=c(YMIN,YMAX), lwd= 2)
+lines(c(test_pm10$Arima))
+
+
+```
+
+It doesn't seem like the Arima model is working very well. Maybe we should have to take a shorter period for the training data
+
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+
+model_arima_2=auto.arima(train_pm10_2_ts,seasonal=TRUE,trace=TRUE)
+plot(forecast(model_arima_2,h=24))
+summary(model_arima_2)
+
+test_pm10$Arima_2=forecast(model_arima_2,h=12)$mean
+
+```
 
 ```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
 
