@@ -33,6 +33,7 @@ library(astsa)
 library(rvest)
 library(fpp2)
 library(ranger)
+library(broom)
 
 
 ```
@@ -306,6 +307,10 @@ year_avgs <- air_data_2 %>% select(station_alias, date_time_utc, PM10, PM25, SO2
   group_by(station_alias, year = year(date_time_utc)) %>%
   summarise_all(funs(mean(., na.rm = TRUE))) %>% 
   select(-date_time_utc) # We drop this variable
+
+# We export the years_avgs as a csv file
+
+write_csv(year_avgs, "final_csvs/year_avgs.csv")
 
 # We convert the table to long format
 
@@ -611,18 +616,190 @@ lines(c(test_pm10$Arima))
 
 PM10 hourly prediction
 
+ARIMA model
+Revisar. Creo que el parametro frequency esta mal fijado. Tendria que ser el numero de observaciones en un año. 
+Modelo resultante guardado en model_arima_hour
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+
+air_data_2 <- readRDS("air_data_2.rds")
+
+constitucion_data <- air_data_2 %>% filter(station == "1")
+
+saveRDS(constitucion_data, file = "constitucion_data.rds")
+
+train_pm10 <- constitucion_data %>% filter(date_time_utc < '2017-01-01 00:00:00') %>%
+                                    select(PM10)
+train_pm10_ts <- ts(train_pm10$PM10, start = 2000, frequency = 24) 
+
+test_pm10 <- constitucion_data %>% filter(date_time_utc >= '2017-01-01 00:00:00') %>%
+                                    select(PM10)
+test_pm10_ts <- ts(test_pm10$PM10, start = 2017, frequency = 24)
+
+test_pm10_24 <- constitucion_data %>% filter(date_time_utc >= '2017-01-01 00:00:00', date_time_utc <= '2017-01-02 00:00:00') %>%
+                                    select(PM10)
+test_pm10_24_ts <- ts(test_pm10$PM10, start = 2017, frequency = 24)
+
+
+
+```
+
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+
+model_arima=auto.arima(train_pm10_ts,seasonal=TRUE,trace=TRUE)
+plot(forecast(model_arima,h=24))
+summary(model_arima)
+
+test_pm10_24_ts$Arima=forecast(model_arima,h=24)$mean
+
+model_arima_hour <- model_arima
+saveRDS(model_arima_hour, file = "model_arima_hour.rds")
+
+```
+
+
+
+First model. Just one lagged value of the pm10 variable. 
+
 Prepare the variables
 ```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
 
 air_data_2 <- readRDS("air_data_2.rds")
 
 constitucion_data <- air_data_2 %>% filter(station == "1")
-pm10_var_2014_2016 <- constitucion_data %>% filter(year < 2017) %>% select(PM10, month, week_day, hour) %>% rename(pm10_0 = PM10)
+pm10_var_2000_2016 <- constitucion_data %>% filter(year < 2017) %>% select(PM10) %>% rename(pm10_0 = PM10)
+
+pm10_var_2017 <- constitucion_data %>% filter(year == 2017) %>% select(PM10) %>% rename(pm10_0 = PM10)
+
+train <- pm10_var_2000_2016 
+test <- pm10_var_2017
+
+# Convert this code in a loop
+train <- train %>% mutate(pm10_1 = lag(pm10_0, 1)) %>% 
+                    na.omit
+
+
+```
+
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+
+outcome <- "pm10_0"
+
+#vars <- colnames(train)[2:25]
+(fmla <- paste(outcome, "~", "pm10_1"))
+
+
+```
+
+Linear regression
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+(pm10_model_lm_0 <- lm(fmla, train))
+```
+
+
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+
+summary(pm10_model_lm_0)
+
+```
+
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+(pm10_model_rf_0 <- ranger(fmla, 
+                         train, 
+                         num.trees = 1000, 
+                         respect.unordered.factors = "order", 
+                         seed = 42))
+```
+
+
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+MSE <- pm10_model_rf_0$prediction.error
+(RMSE <- sqrt(MSE))
+(sd(train$pm10_0))
+```
+
+The RMSE (14.5) is smaller than the sd (23.2). It means that the model is at least a better predictor model than the mean. 
+
+First model. Just 24 lagged values of the pm10 variable. 
+
+Prepare the variables
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+
+air_data_2 <- readRDS("air_data_2.rds")
+
+constitucion_data <- air_data_2 %>% filter(station == "1")
+pm10_var_2014_2016 <- constitucion_data %>% filter(year < 2017) %>% select(PM10) %>% rename(pm10_0 = PM10)
+
+pm10_var_2017 <- constitucion_data %>% filter(year == 2017) %>% select(PM10) %>% rename(pm10_0 = PM10)
+
+train <- pm10_var_2014_2016 
+test <- pm10_var_2017
+
+# Convert this code in a loop
+train <- train %>% mutate(pm10_1 = lag(pm10_0, 1),
+                  pm10_2 = lag(pm10_0, 2),
+                  pm10_3 = lag(pm10_0, 3),
+                  pm10_4 = lag(pm10_0, 4),
+                  pm10_5 = lag(pm10_0, 5),
+                  pm10_6 = lag(pm10_0, 6),
+                  pm10_7 = lag(pm10_0, 7),
+                  pm10_8 = lag(pm10_0, 8),
+                  pm10_9 = lag(pm10_0, 9),
+                  pm10_10 = lag(pm10_0, 10),
+                  pm10_11 = lag(pm10_0, 11),
+                  pm10_12 = lag(pm10_0, 12),
+                  pm10_13 = lag(pm10_0, 13),
+                  pm10_14 = lag(pm10_0, 14),
+                  pm10_15 = lag(pm10_0, 15),
+                  pm10_16 = lag(pm10_0, 16),
+                  pm10_17 = lag(pm10_0, 17),
+                  pm10_18 = lag(pm10_0, 18),
+                  pm10_19 = lag(pm10_0, 19),
+                  pm10_20 = lag(pm10_0, 20),
+                  pm10_21 = lag(pm10_0, 21),
+                  pm10_22 = lag(pm10_0, 22),
+                  pm10_23 = lag(pm10_0, 23),
+                  pm10_24 = lag(pm10_0, 24)
+) %>% na.omit
+
+
+```
+
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+
+outcome <- "pm10_0"
+vars <- colnames(train)[2:25]
+(fmla <- paste(outcome, "~", paste(vars, collapse = " + ")))
+
+
+```
+
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+(pm10_model_rf_1 <- ranger(fmla, 
+                         train, 
+                         num.trees = 1000, 
+                         respect.unordered.factors = "order", 
+                         seed = 42))
+```
+
+
+
+
+Prepare the variables
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+
+air_data_2 <- readRDS("air_data_2.rds")
+
+constitucion_data <- air_data_2 %>% filter(station == "1")
+pm10_var_2000_2016 <- constitucion_data %>% filter(year < 2017) %>% select(PM10, month, week_day, hour) %>% rename(pm10_0 = PM10)
 
 pm10_var_2017 <- constitucion_data %>% filter(year == 2017) %>% select(PM10, month, week_day, hour) %>% rename(pm10_0 = PM10)
 
 train <- pm10_var_2014_2016 
 test <- pm10_var_2017
+
+train$month <- as.factor(train$month)
+train$week_day <- as.factor(train$week_day)
+train$hour <- as.factor(train$hour)
 
 # Convert this code in a loop
 train <- train %>% mutate(pm10_1 = lag(pm10_0, 1),
@@ -670,3 +847,114 @@ vars <- colnames(train)[2:29]
                          respect.unordered.factors = "order", 
                          seed = 42))
 ```
+
+R squared = 67%
+
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+
+summary(pm10_model_rf)
+
+```
+
+Trato de mejorar el modelo introduciendo variables de tiempo atmosferico.
+
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+
+pm10_var_2000_2016 <- constitucion_data %>% filter(year < 2017) %>%
+                                            select(PM10, month, week_day, hour, PRB) %>% 
+                                            rename(pm10_0 = PM10,
+                                                   prb_0 = PRB)
+
+pm10_var_2017 <- constitucion_data %>% filter(year == 2017) %>% 
+                                        select(PM10, month, week_day, hour, PRB) %>%
+                                        rename(pm10_0 = PM10, 
+                                               prb_0 = PRB)
+                                                                                                                    
+
+train <- pm10_var_2000_2016 
+test <- pm10_var_2017
+
+# Convert this code in a loop
+train <- train %>% mutate(pm10_1 = lag(pm10_0, 1),
+                  pm10_2 = lag(pm10_0, 2),
+                  pm10_3 = lag(pm10_0, 3),
+                  pm10_4 = lag(pm10_0, 4),
+                  pm10_5 = lag(pm10_0, 5),
+                  pm10_6 = lag(pm10_0, 6),
+                  pm10_7 = lag(pm10_0, 7),
+                  pm10_8 = lag(pm10_0, 8),
+                  pm10_9 = lag(pm10_0, 9),
+                  pm10_10 = lag(pm10_0, 10),
+                  pm10_11 = lag(pm10_0, 11),
+                  pm10_12 = lag(pm10_0, 12),
+                  pm10_13 = lag(pm10_0, 13),
+                  pm10_14 = lag(pm10_0, 14),
+                  pm10_15 = lag(pm10_0, 15),
+                  pm10_16 = lag(pm10_0, 16),
+                  pm10_17 = lag(pm10_0, 17),
+                  pm10_18 = lag(pm10_0, 18),
+                  pm10_19 = lag(pm10_0, 19),
+                  pm10_20 = lag(pm10_0, 20),
+                  pm10_21 = lag(pm10_0, 21),
+                  pm10_22 = lag(pm10_0, 22),
+                  pm10_23 = lag(pm10_0, 23),
+                  pm10_24 = lag(pm10_0, 24),
+                  pm10_168 = lag(pm10_0, 168)) %>% 
+                    mutate(prb_1 = lag(prb_0, 1),
+                  prb_2 = lag(prb_0, 2),
+                  prb_3 = lag(prb_0, 3),
+                  prb_4 = lag(prb_0, 4),
+                  prb_5 = lag(prb_0, 5),
+                  prb_6 = lag(prb_0, 6),
+                  prb_7 = lag(prb_0, 7),
+                  prb_8 = lag(prb_0, 8),
+                  prb_9 = lag(prb_0, 9),
+                  prb_10 = lag(prb_0, 10),
+                  prb_11 = lag(prb_0, 11),
+                  prb_12 = lag(prb_0, 12),
+                  prb_13 = lag(prb_0, 13),
+                  prb_14 = lag(prb_0, 14),
+                  prb_15 = lag(prb_0, 15),
+                  prb_16 = lag(prb_0, 16),
+                  prb_17 = lag(prb_0, 17),
+                  prb_18 = lag(prb_0, 18),
+                  prb_19 = lag(prb_0, 19),
+                  prb_20 = lag(prb_0, 20),
+                  prb_21 = lag(prb_0, 21),
+                  prb_22 = lag(prb_0, 22),
+                  prb_23 = lag(prb_0, 23),
+                  prb_24 = lag(prb_0, 24),
+                  prb_168 = lag(prb_0, 168))  %>% na.omit
+
+
+```
+
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+
+outcome <- "pm10_0"
+vars <- colnames(train)[2:55]
+(fmla <- paste(outcome, "~", paste(vars, collapse = " + ")))
+
+
+```
+
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+(pm10_model_rf <- ranger(fmla, 
+                         train, 
+                         num.trees = 1000, 
+                         respect.unordered.factors = "order", 
+                         seed = 42))
+```
+
+El MSE y el R cuadrado son casi exactamente los mismos. Esta variable no parece aportar nada. Por lo menos asi introducida.
+
+
+
+Dashboard
+
+Incumplimientos
+
+Límites anuales
+
+
+
