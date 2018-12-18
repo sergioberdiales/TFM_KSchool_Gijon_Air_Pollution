@@ -1,0 +1,960 @@
+---
+title: "Gijon_Air_Pollution"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+### Project goals:
+
+  - Construct a web dashboard to visualize the evolution of the main air pollution indicators of Gijon city. (Asturias; Spain).
+  - Build a model to predict in the short term (<24h) the evolution of air pollutants concentration by monitoring station.
+
+### Data gathering
+
+Loading packages
+```{r , warning= FALSE, message= FALSE}
+library(readr)
+library(dplyr)
+library(tidyr)
+library(openair) # http://davidcarslaw.github.io/openair/
+library(purrr)
+library(lubridate)
+library(ggplot2)
+library(stringr)
+library(knitr)
+library(xts)
+library(zoo)
+library(gridExtra)
+library(astsa)
+library(rvest)
+library(fpp2)
+library(ranger)
+library(broom)
+
+
+```
+
+
+First of all I have to check if I will have the basic data to make the analysis. I need air pollution and weather data of the Gijon area. 
+The town hall of Gijon has an open data web portal here https://transparencia.gijon.es/. We can download pollution air data on csv format from year 2000 to 2017 [here](https://transparencia.gijon.es/search/risp_dataset/page/1808-catalogo-de-datos?utf8=%E2%9C%93&search=aire+&search_sector=&search_format=&commit=Buscar&authenticity_token=j8%2F3CvCuPcDkrRe%2F1NR5RBp0t%2FOOosiA7724w3T2mB4%3D): 
+
+I downloaded 18 csv files with air pollution and weather data of Gijón from years 2000 to 2017. I saved them in the "data" folder.
+I downloaded two more files from this web, a csv file with the description of the variables and another csv file with information about the measurement stations. 
+
+We take a look to the information included in  the stations_info.csv file. It includes the stations addresses, longitude, latitude and their IDs and names. All this information, as we will see, is included in the csv files with pollution and weather data too. So, we are not going to use this file anymore.
+
+
+```{r , warning= FALSE, message= FALSE}
+stations <- read_delim('data/stations_info.csv',
+                       delim = ';',
+                       escape_double = FALSE, 
+                       trim_ws = TRUE,
+                       locale = locale(encoding = "ISO-8859-1"),
+                       col_types = cols(.default = "c"))
+stations
+
+
+
+```
+
+We can see on this image the location of each station. http://movil.asturias.es/medioambiente/articulos/ficheros/Informe%20de%20calidad%20del%20aire%20en%20Asturias%202016.pdf
+
+![Image source: "Informe de calidad del aire del Principado de Asturias (2016)".](imgs/gijon_stations_map.jpg)
+
+The air_data_descriptors.csv file contains information about the nature of the elements monitored by the stations. Names, descriptions and units.
+```{r , warning= FALSE, message= FALSE}
+variables <- read_csv('data/air_data_descriptors.csv', locale = locale(encoding = "ISO-8859-1"))
+variables
+
+```
+
+In order to import the data from the 18 csv files we list all the files in the object data_files. 
+
+```{r warning= FALSE, message= FALSE}
+data_files <- list.files(path = "data", pattern = "air_data_20*")
+```
+
+Then, we map the function read_csv on this list in order to import every file and finally merge them in a unique dataframe (air_data_0) with reduce(rbind). 
+
+```{r warning= FALSE, message= FALSE}
+air_data_0 <- data_files %>% 
+    map(function(x) {
+        read_csv(paste0("./data/", x), locale = locale(encoding = "ISO-8859-1"), col_types = cols(.default = "c"))
+    }) %>%
+    reduce(rbind)
+```
+We take a look to the data set
+```{r warning= FALSE, message= FALSE}
+glimpse(air_data_0)
+```
+
+
+We change the names of some variables.
+
+```{r warning= FALSE, message= FALSE}
+
+# Variables names changing
+air_data_1 <- air_data_0 %>% rename(station = `Estación`,
+                                    station_name = `Título`,
+                                    date_time_utc = `Fecha Solar (UTC)`,
+                                    latitude = latitud,
+                                    longitude = longitud)
+```
+
+We imported all the columns as characters in order to avoid problems with the format attributions. So, we have to make now some format variable changes.
+
+We change the date_time_utc format from character to date time. 
+```{r warning= FALSE, message= FALSE}
+
+air_data_1$date_time_utc <- ymd_hms(air_data_1$date_time_utc)
+```
+
+We change the station and station_name formats from character to factor.
+```{r warning= FALSE, message= FALSE}
+air_data_1$station <- as.factor(air_data_1$station)
+air_data_1$station_name <- as.factor(air_data_1$station_name)
+```
+
+We create a vector with all the variables we want to be numeric
+```{r warning= FALSE, message= FALSE}
+num <- colnames(air_data_1)[c(3, 4, 6:22)]
+```
+We make the conversion of this set of variables to numeric 
+```{r warning= FALSE, message= FALSE}
+air_data_1 <- air_data_1 %>% mutate_at(num, as.numeric)
+```
+
+We create a dictionary with an alias for each station in order to add a new variable with more
+convenient station names
+```{r warning= FALSE, message= FALSE}
+alias_dict <- data.frame(
+      station = c("1", "2", "3", "4", "10", "11"),
+      station_alias = c("Constitución", "Argentina", "H. Felgueroso", "Castilla", "Montevil", "Santa Bárbara")
+)
+```
+We join the alias dictionary to the air_data_1 data frame to add the new variable to the data 
+set.
+```{r warning= FALSE, message= FALSE}
+air_data_1 <- air_data_1 %>% left_join(alias_dict, by = 'station')
+```
+
+We call the summary function to inspect the data main indicators
+```{r warning= FALSE, message= FALSE}
+summary(air_data_1)
+```
+
+There are several variables which minimun values are -9999.
+
+```{r warning = FALSE, message = FALSE}
+
+kable(air_data_1 %>% filter(SO2 == -9999))
+
+
+```
+
+They are all from the same day (2000-01-27) and from the same station ('H. Felgueroso'). All the variables from that day, excepts the 'CO' indicator, are equal to '-9999'. 
+
+So, we replace these values by NAs. 
+```{r warning = FALSE, message = FALSE}
+
+air_data_2 <- air_data_1 %>% mutate(SO2 = replace(SO2, SO2 == -9999, NA),
+                                    NO = replace(NO, NO == -9999, NA),
+                                    NO2 = replace(NO2, NO2 == -9999, NA),
+                                    PM10 = replace(PM10, PM10 == -9999, NA),
+                                    O3 = replace(O3, O3 == -9999, NA))
+
+```
+
+
+We check again the output of summary. 
+
+```{r warning = FALSE, message = FALSE}
+summary(air_data_2)
+```
+
+Some pollutant variables have as minimum negative values. It does not make much sense. We take a look to the data in order to quantify the problem.
+
+30 SO2 observations between 2015-12-25 and 2015-12-28 from the Montevil station:
+
+```{r warning = FALSE, message = FALSE}
+kable(neg_SO2 <- air_data_2 %>% filter(SO2 < 0))
+```
+
+2 RS observations from the Constitucion station:
+
+```{r warning = FALSE, message = FALSE}
+kable(neg_RS <- air_data_2 %>% filter(RS < 0))
+```
+
+27 TOL observations between the 2008-12-11 and the 2008-12-15 from the Constitucion station:
+
+```{r warning = FALSE, message = FALSE}
+kable(neg_TOL <- air_data_2 %>% filter(TOL < 0))
+```
+
+59 MXIL observations between the 2008-12-10 and the 2008-12-15 from the Constitucion station:
+
+```{r warning = FALSE, message = FALSE}
+kable(neg_MXIL <- air_data_2 %>% filter(MXIL < 0))
+```
+
+There are not many cases. We replace them all by NAs and call again the summary function (to do: ask to the data owner about this detail).
+
+```{r warning = FALSE, message = FALSE}
+
+air_data_2 <- air_data_2 %>% mutate(SO2 = replace(SO2, SO2 < 0, NA),
+                                    RS = replace(RS, RS < 0, NA),
+                                    TOL = replace(TOL, TOL < 0, NA),
+                                    MXIL = replace(MXIL, MXIL < 0, NA))
+
+summary(air_data_2)
+
+```
+
+We take a look to the data completeness. What proportion of nas do we have by variable, station, year, etc?
+```{r warning = FALSE, message = FALSE}
+
+data_completeness <- air_data_2 %>% 
+  group_by(station_alias, year = year(date_time_utc)) %>% 
+  summarise_all(funs(round(sum(!is.na(.))/n(), 2))) %>%
+  select(-c(3:7, 25:28)) # These columns do not have any na. We exclude them.
+
+kable(head(data_completeness, 10))
+
+```
+
+We are going to check the data completeness by station:
+
+Constitución: There is data registered from the variables SO2, NO, NO2, CO, PM10, 03, dd, vv, TMP,  HR, PRB, HS and LL since the year 2000.
+There are measurements of the variables BEN, TOL and MXIL since the year 2006 (only 0.01% ). The PM25 particles are monitored since the year 2008 (2008: only covered 0,02% of the year).
+During the year 2008 the completeness of several variables (HR, PRB, HS, LL, BEN, TOL y MXIL) decrease until 88% (to do: check there was not caused by a data importing problem.)
+```{r warning = FALSE, message = FALSE}
+constitucion_data <- data_completeness %>% filter(station_alias == 'Constitución')
+kable(constitucion_data)
+```
+
+Argentina: data since the year 2000. Variables: SO2, NO, NO2, CO, PM10 and 03.
+```{r warning = FALSE, message = FALSE}
+argentina_data <- data_completeness %>% filter(station_alias == 'Argentina')
+kable(argentina_data)
+```
+
+H. Felgueroso: data since the year 2000. Variables: SO2, NO, NO2, CO, PM10 and 03. During the year 2006 the completeness of the data decrease until 88% (to do: check there was not caused by a data importing problem.)
+```{r warning = FALSE, message = FALSE}
+felgueroso_data <- data_completeness %>% filter(station_alias == 'H. Felgueroso')
+kable(felgueroso_data)
+```
+
+Castilla: data since the year 2000. Variables: SO2, NO, NO2, CO, PM10 and 03. During the year 2015 the completeness of the data decrease until 77% (to do: check there was not caused by a data importing problem.)
+```{r warning = FALSE, message = FALSE}
+castilla_data <- data_completeness %>% filter(station_alias == 'Castilla')
+kable(castilla_data)
+```
+
+Montevil: Data since the year 2009. Variables: SO2, NO, NO2, 03, dd, vv, TMP, HR, PRB, HS, 
+LL and PM25.
+```{r warning = FALSE, message = FALSE}
+montevil_data <- data_completeness %>% filter(station_alias == 'Montevil')
+kable(montevil_data)
+```
+
+Santa Bárbara: Data since the year 2016. Variables: NO, NO2, CO, PM10, 03 and PM25
+```{r warning = FALSE, message = FALSE}
+barbara_data <- data_completeness %>% filter(station_alias == 'Santa Bárbara')
+kable(barbara_data)
+```
+
+All the stations have 2018 data, but it is just 6 observations. We drop them to avoid problems when visualising the data.
+
+```{r warning = FALSE, message = FALSE}
+observations_per_year <- air_data_2 %>% group_by(year = year(date_time_utc)) %>%
+                        summarise(n = n())
+kable(observations_per_year)
+```
+
+```{r warning = FALSE, message = FALSE}
+air_data_2$year <- year(air_data_2$date_time_utc)
+air_data_2 <- air_data_2 %>% filter(year != '2018')
+
+```
+
+We add to the dataset several more time variables. 
+
+```{r warning = FALSE, message = FALSE}
+
+air_data_2$month <- month(air_data_2$date_time_utc)
+air_data_2$year_month_day <- ymd(air_data_2$date_time_utc)
+air_data_2$week_day <- wday(air_data_2$date_time_utc, week_start = getOption("lubridate.week.start", 1))
+air_data_2$hour <- hour(air_data_2$date_time_utc)
+```
+
+We save this dataset as a rds object.
+```{r warning = FALSE, message = FALSE}
+
+saveRDS(air_data_2, file = "air_data_2.rds")
+
+```
+
+We take a look to the general trend of several indicators through the last 18 years
+
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+# We calcule the yearly mean of the pollutants levels.
+year_avgs <- air_data_2 %>% select(station_alias, date_time_utc, PM10, PM25, SO2, NO2, NO, O3, BEN, CO, MXIL, TOL) %>%
+  group_by(station_alias, year = year(date_time_utc)) %>%
+  summarise_all(funs(mean(., na.rm = TRUE))) %>% 
+  select(-date_time_utc) # We drop this variable
+
+# We export the years_avgs as a csv file
+
+write_csv(year_avgs, "final_csvs/year_avgs.csv")
+
+# We convert the table to long format
+
+year_avgs_long <- gather(year_avgs, contaminante, value, 3:length(year_avgs)) %>% 
+                    filter(!(station_alias == 'Constitución' & year == '2006' & contaminante %in% c('BEN', 'MXIL', 'TOL'))) %>% # We filter this data because is only completed in 0.01%
+                    filter(!(station_alias == 'Constitución' & year == '2008' & contaminante == 'PM25')) # We filter this data because is only completed in 0.02%
+
+# We present the data in a grid of graphs
+
+ggplot(year_avgs_long, aes(x = year, y = value)) + 
+  geom_line() + 
+  facet_grid(contaminante~station_alias,scales="free_y") +
+   theme(axis.text = element_text(size = 6))
+
+```
+
+
+We drop the Santa Bárbara and Montevil stations. These stations have much less data and the behavior of their variables are significantly different (they are sub-urban stations). So, we take them out from the analysis for now. 
+
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+
+air_data_3 <- air_data_2 %>% filter(station_alias != 'Montevil' , 
+                                         station_alias != 'Santa Bárbara' )
+
+```
+
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+# We calcule the yearly mean of the pollutants levels.
+year_avgs <- air_data_3 %>% select(station_alias, date_time_utc, PM10, PM25, SO2, NO2, NO, O3, BEN, CO, MXIL, TOL) %>%
+  group_by(station_alias, year = year(date_time_utc)) %>%
+  summarise_all(funs(mean(., na.rm = TRUE))) %>% 
+  select(-date_time_utc) # quito ahora esta variable, porque no tiene sentido que salga su media.
+
+# We convert the table to long format
+
+year_avgs_long <- gather(year_avgs, contaminante, value, 3:length(year_avgs)) %>%
+                    filter(!(station_alias == 'Constitución' & year == '2006' & contaminante %in% c('BEN', 'MXIL', 'TOL'))) %>% # We filter this data because is only completed in 0.01%
+                    filter(!(station_alias == 'Constitución' & year == '2008' & contaminante == 'PM25')) # We filter this data because is only completed in 0.02%
+
+# We present the data in a grid of graphs
+
+ggplot(year_avgs_long, aes(x = year, y = value)) + 
+  geom_line() + 
+  facet_grid(contaminante~station_alias,scales="free_y") +
+   theme(axis.text = element_text(size = 6))
+
+```
+
+
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+# We calcule the hourly mean of the pollutants levels.
+hour_avgs <- air_data_3 %>% select(station_alias, hour, PM10, PM25, SO2, NO2, NO, O3, BEN, CO, MXIL, TOL) %>%
+  group_by(station_alias, hour) %>%
+  summarise_all(funs(mean(., na.rm = TRUE)))  # quito ahora esta variable, porque no tiene sentido que salga su media.
+
+# We convert the table to long format
+
+hour_avgs_long <- gather(hour_avgs, contaminante, value, 3:length(hour_avgs))
+
+# We present the data in a grid of graphs
+
+ggplot(hour_avgs_long, aes(x = hour, y = value)) + 
+  geom_line() + 
+  facet_grid(contaminante~station_alias,scales="free_y") +
+   theme(axis.text = element_text(size = 6))
+```
+
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+# We calcule the monthly mean of the pollutants levels.
+month_avgs <- air_data_3 %>% select(station_alias, month, PM10, PM25, SO2, NO2, NO, O3, BEN, CO, MXIL, TOL) %>%
+  group_by(station_alias, month) %>%
+  summarise_all(funs(mean(., na.rm = TRUE)))  # quito ahora esta variable, porque no tiene sentido que salga su media.
+
+# We convert the table to long format
+
+month_avgs_long <- gather(month_avgs, contaminante, value, 3:length(month_avgs))
+
+# We present the data in a grid of graphs
+
+ggplot(month_avgs_long, aes(x = month, y = value)) + 
+  geom_line() + 
+  facet_grid(contaminante~station_alias,scales="free_y") +
+   theme(axis.text = element_text(size = 6))
+```
+
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+# We calcule the weekly mean of the pollutants levels.
+week_day_avgs <- air_data_3 %>% select(station_alias, week_day, PM10, PM25, SO2, NO2, NO, O3, BEN, CO, MXIL, TOL) %>%
+  group_by(station_alias, week_day) %>%
+  summarise_all(funs(mean(., na.rm = TRUE)))  # quito ahora esta variable, porque no tiene sentido que salga su media.
+
+# We convert the table to long format
+
+week_day_avgs_long <- gather(week_day_avgs, contaminante, value, 3:length(week_day_avgs))
+
+# We present the data in a grid of graphs
+
+ggplot(week_day_avgs_long, aes(x = week_day, y = value)) + 
+  geom_line() + 
+  facet_grid(contaminante~station_alias,scales="free_y") +
+   theme(axis.text = element_text(size = 6))
+```
+
+
+### Prediction models
+
+We are going to use as base model for our predictions the ARIMA method. And, as first step we are going to try to predict the values of the PM10 pollutant for the Constitución station. 
+
+We create the dataset pm10 with PM10 values from the Constitución Station and we execute a summary
+
+
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+
+pm10 <- air_data_3 %>% filter(station_alias == 'Constitución') %>%
+                        select(date_time_utc, PM10)
+
+summary(pm10)
+
+
+```
+
+25% of the values are between 44.00 and 888.00. 888.00 is a value really extreme. How many extreme values (outliers) do we have in this series? We plot all the values to visualise this:
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+
+ggplot(pm10, aes(x = date_time_utc, y = PM10)) + 
+         geom_point(alpha = 0.1)
+
+```
+We have very few values greater than 250. So, it doesn't seem we have a problem with the outliers (Pending: A PM10 level of 880 is something possible or is it likely to be a monitoring error?).
+
+
+Daily averages
+
+We create a new dataset with the PM10 daily averages and we plot them in a new graphic. We add a trend line too. There is a clear downward trend in the measurements and we have many fewer extreme values during the last decade. It seems like we have two very clear "epochs" in the data, before and after the year 2008. 
+
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+
+
+pm10_day_avg <- pm10 %>% group_by(day = date(date_time_utc)) %>%
+                          summarise(day_avg = mean(PM10, na.rm = TRUE))
+
+ggplot(pm10_day_avg, aes(x = day, y = day_avg, , colour = day_avg)) + 
+         geom_point(alpha = 0.5) +
+         geom_smooth(color = "grey", alpha = 0.2) +
+         scale_colour_gradientn(colours = terrain.colors(10)) +
+         theme(legend.position = c(0.3, 0.9),
+                legend.background = element_rect(colour = "transparent", fill = NA), legend.direction = "horizontal") +
+         labs(colour = "PM10 daily average (colour scale)", x = "Year", y = "PM10 daily average", title = "PM10 daily average - 2000-2017 evolution (Constitución Station)")
+
+```
+
+We identify a very clear trend through the years on the last graph. But, as we already saw  before on the grid graphs there are other things happening  at the same time. 
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+
+year_const <- year_avgs_long %>% filter(station_alias == "Constitución", contaminante == 'PM10')
+plot1 <- ggplot(year_const, aes(x = year, y = value)) + 
+  geom_line()
+
+month_const <- month_avgs_long %>% filter(station_alias == "Constitución", contaminante == 'PM10')
+plot2 <- ggplot(month_const, aes(x = month, y = value)) + 
+  geom_line()
+
+week_day_const <- week_day_avgs_long %>% filter(station_alias == "Constitución", contaminante == 'PM10')
+plot3 <- ggplot(week_day_const, aes(x = week_day, y = value)) + 
+  geom_line()
+
+hour_const <- hour_avgs_long %>% filter(station_alias == "Constitución", contaminante == 'PM10')
+plot4 <- ggplot(hour_const, aes(x = hour, y = value)) + 
+  geom_line()
+
+grid.arrange(plot1, plot2, plot3, plot4, ncol = 2)
+
+```
+
+As a first step we are going to try to predict the monthly levels of PM10. We create a time series object with the monthly averages. 
+
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+
+year_month_pm10 <- pm10 %>% group_by(year = year(date_time_utc), month = month(date_time_utc)) %>%
+                            summarise(year_month_avg = mean(PM10, na.rm = TRUE))
+
+year_month_pm10 <- year_month_pm10 %>% unite("year_month", c("year", "month"), sep = "-")
+                
+pm10_month_ts <- ts(year_month_pm10$year_month_avg, start = 2000, frequency = 12)  
+
+# We create another time series object with the period 2000-2008
+
+year_month_pm10_1 <- year_month_pm10 %>% filter(year_month <= '2009-01')
+
+pm10_1st_ts <- ts(year_month_pm10_1$year_month_avg, start = 2000, frequency = 12)  
+
+# We create another time series object with the period 2009-2017
+
+year_month_pm10_2 <- year_month_pm10 %>% filter(year_month > '2009-0')
+
+pm10_2nd_ts <- ts(year_month_pm10_2$year_month_avg, start = 2009, frequency = 12)  
+
+
+```
+
+We have a time series of 216 observations. 18 years x 12 months (2000-2017)
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+
+glimpse(pm10_month_ts)
+
+
+```
+We plot the complete series. As we saw before with the daily averages, we identify two obvious things at first sight: The general downward trend during the whole series and at least two very different cycles in the data, the first between 2000 and 2007, and the second from 2008 to the end of the series. Beyond this, the first cycle seems to be much more irregular than the second one. This fact can play an important role in choosing the period to fit a prediction model.
+
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+
+autoplot(pm10_month_ts)
+
+
+```
+
+We plot a seasonal plot for all the data but it is not very easy to read. 
+
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+
+ggseasonplot(pm10_month_ts, year.labels=TRUE, year.labels.left=TRUE) +
+  ylab("PM10") +
+  ggtitle("Seasonal plot: PM10 - Constitución")
+
+```
+
+If we reduce the period range to 2009-2017 we can observe more easily the seasonal trend of the data. The year starts with low PM10 levels (January and February). We have a peak in March and a decrease in April-May (with some exceptions). The levels use to increase during September and October and fall in November. And we finish the year with another increase in December. 
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+
+ggseasonplot(pm10_2nd_ts, year.labels=TRUE, year.labels.left=TRUE) +
+  ylab("PM10") +
+  ggtitle("Seasonal plot: PM10 - Constitución (2009-2017)")
+
+```
+
+
+
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+
+
+pm10_month_ts %>% ggtsdisplay(main="")
+
+
+```
+
+
+As the data is non-stationary, we apply the diff function 
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+
+pm10_diff <- diff(pm10_month_ts) 
+
+
+```
+
+We plot the differenced series and the ACF and PACF plots
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+
+pm10_diff %>% ggtsdisplay(main="")
+
+```
+
+The auto-correlation graphs show certain patterns which could be caused by seasonal effects. 
+
+We generate an ARIMA model with the auto.arima function from the forecast package. We divide the data in two datasets before, train and test. Training period = 2000-2016; Testing period = 2017
+
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+train_pm10 <- year_month_pm10 %>% filter(year_month <= '2017-01')
+train_pm10_ts <- ts(train_pm10$year_month_avg, start = 2000, frequency = 12) 
+
+test_pm10 <- year_month_pm10 %>% filter(year_month >= '2017-01')
+test_pm10_ts <- ts(test_pm10$year_month_avg, start = 2017, frequency = 12)
+
+train_pm10_2 <- year_month_pm10 %>% filter(year_month <= '2017-01',
+                                           year_month >= '2009-01')
+train_pm10_2_ts <- ts(train_pm10_2$year_month_avg, start = 2009, frequency = 12) 
+
+```
+
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+
+model_arima=auto.arima(train_pm10_ts,seasonal=TRUE,trace=TRUE)
+plot(forecast(model_arima,h=24))
+summary(model_arima)
+
+test_pm10$Arima=forecast(model_arima,h=12)$mean
+
+```
+
+
+
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+
+YMAX=max(test_pm10[,-1])
+YMIN=min(test_pm10[,-1])
+
+plot(test_pm10$year_month_avg, type="l", ylim=c(YMIN,YMAX), lwd= 2)
+lines(c(test_pm10$Arima))
+
+
+```
+
+
+
+PM10 hourly prediction
+
+ARIMA model
+Revisar. Creo que el parametro frequency esta mal fijado. Tendria que ser el numero de observaciones en un año. 
+Modelo resultante guardado en model_arima_hour
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+
+air_data_2 <- readRDS("air_data_2.rds")
+
+constitucion_data <- air_data_2 %>% filter(station == "1")
+
+saveRDS(constitucion_data, file = "constitucion_data.rds")
+
+train_pm10 <- constitucion_data %>% filter(date_time_utc < '2017-01-01 00:00:00') %>%
+                                    select(PM10)
+train_pm10_ts <- ts(train_pm10$PM10, start = 2000, frequency = 24) 
+
+test_pm10 <- constitucion_data %>% filter(date_time_utc >= '2017-01-01 00:00:00') %>%
+                                    select(PM10)
+test_pm10_ts <- ts(test_pm10$PM10, start = 2017, frequency = 24)
+
+test_pm10_24 <- constitucion_data %>% filter(date_time_utc >= '2017-01-01 00:00:00', date_time_utc <= '2017-01-02 00:00:00') %>%
+                                    select(PM10)
+test_pm10_24_ts <- ts(test_pm10$PM10, start = 2017, frequency = 24)
+
+
+
+```
+
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+
+model_arima=auto.arima(train_pm10_ts,seasonal=TRUE,trace=TRUE)
+plot(forecast(model_arima,h=24))
+summary(model_arima)
+
+test_pm10_24_ts$Arima=forecast(model_arima,h=24)$mean
+
+model_arima_hour <- model_arima
+saveRDS(model_arima_hour, file = "model_arima_hour.rds")
+
+```
+
+
+
+First model. Just one lagged value of the pm10 variable. 
+
+Prepare the variables
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+
+air_data_2 <- readRDS("air_data_2.rds")
+
+constitucion_data <- air_data_2 %>% filter(station == "1")
+pm10_var_2000_2016 <- constitucion_data %>% filter(year < 2017) %>% select(PM10) %>% rename(pm10_0 = PM10)
+
+pm10_var_2017 <- constitucion_data %>% filter(year == 2017) %>% select(PM10) %>% rename(pm10_0 = PM10)
+
+train <- pm10_var_2000_2016 
+test <- pm10_var_2017
+
+# Convert this code in a loop
+train <- train %>% mutate(pm10_1 = lag(pm10_0, 1)) %>% 
+                    na.omit
+
+
+```
+
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+
+outcome <- "pm10_0"
+
+#vars <- colnames(train)[2:25]
+(fmla <- paste(outcome, "~", "pm10_1"))
+
+
+```
+
+Linear regression
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+(pm10_model_lm_0 <- lm(fmla, train))
+```
+
+
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+
+summary(pm10_model_lm_0)
+
+```
+
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+(pm10_model_rf_0 <- ranger(fmla, 
+                         train, 
+                         num.trees = 1000, 
+                         respect.unordered.factors = "order", 
+                         seed = 42))
+```
+
+
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+MSE <- pm10_model_rf_0$prediction.error
+(RMSE <- sqrt(MSE))
+(sd(train$pm10_0))
+```
+
+The RMSE (14.5) is smaller than the sd (23.2). It means that the model is at least a better predictor model than the mean. 
+
+First model. Just 24 lagged values of the pm10 variable. 
+
+Prepare the variables
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+
+air_data_2 <- readRDS("air_data_2.rds")
+
+constitucion_data <- air_data_2 %>% filter(station == "1")
+pm10_var_2014_2016 <- constitucion_data %>% filter(year < 2017) %>% select(PM10) %>% rename(pm10_0 = PM10)
+
+pm10_var_2017 <- constitucion_data %>% filter(year == 2017) %>% select(PM10) %>% rename(pm10_0 = PM10)
+
+train <- pm10_var_2014_2016 
+test <- pm10_var_2017
+
+# Convert this code in a loop
+train <- train %>% mutate(pm10_1 = lag(pm10_0, 1),
+                  pm10_2 = lag(pm10_0, 2),
+                  pm10_3 = lag(pm10_0, 3),
+                  pm10_4 = lag(pm10_0, 4),
+                  pm10_5 = lag(pm10_0, 5),
+                  pm10_6 = lag(pm10_0, 6),
+                  pm10_7 = lag(pm10_0, 7),
+                  pm10_8 = lag(pm10_0, 8),
+                  pm10_9 = lag(pm10_0, 9),
+                  pm10_10 = lag(pm10_0, 10),
+                  pm10_11 = lag(pm10_0, 11),
+                  pm10_12 = lag(pm10_0, 12),
+                  pm10_13 = lag(pm10_0, 13),
+                  pm10_14 = lag(pm10_0, 14),
+                  pm10_15 = lag(pm10_0, 15),
+                  pm10_16 = lag(pm10_0, 16),
+                  pm10_17 = lag(pm10_0, 17),
+                  pm10_18 = lag(pm10_0, 18),
+                  pm10_19 = lag(pm10_0, 19),
+                  pm10_20 = lag(pm10_0, 20),
+                  pm10_21 = lag(pm10_0, 21),
+                  pm10_22 = lag(pm10_0, 22),
+                  pm10_23 = lag(pm10_0, 23),
+                  pm10_24 = lag(pm10_0, 24)
+) %>% na.omit
+
+
+```
+
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+
+outcome <- "pm10_0"
+vars <- colnames(train)[2:25]
+(fmla <- paste(outcome, "~", paste(vars, collapse = " + ")))
+
+
+```
+
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+(pm10_model_rf_1 <- ranger(fmla, 
+                         train, 
+                         num.trees = 1000, 
+                         respect.unordered.factors = "order", 
+                         seed = 42))
+```
+
+
+
+
+Prepare the variables
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+
+air_data_2 <- readRDS("air_data_2.rds")
+
+constitucion_data <- air_data_2 %>% filter(station == "1")
+pm10_var_2000_2016 <- constitucion_data %>% filter(year < 2017) %>% select(PM10, month, week_day, hour) %>% rename(pm10_0 = PM10)
+
+pm10_var_2017 <- constitucion_data %>% filter(year == 2017) %>% select(PM10, month, week_day, hour) %>% rename(pm10_0 = PM10)
+
+train <- pm10_var_2014_2016 
+test <- pm10_var_2017
+
+train$month <- as.factor(train$month)
+train$week_day <- as.factor(train$week_day)
+train$hour <- as.factor(train$hour)
+
+# Convert this code in a loop
+train <- train %>% mutate(pm10_1 = lag(pm10_0, 1),
+                  pm10_2 = lag(pm10_0, 2),
+                  pm10_3 = lag(pm10_0, 3),
+                  pm10_4 = lag(pm10_0, 4),
+                  pm10_5 = lag(pm10_0, 5),
+                  pm10_6 = lag(pm10_0, 6),
+                  pm10_7 = lag(pm10_0, 7),
+                  pm10_8 = lag(pm10_0, 8),
+                  pm10_9 = lag(pm10_0, 9),
+                  pm10_10 = lag(pm10_0, 10),
+                  pm10_11 = lag(pm10_0, 11),
+                  pm10_12 = lag(pm10_0, 12),
+                  pm10_13 = lag(pm10_0, 13),
+                  pm10_14 = lag(pm10_0, 14),
+                  pm10_15 = lag(pm10_0, 15),
+                  pm10_16 = lag(pm10_0, 16),
+                  pm10_17 = lag(pm10_0, 17),
+                  pm10_18 = lag(pm10_0, 18),
+                  pm10_19 = lag(pm10_0, 19),
+                  pm10_20 = lag(pm10_0, 20),
+                  pm10_21 = lag(pm10_0, 21),
+                  pm10_22 = lag(pm10_0, 22),
+                  pm10_23 = lag(pm10_0, 23),
+                  pm10_24 = lag(pm10_0, 24),
+                  pm10_168 = lag(pm10_0, 168)
+) %>% na.omit
+
+
+```
+
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+
+outcome <- "pm10_0"
+vars <- colnames(train)[2:29]
+(fmla <- paste(outcome, "~", paste(vars, collapse = " + ")))
+
+
+```
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+(pm10_model_rf <- ranger(fmla, 
+                         train, 
+                         num.trees = 1000, 
+                         respect.unordered.factors = "order", 
+                         seed = 42))
+```
+
+R squared = 67%
+
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+
+summary(pm10_model_rf)
+
+```
+
+Trato de mejorar el modelo introduciendo variables de tiempo atmosferico.
+
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+
+pm10_var_2000_2016 <- constitucion_data %>% filter(year < 2017) %>%
+                                            select(PM10, month, week_day, hour, PRB) %>% 
+                                            rename(pm10_0 = PM10,
+                                                   prb_0 = PRB)
+
+pm10_var_2017 <- constitucion_data %>% filter(year == 2017) %>% 
+                                        select(PM10, month, week_day, hour, PRB) %>%
+                                        rename(pm10_0 = PM10, 
+                                               prb_0 = PRB)
+                                                                                                                    
+
+train <- pm10_var_2000_2016 
+test <- pm10_var_2017
+
+# Convert this code in a loop
+train <- train %>% mutate(pm10_1 = lag(pm10_0, 1),
+                  pm10_2 = lag(pm10_0, 2),
+                  pm10_3 = lag(pm10_0, 3),
+                  pm10_4 = lag(pm10_0, 4),
+                  pm10_5 = lag(pm10_0, 5),
+                  pm10_6 = lag(pm10_0, 6),
+                  pm10_7 = lag(pm10_0, 7),
+                  pm10_8 = lag(pm10_0, 8),
+                  pm10_9 = lag(pm10_0, 9),
+                  pm10_10 = lag(pm10_0, 10),
+                  pm10_11 = lag(pm10_0, 11),
+                  pm10_12 = lag(pm10_0, 12),
+                  pm10_13 = lag(pm10_0, 13),
+                  pm10_14 = lag(pm10_0, 14),
+                  pm10_15 = lag(pm10_0, 15),
+                  pm10_16 = lag(pm10_0, 16),
+                  pm10_17 = lag(pm10_0, 17),
+                  pm10_18 = lag(pm10_0, 18),
+                  pm10_19 = lag(pm10_0, 19),
+                  pm10_20 = lag(pm10_0, 20),
+                  pm10_21 = lag(pm10_0, 21),
+                  pm10_22 = lag(pm10_0, 22),
+                  pm10_23 = lag(pm10_0, 23),
+                  pm10_24 = lag(pm10_0, 24),
+                  pm10_168 = lag(pm10_0, 168)) %>% 
+                    mutate(prb_1 = lag(prb_0, 1),
+                  prb_2 = lag(prb_0, 2),
+                  prb_3 = lag(prb_0, 3),
+                  prb_4 = lag(prb_0, 4),
+                  prb_5 = lag(prb_0, 5),
+                  prb_6 = lag(prb_0, 6),
+                  prb_7 = lag(prb_0, 7),
+                  prb_8 = lag(prb_0, 8),
+                  prb_9 = lag(prb_0, 9),
+                  prb_10 = lag(prb_0, 10),
+                  prb_11 = lag(prb_0, 11),
+                  prb_12 = lag(prb_0, 12),
+                  prb_13 = lag(prb_0, 13),
+                  prb_14 = lag(prb_0, 14),
+                  prb_15 = lag(prb_0, 15),
+                  prb_16 = lag(prb_0, 16),
+                  prb_17 = lag(prb_0, 17),
+                  prb_18 = lag(prb_0, 18),
+                  prb_19 = lag(prb_0, 19),
+                  prb_20 = lag(prb_0, 20),
+                  prb_21 = lag(prb_0, 21),
+                  prb_22 = lag(prb_0, 22),
+                  prb_23 = lag(prb_0, 23),
+                  prb_24 = lag(prb_0, 24),
+                  prb_168 = lag(prb_0, 168))  %>% na.omit
+
+
+```
+
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+
+outcome <- "pm10_0"
+vars <- colnames(train)[2:55]
+(fmla <- paste(outcome, "~", paste(vars, collapse = " + ")))
+
+
+```
+
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+(pm10_model_rf <- ranger(fmla, 
+                         train, 
+                         num.trees = 1000, 
+                         respect.unordered.factors = "order", 
+                         seed = 42))
+```
+
+El MSE y el R cuadrado son casi exactamente los mismos. Esta variable no parece aportar nada. Por lo menos asi introducida.
+
+
+
+Dashboard
+
+Incumplimientos
+
+Límites anuales
+
+
+

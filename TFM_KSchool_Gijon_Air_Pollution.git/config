@@ -1,8 +1,0 @@
-[core]
-	repositoryformatversion = 0
-	filemode = false
-	bare = true
-[remote "origin"]
-	url = git://github.com/sergioberdiales/TFM_KSchool_Gijon_Air_Pollution.git
-	fetch = +refs/*:refs/*
-	mirror = true
