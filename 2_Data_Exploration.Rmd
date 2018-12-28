@@ -27,13 +27,14 @@ library(fpp2)
 library(ranger)
 library(broom)
 library(RcppRoll)
+library(reshape2)
 
 ```
 
 
 Data loading
 ```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
-air_data_2 <- readRDS("air_data_2.rds")
+air_data_2 <- readRDS("data_rds_files/air_data_2.rds")
 ```
 
 
@@ -48,13 +49,13 @@ year_avgs <- air_data_2 %>% select(station_alias, date_time_utc, PM10, PM25, SO2
 
 # We export the years_avgs as a csv file
 
-write_csv(year_avgs, "final_csvs/year_avgs.csv")
+write_csv(year_avgs, "data_final_csvs/year_avgs.csv")
 
 # We convert the table to long format
 
 year_avgs_long <- gather(year_avgs, contaminante, value, 3:length(year_avgs)) %>% 
-                    filter(!(station_alias == 'Constituci贸n' & year == '2006' & contaminante %in% c('BEN', 'MXIL', 'TOL'))) %>% # We filter this data because is only completed in 0.01%
-                    filter(!(station_alias == 'Constituci贸n' & year == '2008' & contaminante == 'PM25')) # We filter this data because is only completed in 0.02%
+                    filter(!(station_alias == 'Constituci髇' & year == '2006' & contaminante %in% c('BEN', 'MXIL', 'TOL'))) %>% # We filter this data because is only completed in 0.01%
+                    filter(!(station_alias == 'Constituci髇' & year == '2008' & contaminante == 'PM25')) # We filter this data because is only completed in 0.02%
 
 # We present the data in a grid of graphs
 
@@ -71,7 +72,7 @@ We drop the Santa B谩rbara and Montevil stations. These stations have much less 
 ```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
 
 air_data_3 <- air_data_2 %>% filter(station_alias != 'Montevil' , 
-                                         station_alias != 'Santa B谩rbara' )
+                                         station_alias != 'Santa B醨bara' )
 
 ```
 
@@ -85,8 +86,8 @@ year_avgs <- air_data_3 %>% select(station_alias, date_time_utc, PM10, PM25, SO2
 # We convert the table to long format
 
 year_avgs_long <- gather(year_avgs, contaminante, value, 3:length(year_avgs)) %>%
-                    filter(!(station_alias == 'Constituci贸n' & year == '2006' & contaminante %in% c('BEN', 'MXIL', 'TOL'))) %>% # We filter this data because is only completed in 0.01%
-                    filter(!(station_alias == 'Constituci贸n' & year == '2008' & contaminante == 'PM25')) # We filter this data because is only completed in 0.02%
+                    filter(!(station_alias == 'Constituci髇' & year == '2006' & contaminante %in% c('BEN', 'MXIL', 'TOL'))) %>% # We filter this data because is only completed in 0.01%
+                    filter(!(station_alias == 'Constituci髇' & year == '2008' & contaminante == 'PM25')) # We filter this data because is only completed in 0.02%
 
 # We present the data in a grid of graphs
 
@@ -153,16 +154,228 @@ ggplot(week_day_avgs_long, aes(x = week_day, y = value)) +
 ```
 
 
-### Prediction models
+### Relationships between variables
 
-We are going to use as base model for our predictions the ARIMA method. And, as first step we are going to try to predict the values of the PM10 pollutant for the Constituci贸n station. 
+The Constitucion Station is the only station with meteorological data. So, we are going to focus our efforts of data exploration on this station.
+
+Reference: http://www.sthda.com/english/wiki/ggplot2-quick-correlation-matrix-heatmap-r-software-and-data-visualization
+
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+
+#This is from the future ;) (tengo que copiar el codigo aqui)
+constitucion_data <- readRDS("data_rds_files/constitucion_data.rds")
+
+pollutants <- constitucion_data %>% select(PM10, PM25, NO2, NO, SO2, CO, O3) %>%
+                                    na.omit()
+
+
+```
+
+
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+
+cor_matrix <- round(cor(pollutants), 2)
+head(cor_matrix)
+
+```
+
+
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+
+long_cor_matrix <- melt(cor_matrix)
+head(long_cor_matrix)
+
+```
+
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+ggplot(data = long_cor_matrix, aes(x=Var1, y=Var2, fill=value)) + 
+  geom_tile()
+```
+
+
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+# Get lower triangle of the correlation matrix
+  get_lower_tri<-function(cor_matrix){
+    cor_matrix[upper.tri(cor_matrix)] <- NA
+    return(cor_matrix)
+  }
+  # Get upper triangle of the correlation matrix
+  get_upper_tri <- function(cor_matrix){
+    cor_matrix[lower.tri(cor_matrix)]<- NA
+    return(cor_matrix)
+  }
+  
+  upper_tri <- get_upper_tri(cor_matrix)
+upper_tri
+
+# Melt the correlation matrix
+library(reshape2)
+long_cor_matrix <- melt(upper_tri, na.rm = TRUE)
+# Heatmap
+library(ggplot2)
+ggplot(data = long_cor_matrix, aes(Var2, Var1, fill = value))+
+ geom_tile(color = "white")+
+ scale_fill_gradient2(low = "blue", high = "red", mid = "white", 
+   midpoint = 0, limit = c(-1,1), space = "Lab", 
+   name="Pearson\nCorrelation") +
+  theme_minimal()+ 
+ theme(axis.text.x = element_text(angle = 45, vjust = 1, 
+    size = 12, hjust = 1))+
+ coord_fixed()
+
+
+```
+  
+  
+  
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+
+reorder_cor_matrix <- function(cor_matrix){
+# Use correlation between variables as distance
+dd <- as.dist((1-cor_matrix)/2)
+hc <- hclust(dd)
+cor_matrix <-cor_matrix[hc$order, hc$order]
+}
+
+# Reorder the correlation matrix
+cor_matrix <- reorder_cor_matrix(cor_matrix)
+upper_tri <- get_upper_tri(cor_matrix)
+# Melt the correlation matrix
+long_cor_matrix <- melt(upper_tri, na.rm = TRUE)
+# Create a ggheatmap
+ggheatmap <- ggplot(long_cor_matrix, aes(Var2, Var1, fill = value))+
+ geom_tile(color = "white")+
+ scale_fill_gradient2(low = "blue", high = "red", mid = "white", 
+   midpoint = 0, limit = c(-1,1), space = "Lab", 
+    name="Pearson\nCorrelation") +
+  theme_minimal()+ # minimal theme
+ theme(axis.text.x = element_text(angle = 45, vjust = 1, 
+    size = 12, hjust = 1))+
+ coord_fixed()
+# Print the heatmap
+print(ggheatmap)
+
+  
+```
+ 
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+
+ggheatmap + 
+geom_text(aes(Var2, Var1, label = value), color = "black", size = 4) +
+theme(
+  axis.title.x = element_blank(),
+  axis.title.y = element_blank(),
+  panel.grid.major = element_blank(),
+  panel.border = element_blank(),
+  panel.background = element_blank(),
+  axis.ticks = element_blank(),
+  legend.justification = c(1, 0),
+  legend.position = c(0.6, 0.7),
+  legend.direction = "horizontal")+
+  guides(fill = guide_colorbar(barwidth = 7, barheight = 1,
+                title.position = "top", title.hjust = 0.5))
+
+
+```
+ 
+ 
+Including information about force and direction of the wind
+
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+
+#This is from the future ;) (tengo que copiar el codigo aqui)
+
+
+
+```
+
+
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+
+constitucion_data <- air_data_2 %>% filter(station == "1")
+
+pollutants <- constitucion_data %>% select(PM10, PM25, NO2, NO, SO2, CO, O3, dd, vv, TMP, PRB, LL, HR, RS) %>%
+                                    na.omit()
+
+cor_matrix <- round(cor(pollutants), 2)
+long_cor_matrix <- melt(cor_matrix)
+head(long_cor_matrix)
+
+
+```
+
+
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+# Get lower triangle of the correlation matrix
+  get_lower_tri<-function(cor_matrix){
+    cor_matrix[upper.tri(cor_matrix)] <- NA
+    return(cor_matrix)
+  }
+  # Get upper triangle of the correlation matrix
+  get_upper_tri <- function(cor_matrix){
+    cor_matrix[lower.tri(cor_matrix)]<- NA
+    return(cor_matrix)
+  }
+  
+  upper_tri <- get_upper_tri(cor_matrix)
+upper_tri
+
+reorder_cor_matrix <- function(cor_matrix){
+# Use correlation between variables as distance
+dd <- as.dist((1-cor_matrix)/2)
+hc <- hclust(dd)
+cor_matrix <-cor_matrix[hc$order, hc$order]
+}
+
+# Reorder the correlation matrix
+cor_matrix <- reorder_cor_matrix(cor_matrix)
+upper_tri <- get_upper_tri(cor_matrix)
+# Melt the correlation matrix
+long_cor_matrix <- melt(upper_tri, na.rm = TRUE)
+
+
+# Create a ggheatmap
+ggheatmap <- ggplot(long_cor_matrix, aes(Var2, Var1, fill = value))+
+ geom_tile(color = "white")+
+ scale_fill_gradient2(low = "blue", high = "red", mid = "white", 
+   midpoint = 0, limit = c(-1,1), space = "Lab", 
+    name="Pearson\nCorrelation") +
+  theme_minimal()+ # minimal theme
+ theme(axis.text.x = element_text(angle = 45, vjust = 1, 
+    size = 12, hjust = 1))+
+ coord_fixed()
+
+
+
+
+ggheatmap + 
+geom_text(aes(Var2, Var1, label = value), color = "black", size = 4) +
+theme(
+  axis.title.x = element_blank(),
+  axis.title.y = element_blank(),
+  panel.grid.major = element_blank(),
+  panel.border = element_blank(),
+  panel.background = element_blank(),
+  axis.ticks = element_blank(),
+  legend.justification = c(1, 0),
+  legend.position = c(0.6, 0.7),
+  legend.direction = "horizontal")+
+  guides(fill = guide_colorbar(barwidth = 7, barheight = 1,
+                title.position = "top", title.hjust = 0.5))
+
+
+```
+ 
+ 
+  
+# Data Exploration PM10 Constitucion Station
 
 We create the dataset pm10 with PM10 values from the Constituci贸n Station and we execute a summary
 
 
 ```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
 
-pm10 <- air_data_3 %>% filter(station_alias == 'Constituci贸n') %>%
+pm10 <- air_data_3 %>% filter(station_alias == 'Constituci髇') %>%
                         select(date_time_utc, PM10)
 
 summary(pm10)

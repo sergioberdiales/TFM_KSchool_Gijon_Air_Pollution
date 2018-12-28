@@ -1,0 +1,10 @@
+---
+rmd_files: ["index.Rmd", "01-intro.Rmd"]
+
+site: "bookdown::bookdown_site"
+output:
+  bookdown::gitbook:
+    lib_dir: "book_assets"
+  bookdown::pdf_book:
+    keep_tex: yes
+---

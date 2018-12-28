@@ -1,0 +1,8 @@
+---
+title: "01-intro"
+output: html_document
+---
+
+# Introduction
+
+I explain here why I chose this topic and my main goals.

@@ -1,0 +1,165 @@
+---
+title: "Gijon Air Pollution - Prediction Models"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+Loading packages
+```{r , warning= FALSE, message= FALSE}
+library(readr)
+library(dplyr)
+library(tidyr)
+#library(openair) # http://davidcarslaw.github.io/openair/
+library(purrr)
+library(lubridate)
+library(ggplot2)
+library(stringr)
+library(knitr)
+#library(xts)
+#library(zoo)
+library(gridExtra)
+#library(astsa)
+#library(rvest)
+#library(fpp2)
+library(ranger)
+library(broom)
+library(RcppRoll)
+#library(caret)
+```
+
+
+Incorporando nuevas variables
+
+La hora del dia
+
+
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+
+air_data_2 <- readRDS("data_rds_files/air_data_2.rds")
+constitucion_data <- air_data_2 %>% filter(station == "1") 
+#constitucion_data <- readRDS("data_rds_files/constitucion_data.rds")
+constitucion_data$hour <- as.factor(constitucion_data$hour)
+constitucion_data$week_day <- as.factor(constitucion_data$week_day)
+constitucion_data$month <- as.factor(constitucion_data$month)
+
+
+train_2014_2016 <- constitucion_data %>% filter(year > 2013, 
+                                        year < 2017) %>% 
+                                        select(NO2, hour, week_day, month, lab, vv, wd, O3, NO) %>% 
+                                        rename(NO2_0 = NO2, 
+                                               vv_0 = vv,
+                                               wd_0 = wd,
+                                               O3_0 = O3,
+                                               NO_0 = NO) %>%
+                                        na.omit()
+
+
+
+test_201701_201709 <- constitucion_data %>% filter(date_time_utc >= '2017-01-01 00:00:00',
+                                       date_time_utc < '2017-10-01 00:00:00') %>%
+                                       select(NO2, hour, week_day, month, lab, vv, wd, O3, NO) %>%
+                                       rename(NO2_0 = NO2, 
+                                              vv_0 = vv,
+                                              wd_0 = wd,
+                                              O3_0 = O3,
+                                              NO_0 = NO) %>%
+                                       na.omit()
+
+
+
+# We create the NO2 lagged variables
+
+train_2014_2016 <- train_2014_2016 %>% mutate(NO2_1 = lag(NO2_0, 1),
+                                              NO2_2 = lag(NO2_0, 2),
+                                              NO2_3 = lag(NO2_0, 3),
+                                              NO2_4 = lag(NO2_0, 4),
+                                              vv_1 = lag(vv_0, 1),
+                                              vv_2 = lag(vv_0, 2),
+                                              vv_3 = lag(vv_0, 3),
+                                              vv_4 = lag(vv_0, 4),
+                                              wd_1 = lag(wd_0, 1),
+                                              wd_2 = lag(wd_0, 2),
+                                              wd_3 = lag(wd_0, 3),
+                                              wd_4 = lag(wd_0, 4),
+                                              O3_1 = lag(O3_0, 1),
+                                              O3_2 = lag(O3_0, 2),
+                                              O3_3 = lag(O3_0, 3),
+                                              O3_4 = lag(O3_0, 4),
+                                              NO_1 = lag(NO_0, 1),
+                                              NO_2 = lag(NO_0, 2),
+                                              NO_3 = lag(NO_0, 3),
+                                              NO_4 = lag(NO_0, 4)) %>%
+  na.omit()
+
+
+test_201701_201709 <- test_201701_201709 %>% mutate(NO2_1 = lag(NO2_0, 1),
+                                              NO2_2 = lag(NO2_0, 2),
+                                              NO2_3 = lag(NO2_0, 3),
+                                              NO2_4 = lag(NO2_0, 4),
+                                              vv_1 = lag(vv_0, 1),
+                                              vv_2 = lag(vv_0, 2),
+                                              vv_3 = lag(vv_0, 3),
+                                              vv_4 = lag(vv_0, 4),
+                                              wd_1 = lag(wd_0, 1),
+                                              wd_2 = lag(wd_0, 2),
+                                              wd_3 = lag(wd_0, 3),
+                                              wd_4 = lag(wd_0, 4),
+                                              O3_1 = lag(O3_0, 1),
+                                              O3_2 = lag(O3_0, 2),
+                                              O3_3 = lag(O3_0, 3),
+                                              O3_4 = lag(O3_0, 4),
+                                              NO_1 = lag(NO_0, 1),
+                                              NO_2 = lag(NO_0, 2),
+                                              NO_3 = lag(NO_0, 3),
+                                              NO_4 = lag(NO_0, 4)) %>%
+  na.omit()
+
+
+```
+
+Exportamos train y test como csvs para subirlos a Google Colab y montar los modelos con Python. 
+
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+
+y_train_2014_2016 <- train_2014_2016 %>% select(NO2_0)
+X_train_2014_2016 <- train_2014_2016 %>% select(-NO2_0, -vv_0, -wd_0, -O3_0, -NO_0)
+
+write_csv(X_train_2014_2016, "train_test_csvs/X_train_2014_2016.csv")
+write_csv(y_train_2014_2016, "train_test_csvs/y_train_2014_2016.csv")
+
+y_test_201701_201709 <- test_201701_201709 %>% select(NO2_0)
+X_test_201701_201709 <- test_201701_201709 %>% select(-NO2_0, -vv_0, -wd_0, -O3_0, -NO_0)
+
+write_csv(X_test_201701_201709, "train_test_csvs/X_test_201701_201709.csv")
+write_csv(y_test_201701_201709, "train_test_csvs/y_test_201701_201709.csv")
+
+
+
+```
+
+Export to Google Drive
+
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+
+
+y_train_2016_q4 <- train_2016_q4 %>% select(NO2_0)
+X_train_2016_q4 <- train_2016_q4 %>% select(-NO2_0)
+
+write_csv(X_train_2016_q4, "train_test_csvs/X_train_2016_q4.csv")
+write_csv(y_train_2016_q4, "train_test_csvs/y_train_2016_q4.csv")
+
+y_test_201701_201709 <- test_201701_201709 %>% select(NO2_0)
+X_test_201701_201709 <- test_201701_201709 %>% select(-NO2_0)
+
+write_csv(X_test_201701_201709, "train_test_csvs/X_test_201701_201709.csv")
+write_csv(y_test_201701_201709, "train_test_csvs/y_test_201701_201709.csv")
+
+
+
+```
+
+

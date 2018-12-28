@@ -1,0 +1,371 @@
+---
+title: "Gijon Air Pollution - Prediction Models"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+Loading packages
+```{r , warning= FALSE, message= FALSE}
+library(readr)
+library(dplyr)
+library(tidyr)
+#library(openair) # http://davidcarslaw.github.io/openair/
+library(purrr)
+library(lubridate)
+library(ggplot2)
+library(stringr)
+library(knitr)
+#library(xts)
+#library(zoo)
+library(gridExtra)
+#library(astsa)
+#library(rvest)
+#library(fpp2)
+library(ranger)
+library(broom)
+library(RcppRoll)
+#library(caret)
+```
+
+
+
+
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+
+constitucion_data <- readRDS("data_rds_files/constitucion_data.rds")
+
+train_2014_2016 <- constitucion_data %>% filter(year > 2013, 
+                                        year < 2017) %>% 
+                                        select(PM10) %>% 
+                                        rename(pm10_0 = PM10) %>%
+                                        na.omit()
+
+train_2009_2016 <- constitucion_data %>% filter(year > 2008, 
+                                        year < 2017) %>% 
+                                        select(PM10) %>% 
+                                        rename(pm10_0 = PM10) %>%
+                                        na.omit()
+
+train_2016_q4 <- constitucion_data %>% filter(date_time_utc >= '2016-10-01 00:00:00',
+                                       date_time_utc < '2017-01-01 00:00:00') %>% 
+                                        select(PM10) %>% 
+                                        rename(pm10_0 = PM10) %>%
+                                        na.omit()
+
+test_lite <- constitucion_data %>% filter(date_time_utc >= '2017-01-01 00:00:00',
+                                       date_time_utc < '2017-02-01 00:00:00') %>%
+                                       select(PM10) %>%
+                                       rename(pm10_0 = PM10) %>%
+                                       na.omit()
+
+test_201701_201709 <- constitucion_data %>% filter(date_time_utc >= '2017-01-01 00:00:00',
+                                       date_time_utc < '2017-10-01 00:00:00') %>%
+                                       select(PM10) %>%
+                                       rename(pm10_0 = PM10) %>%
+                                       na.omit()
+
+validation_set <- constitucion_data %>% filter(date_time_utc >= '2017-10-01 00:00:00',
+                                       date_time_utc <= '2017-12-31 00:00:00') %>%
+                                       select(PM10) %>%
+                                       rename(pm10_0 = PM10) %>%
+                                       na.omit()
+
+
+# We create the PM10 lagged variables
+
+train_2014_2016 <- train_2014_2016 %>% mutate(pm10_1 = lag(pm10_0, 1),
+                  pm10_2 = lag(pm10_0, 2),
+                  pm10_3 = lag(pm10_0, 3),
+                  pm10_4 = lag(pm10_0, 4),
+                  pm10_5 = lag(pm10_0, 5),
+                  pm10_6 = lag(pm10_0, 6),
+                  pm10_7 = lag(pm10_0, 7),
+                  pm10_8 = lag(pm10_0, 8),
+                  pm10_9 = lag(pm10_0, 9),
+                  pm10_10 = lag(pm10_0, 10),
+                  pm10_11 = lag(pm10_0, 11),
+                  pm10_12 = lag(pm10_0, 12),
+                  pm10_13 = lag(pm10_0, 13),
+                  pm10_14 = lag(pm10_0, 14),
+                  pm10_15 = lag(pm10_0, 15),
+                  pm10_16 = lag(pm10_0, 16),
+                  pm10_17 = lag(pm10_0, 17),
+                  pm10_18 = lag(pm10_0, 18),
+                  pm10_19 = lag(pm10_0, 19),
+                  pm10_20 = lag(pm10_0, 20),
+                  pm10_21 = lag(pm10_0, 21),
+                  pm10_22 = lag(pm10_0, 22),
+                  pm10_23 = lag(pm10_0, 23),
+                  pm10_24 = lag(pm10_0, 24),
+                  pm10_48 = lag(pm10_0, 48),
+                  pm10_72 = lag(pm10_0, 72),
+                  pm10_96 = lag(pm10_0, 96),
+                  pm10_120 = lag(pm10_0, 120),
+                  pm10_144 = lag(pm10_0, 144),
+                  pm10_168 = lag(pm10_0, 168)) %>%
+  na.omit()
+
+train_2009_2016 <- train_2009_2016 %>% mutate(pm10_1 = lag(pm10_0, 1),
+                  pm10_2 = lag(pm10_0, 2),
+                  pm10_3 = lag(pm10_0, 3),
+                  pm10_4 = lag(pm10_0, 4),
+                  pm10_5 = lag(pm10_0, 5),
+                  pm10_6 = lag(pm10_0, 6),
+                  pm10_7 = lag(pm10_0, 7),
+                  pm10_8 = lag(pm10_0, 8),
+                  pm10_9 = lag(pm10_0, 9),
+                  pm10_10 = lag(pm10_0, 10),
+                  pm10_11 = lag(pm10_0, 11),
+                  pm10_12 = lag(pm10_0, 12),
+                  pm10_13 = lag(pm10_0, 13),
+                  pm10_14 = lag(pm10_0, 14),
+                  pm10_15 = lag(pm10_0, 15),
+                  pm10_16 = lag(pm10_0, 16),
+                  pm10_17 = lag(pm10_0, 17),
+                  pm10_18 = lag(pm10_0, 18),
+                  pm10_19 = lag(pm10_0, 19),
+                  pm10_20 = lag(pm10_0, 20),
+                  pm10_21 = lag(pm10_0, 21),
+                  pm10_22 = lag(pm10_0, 22),
+                  pm10_23 = lag(pm10_0, 23),
+                  pm10_24 = lag(pm10_0, 24),
+                  pm10_48 = lag(pm10_0, 48),
+                  pm10_72 = lag(pm10_0, 72),
+                  pm10_96 = lag(pm10_0, 96),
+                  pm10_120 = lag(pm10_0, 120),
+                  pm10_144 = lag(pm10_0, 144),
+                  pm10_168 = lag(pm10_0, 168)) %>%
+  na.omit()
+
+train_2016_q4 <- train_2016_q4 %>% mutate(pm10_1 = lag(pm10_0, 1),
+                  pm10_2 = lag(pm10_0, 2),
+                  pm10_3 = lag(pm10_0, 3),
+                  pm10_4 = lag(pm10_0, 4),
+                  pm10_5 = lag(pm10_0, 5),
+                  pm10_6 = lag(pm10_0, 6),
+                  pm10_7 = lag(pm10_0, 7),
+                  pm10_8 = lag(pm10_0, 8),
+                  pm10_9 = lag(pm10_0, 9),
+                  pm10_10 = lag(pm10_0, 10),
+                  pm10_11 = lag(pm10_0, 11),
+                  pm10_12 = lag(pm10_0, 12),
+                  pm10_13 = lag(pm10_0, 13),
+                  pm10_14 = lag(pm10_0, 14),
+                  pm10_15 = lag(pm10_0, 15),
+                  pm10_16 = lag(pm10_0, 16),
+                  pm10_17 = lag(pm10_0, 17),
+                  pm10_18 = lag(pm10_0, 18),
+                  pm10_19 = lag(pm10_0, 19),
+                  pm10_20 = lag(pm10_0, 20),
+                  pm10_21 = lag(pm10_0, 21),
+                  pm10_22 = lag(pm10_0, 22),
+                  pm10_23 = lag(pm10_0, 23),
+                  pm10_24 = lag(pm10_0, 24),
+                  pm10_48 = lag(pm10_0, 48),
+                  pm10_72 = lag(pm10_0, 72),
+                  pm10_96 = lag(pm10_0, 96),
+                  pm10_120 = lag(pm10_0, 120),
+                  pm10_144 = lag(pm10_0, 144),
+                  pm10_168 = lag(pm10_0, 168)) %>%
+  na.omit()
+
+test_lite <- test_lite %>% mutate(pm10_1 = lag(pm10_0, 1),
+                  pm10_2 = lag(pm10_0, 2),
+                  pm10_3 = lag(pm10_0, 3),
+                  pm10_4 = lag(pm10_0, 4),
+                  pm10_5 = lag(pm10_0, 5),
+                  pm10_6 = lag(pm10_0, 6),
+                  pm10_7 = lag(pm10_0, 7),
+                  pm10_8 = lag(pm10_0, 8),
+                  pm10_9 = lag(pm10_0, 9),
+                  pm10_10 = lag(pm10_0, 10),
+                  pm10_11 = lag(pm10_0, 11),
+                  pm10_12 = lag(pm10_0, 12),
+                  pm10_13 = lag(pm10_0, 13),
+                  pm10_14 = lag(pm10_0, 14),
+                  pm10_15 = lag(pm10_0, 15),
+                  pm10_16 = lag(pm10_0, 16),
+                  pm10_17 = lag(pm10_0, 17),
+                  pm10_18 = lag(pm10_0, 18),
+                  pm10_19 = lag(pm10_0, 19),
+                  pm10_20 = lag(pm10_0, 20),
+                  pm10_21 = lag(pm10_0, 21),
+                  pm10_22 = lag(pm10_0, 22),
+                  pm10_23 = lag(pm10_0, 23),
+                  pm10_24 = lag(pm10_0, 24),
+                  pm10_48 = lag(pm10_0, 48),
+                  pm10_72 = lag(pm10_0, 72),
+                  pm10_96 = lag(pm10_0, 96),
+                  pm10_120 = lag(pm10_0, 120),
+                  pm10_144 = lag(pm10_0, 144),
+                  pm10_168 = lag(pm10_0, 168)) %>%
+  na.omit()
+
+
+test_201701_201709 <- test_201701_201709 %>% mutate(pm10_1 = lag(pm10_0, 1),
+                  pm10_2 = lag(pm10_0, 2),
+                  pm10_3 = lag(pm10_0, 3),
+                  pm10_4 = lag(pm10_0, 4),
+                  pm10_5 = lag(pm10_0, 5),
+                  pm10_6 = lag(pm10_0, 6),
+                  pm10_7 = lag(pm10_0, 7),
+                  pm10_8 = lag(pm10_0, 8),
+                  pm10_9 = lag(pm10_0, 9),
+                  pm10_10 = lag(pm10_0, 10),
+                  pm10_11 = lag(pm10_0, 11),
+                  pm10_12 = lag(pm10_0, 12),
+                  pm10_13 = lag(pm10_0, 13),
+                  pm10_14 = lag(pm10_0, 14),
+                  pm10_15 = lag(pm10_0, 15),
+                  pm10_16 = lag(pm10_0, 16),
+                  pm10_17 = lag(pm10_0, 17),
+                  pm10_18 = lag(pm10_0, 18),
+                  pm10_19 = lag(pm10_0, 19),
+                  pm10_20 = lag(pm10_0, 20),
+                  pm10_21 = lag(pm10_0, 21),
+                  pm10_22 = lag(pm10_0, 22),
+                  pm10_23 = lag(pm10_0, 23),
+                  pm10_24 = lag(pm10_0, 24),
+                  pm10_48 = lag(pm10_0, 48),
+                  pm10_72 = lag(pm10_0, 72),
+                  pm10_96 = lag(pm10_0, 96),
+                  pm10_120 = lag(pm10_0, 120),
+                  pm10_144 = lag(pm10_0, 144),
+                  pm10_168 = lag(pm10_0, 168)) %>%
+  na.omit()
+
+```
+
+Exportamos train_1 y test_1 como csvs para subirlos a Google Colab y montar los modelos con Python. 
+
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+
+y_train_2014_2016 <- train_2014_2016 %>% select(pm10_0)
+X_train_2014_2016 <- train_2014_2016 %>% select(-pm10_0)
+
+write_csv(X_train_2014_2016, "train_test_csvs/X_train_2014_2016.csv")
+write_csv(y_train_2014_2016, "train_test_csvs/y_train_2014_2016.csv")
+
+y_train_2009_2016 <- train_2009_2016 %>% select(pm10_0)
+X_train_2009_2016 <- train_2009_2016 %>% select(-pm10_0)
+
+write_csv(X_train_2009_2016, "train_test_csvs/X_train_2009_2016.csv")
+write_csv(y_train_2009_2016, "train_test_csvs/y_train_2009_2016.csv")
+
+y_train_lite <- train_1_lite %>% select(pm10_0)
+X_train_lite <- train_1_lite %>% select(-pm10_0)
+
+write_csv(X_train_lite, "train_test_csvs/X_train_lite.csv")
+write_csv(y_train_lite, "train_test_csvs/y_train_lite.csv")
+
+y_test_lite <- test_lite %>% select(pm10_0)
+X_test_lite <- test_lite %>% select(-pm10_0)
+
+write_csv(X_test_lite, "train_test_csvs/X_test_lite.csv")
+write_csv(y_test_lite, "train_test_csvs/y_test_lite.csv")
+
+y_test_201701_201709 <- test_201701_201709 %>% select(pm10_0)
+X_test_201701_201709 <- test_201701_201709 %>% select(-pm10_0)
+
+write_csv(X_test_201701_201709, "train_test_csvs/X_test_201701_201709.csv")
+write_csv(y_test_201701_201709, "train_test_csvs/y_test_201701_201709.csv")
+
+
+
+```
+
+
+Export to Google Drive
+
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+
+
+y_train_2016_q4 <- train_2016_q4 %>% select(pm10_0)
+X_train_2016_q4 <- train_2016_q4 %>% select(-pm10_0)
+
+write_csv(X_train_2016_q4, "train_test_csvs/X_train_2016_q4.csv")
+write_csv(y_train_2016_q4, "train_test_csvs/y_train_2016_q4.csv")
+
+y_test_201701_201709 <- test_201701_201709 %>% select(pm10_0)
+X_test_201701_201709 <- test_201701_201709 %>% select(-pm10_0)
+
+write_csv(X_test_201701_201709, "train_test_csvs/X_test_201701_201709.csv")
+write_csv(y_test_201701_201709, "train_test_csvs/y_test_201701_201709.csv")
+
+
+
+```
+
+
+
+
+Incorporando nuevas variables
+
+La hora del dia
+
+
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+
+constitucion_data <- readRDS("constitucion_data.rds")
+constitucion_data$hour <- as.factor(constitucion_data$hour)
+constitucion_data$week_day <- as.factor(constitucion_data$week_day)
+constitucion_data$month <- as.factor(constitucion_data$month)
+
+
+train_2014_2016 <- constitucion_data %>% filter(year > 2013, 
+                                        year < 2017) %>% 
+                                        select(PM10, hour, week_day, month) %>% 
+                                        rename(pm10_0 = PM10) %>%
+                                        na.omit()
+
+
+
+test_201701_201709 <- constitucion_data %>% filter(date_time_utc >= '2017-01-01 00:00:00',
+                                       date_time_utc < '2017-10-01 00:00:00') %>%
+                                       select(PM10, hour, week_day, month) %>%
+                                       rename(pm10_0 = PM10) %>%
+                                       na.omit()
+
+
+
+# We create the PM10 lagged variables
+
+train_2014_2016 <- train_2014_2016 %>% mutate(pm10_1 = lag(pm10_0, 1),
+                  pm10_2 = lag(pm10_0, 2),
+                  pm10_3 = lag(pm10_0, 3),
+                  pm10_4 = lag(pm10_0, 4),) %>%
+  na.omit()
+
+
+test_201701_201709 <- test_201701_201709 %>% mutate(pm10_1 = lag(pm10_0, 1),
+                  pm10_2 = lag(pm10_0, 2),
+                  pm10_3 = lag(pm10_0, 3),
+                  pm10_4 = lag(pm10_0, 4),) %>%
+  na.omit()
+
+
+```
+
+Exportamos train y test como csvs para subirlos a Google Colab y montar los modelos con Python. 
+
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+
+y_train_2014_2016 <- train_2014_2016 %>% select(pm10_0)
+X_train_2014_2016 <- train_2014_2016 %>% select(-pm10_0)
+
+write_csv(X_train_2014_2016, "train_test_csvs/var_month_X_train_2014_2016.csv")
+write_csv(y_train_2014_2016, "train_test_csvs/var_month_y_train_2014_2016.csv")
+
+y_test_201701_201709 <- test_201701_201709 %>% select(pm10_0)
+X_test_201701_201709 <- test_201701_201709 %>% select(-pm10_0)
+
+write_csv(X_test_201701_201709, "train_test_csvs/var_month_X_test_201701_201709.csv")
+write_csv(y_test_201701_201709, "train_test_csvs/var_month_y_test_201701_201709.csv")
+
+
+
+```
