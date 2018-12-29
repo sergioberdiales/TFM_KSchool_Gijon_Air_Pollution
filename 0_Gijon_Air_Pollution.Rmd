@@ -32,9 +32,10 @@ library(RcppRoll)
 
 ### Preface
   
-  This is the final project of a Master on Data Science. 
-  This is not a scientific paper. And I am not an specialist on air pollution. 
-  The main objective of this project is to show I  
+  This is the final project of a Master on Data Science. The main objective of this project is to show I  puedo aplicar de forma practica los conocimientos adquiridos durante el master. 
+  This is not a scientific paper. And I am not an specialist on air pollution. Si estas interesado en aprender sobre este tema yo empezaria por echar un vistazo a la informacion que ofrece la EPA (), la OMS () y la EU (). Y si llegaste aqui porque quieres saber algo mas especifico sobre Gijon mi recomendacion es que leas los informes del Principado de Asturias...
+  
+  
 
   
 ### 1. Introduction

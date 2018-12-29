@@ -14,7 +14,6 @@ knitr::opts_chunk$set(echo = TRUE)
 ####--Kehlog Albran, The Profit
 
 ## PM10 hourly prediction models
-1 hour ahead predictions
 
 We are going to focus on the Constitucion station, which is the only station we have meteorological data. And, at first, we are going to construct models only for predicting PM10 levels. 
 
@@ -53,6 +52,13 @@ constitucion_data <- readRDS("data_rds_files/constitucion_data.rds")
 
 
 ### Train, test and validation data
+
+We have 18 years of avalaible data. But we are not going to use all the data. Initially we are going to use just three years for the training of the models (2014-2016) and one year (2017) for testing and validation.
+
+Reasons (pending redaction): 
+
+  - Time of training process. 
+  - Not all models can take advantage of such long time series. In fact we will see as sometimes smaller datasets achieve similar results.   
 
 Train data: 2014-01-01 - 2016-12-31
 
@@ -94,7 +100,7 @@ validation_201710_201712 <- constitucion_data %>% filter(date_time_utc >= '2017-
 ```
 
 ### Base model. 
-As a base model we are going to take as prediction the value from the previous hour.
+In order to create a base model we are going to take as prediction the value from the previous hour. And we begin to forecast just one hour ahead.
 
 
 ```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
@@ -126,7 +132,7 @@ print(R_squared)
 ```
 So, for the one hour PM10 prediction if we take as prediction the previous PM10 hour level we would have a RMSE of 7.45, a MAE of 5.15 and a R-squared of 0.53. We will take these scores as base references for the one hour prediction models. 
 
-And the standard deviation of the test data is 10.9, which is greater than the RMSE (7.45). So, this estimation is better than using the mean.
+And the standard deviation of the test data is 10.9, which is smaller than the RMSE (7.45). So, this estimation is better than using the mean.
 ```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
 
 sd(base_model$y_test)
@@ -151,19 +157,25 @@ plot(base_model$y_test, type = "l", col = "blue")
 lines(base_model$y_pred, type = "l", col = "grey")
 
 ```
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
 
+autoplot(ts(base_model$y_test), series="Test data") +
+  autolayer(ts(base_model$y_pred),
+    series="1-step fitted values")
+
+```
 Using the function autoplot from the forecast package we plot the three time series we generated before.
 ```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
 autoplot(train_201401_201612)
-autoplot(test_201701_201709)
-autoplot(validation_201710_201712)
+autoplot(test_201701_201709, ylim = c(0, 400))
+autoplot(validation_201710_201712,ylim = c(0, 400))
 
 ```
 
 ```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
 # model_arima=auto.arima(train_201401_201612,seasonal=TRUE,trace=TRUE) # It took 2 hours to fit the model
 #model_arima_0 <- model_arima
-saveRDS(model_arima_0, "data_rds_files/model_arima_0.rds")
+#saveRDS(model_arima_0, "data_rds_files/model_arima_0.rds")
 model_arima_0 <- readRDS("data_rds_files/model_arima_0.rds")
 #plot(forecast(model_arima,h=24))
 summary(model_arima_0)
@@ -220,6 +232,61 @@ sd_test <- sd(test_201701_201709)
 print(sd_test)
 ```
 
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+
+autoplot(y_test, series="Test data") +
+  autolayer(y_pred,
+    series="1-step fitted values")
+
+```
+
+
+
+
+
+
+
+
+
+Lo mismo que calcule "a mano"
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+
+arima.test <- Arima(test_201701_201709, model=model_arima_0)
+accuracy(arima.test)
+```
+
+
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+
+#h6 <- fitted(arima.test, h = 6) 
+#saveRDS(h6, "data_rds_files/arima_model_0_test_fitted_values_h6.rds")
+h6 <- readRDS("data_rds_files/arima_model_0_test_fitted_values_h6.rds")
+```
+
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+y_test <- test_201701_201709
+y_pred <- h6
+
+y_test <- as.data.frame(y_test)
+y_pred <- as.data.frame(h6)
+
+df <- bind_cols(y_test, y_pred) %>%
+                      na.omit() 
+
+y_test <- df$PM10_0
+y_pred <- df$x
+
+RMSE = RMSE(y_test, y_pred)
+print(RMSE)
+
+MAE(y_test, y_pred)
+print(MAE)
+
+rss <- sum((y_pred - y_test) ^ 2)
+tss <- sum((y_test - mean(y_test)) ^ 2)
+R_squared <- 1 - rss/tss # ?tiene sentido r2 en un modelo arima
+print(R_squared)
+```
 
 
 
@@ -231,27 +298,126 @@ print(sd_test)
 
 
 
+test lite
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+
+y_pred <- forecast(test_lite, model = model_arima_0, h=1)$fitted
+y_test <- test_lite
+
+RMSE = RMSE(y_test, y_pred)
+print(RMSE)
+
+MAE(y_test, y_pred)
+print(MAE)
+
+rss <- sum((y_pred - y_test) ^ 2)
+tss <- sum((y_test - mean(y_test)) ^ 2)
+R_squared <- 1 - rss/tss # ?tiene sentido r2 en un modelo arima
+print(R_squared)
+```
+
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+
+autoplot(y_test, series="Test data") +
+  autolayer(y_pred,
+    series="1-step fitted values")
+
+```
+
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+
+arima.test <- Arima(test_lite, model=model_arima_0)
+accuracy(arima.test)
+```
+
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+h1 <- fitted(arima.test, h = 1) 
+h2 <- fitted(arima.test, h = 2)
+```
+
+
+
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+h6 <- fitted(arima.test, h = 6) 
+
+```
+
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+
+autoplot(y_test, series="Test data") +
+  autolayer(h6,
+    series="6-step fitted values")
+
+```
+
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+
+autoplot(y_test, series="Test data") +
+  autolayer(h1,
+    series="1-step fitted values")
+
+```
+
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+y_test <- test_lite
+y_pred <- h6
+
+y_test <- as.data.frame(y_test)
+y_pred <- as.data.frame(h6)
+
+df <- bind_cols(y_test, y_pred) %>%
+                      na.omit() 
+
+y_test <- df$PM10_0
+y_pred <- df$x
+
+RMSE = RMSE(y_test, y_pred)
+print(RMSE)
+
+MAE(y_test, y_pred)
+print(MAE)
+
+rss <- sum((y_pred - y_test) ^ 2)
+tss <- sum((y_test - mean(y_test)) ^ 2)
+R_squared <- 1 - rss/tss # ?tiene sentido r2 en un modelo arima
+print(R_squared)
+```
+
+
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+y_test <- test_lite
+y_pred <- h1
+
+y_test <- as.data.frame(y_test)
+y_pred <- as.data.frame(h1)
+
+df <- bind_cols(y_test, y_pred) %>%
+                      na.omit() 
+
+y_test <- df$PM10_0
+y_pred <- df$x
+
+RMSE = RMSE(y_test, y_pred)
+print(RMSE)
+
+MAE(y_test, y_pred)
+print(MAE)
+
+rss <- sum((y_pred - y_test) ^ 2)
+tss <- sum((y_test - mean(y_test)) ^ 2)
+R_squared <- 1 - rss/tss # ?tiene sentido r2 en un modelo arima
+print(R_squared)
+```
 
 
 
 
 
+Pending: 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  - Poner el mismo maximo en el eje y de los autoplot de los datasets de train, test, validation.
+  - Hacer una mejor imputacion de nas. Ahora mismo estoy utilizando la media.
+  - Utilizar un periodo de train menor. 
 
 
 

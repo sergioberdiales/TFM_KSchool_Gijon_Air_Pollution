@@ -430,8 +430,8 @@ so2_daily_limit <- so2_data %>%
 
 so2_daily_limit
 
-saveRDS(so2_hourly_limit, file = "data_rds_files/so2_daily_limit.rds")
-write_csv(so2_hourly_limit, "data_final_csvs/so2_daily_limit.csv")
+saveRDS(so2_daily_limit, file = "data_rds_files/so2_daily_limit.rds")
+write_csv(so2_daily_limit, "data_final_csvs/so2_daily_limit.csv")
 
 
 ```
