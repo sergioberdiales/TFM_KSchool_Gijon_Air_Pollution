@@ -1,5 +1,5 @@
 ---
-title: "Gijon Air Pollution - Prediction Models"
+title: "Gijon Air Pollution - Prediction Models. ARIMA"
 output: html_document
 ---
 
@@ -12,6 +12,12 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ###"I have seen the future and it is very much like the present, only longer."
 ####--Kehlog Albran, The Profit
+
+On this notebook we are going to try to predict...
+with ARIMA
+PM10
+NO2
+
 
 ## PM10 hourly prediction models
 
@@ -46,7 +52,7 @@ library(caret)
 Data loading
 ```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
 air_data_2 <- readRDS("data_rds_files/air_data_2.rds")
-constitucion_data <- readRDS("data_rds_files/constitucion_data.rds")
+constitucion_data <- air_data_2 %>% filter(station == "1")
 
 ```
 
@@ -84,12 +90,14 @@ test_201701_201709 <- constitucion_data %>% filter(date_time_utc >= '2017-01-01 
                                        ts(frequency = 24)
 
 
-test_lite <- constitucion_data %>% filter(date_time_utc >= '2017-02-01 00:00:00',
-                                       date_time_utc <= '2017-02-06 23:00:00') %>%
+test_lite <- constitucion_data %>% filter(date_time_utc >= '2017-01-01 00:00:00',
+                                       date_time_utc <= '2017-01-14 23:00:00') %>%
                                        select(PM10) %>%
                                        mutate(PM10 = replace_na(PM10, mean(PM10, na.rm = TRUE))) %>%
                                        rename(PM10_0 = PM10) %>%
                                        ts(frequency = 24)
+
+
 
 validation_201710_201712 <- constitucion_data %>% filter(date_time_utc >= '2017-10-01 00:00:00',
                                        date_time_utc <= '2017-12-31 23:00:00') %>%
@@ -99,12 +107,19 @@ validation_201710_201712 <- constitucion_data %>% filter(date_time_utc >= '2017-
                                        ts(frequency = 24)
 ```
 
+
+we plot the three time seriesUsing the function autoplot from the forecast package we just generated.
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+autoplot(train_201401_201612)
+autoplot(test_201701_201709, ylim = c(0, 400))
+autoplot(validation_201710_201712,ylim = c(0, 400))
+
+```
 ### Base model. 
-In order to create a base model we are going to take as prediction the value from the previous hour. And we begin to forecast just one hour ahead.
+In order to create a base model we are going to take as prediction the value from the previous hour, forecasting just one hour ahead.
 
 
 ```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
-
 # As we don't need any training, because we have already defined the model as Xt = Xt-1, we only need to create a testing dataset. We choose the same period as before but we don't use the time series format (ts).
 
 test_201701_201709_2 <- constitucion_data %>% filter(date_time_utc >= '2017-01-01 00:00:00',
@@ -116,114 +131,128 @@ test_201701_201709_2 <- constitucion_data %>% filter(date_time_utc >= '2017-01-0
 base_model <- test_201701_201709_2 %>% mutate(y_pred = lag(PM10, 1)) %>% # We create the column y_pred with the lagged value of PM10 (one hour).
                                      rename(y_test = PM10) %>%         # We change the name of the PM10 column to y_test
                                      na.omit()                         # We remove the observations with nas (just the first row)
-                            
+        
+y_test <- base_model$y_test
+y_pred <- base_model$y_pred
 
+sd_test <- sd(y_test) 
 
-RMSE = RMSE(base_model$y_test, base_model$y_pred)
-print(RMSE)
+RMSE <- RMSE(y_test, y_pred)
 
-MAE(base_model$y_test, base_model$y_pred)
-print(MAE)
+MAE <- MAE(y_test, y_pred)
 
-rss <- sum((base_model$y_pred - base_model$y_test) ^ 2)
-tss <- sum((base_model$y_test - mean(base_model$y_test)) ^ 2)
+rss <- sum((y_pred - y_test) ** 2)
+tss <- sum((y_test - mean(y_test)) ** 2)
 R_squared <- 1 - rss/tss
-print(R_squared)
+paste(c("R-Squared:", round(R_squared, 2), "MAE:", round(MAE, 2), "RMSE:", round(RMSE, 2), "Standard Deviation (test data):", round(sd_test, 2)))
 ```
-So, for the one hour PM10 prediction if we take as prediction the previous PM10 hour level we would have a RMSE of 7.45, a MAE of 5.15 and a R-squared of 0.53. We will take these scores as base references for the one hour prediction models. 
+So, for the one hour PM10 prediction if we take as prediction the previous PM10 hour level we would have a R-squared of 0.53. So, the model is explaining 53% of the variability of the target variable. 
 
-And the standard deviation of the test data is 10.9, which is smaller than the RMSE (7.45). So, this estimation is better than using the mean.
-```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
-
-sd(base_model$y_test)
-
-```
+Estimation of errors. We are going to use the MAE (Mean Absolute Error) in order to compare the different models. We choose the MAE over the RMSE (Root Mean Squared Error) because it is easier to interpret and at the same time it is more robust (less sensitive to outliers). Either way, we are going to calculate the RMSE too, precisely because its sensitivity to outliers will give us useful information about the behaviour of each model.
 
 We take a look to the relation between the predictions and the actual values.
 ```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
 
-plot(base_model$y_pred, base_model$y_test)
+df <- bind_cols(as.data.frame(y_pred), as.data.frame(y_test))
+                
+ggplot(data = df, aes(x = y_test, y = y_pred)) +
+                        geom_point(alpha = 0.5) +
+                        theme_minimal()
+
 
 ```
 We plot the distribution of the errors
 ```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
 
-hist(base_model$y_pred - base_model$y_test)
-```
 
-We plot two lines with the predictions and the actual values
-```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
-plot(base_model$y_test, type = "l", col = "blue")
-lines(base_model$y_pred, type = "l", col = "grey")
-
-```
-```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
-
-autoplot(ts(base_model$y_test), series="Test data") +
-  autolayer(ts(base_model$y_pred),
-    series="1-step fitted values")
-
-```
-Using the function autoplot from the forecast package we plot the three time series we generated before.
-```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
-autoplot(train_201401_201612)
-autoplot(test_201701_201709, ylim = c(0, 400))
-autoplot(validation_201710_201712,ylim = c(0, 400))
+ggplot(data = df, aes(x = y_pred - y_test)) +
+                        geom_histogram() +
+                        theme_minimal()
 
 ```
 
+We plot two lines with the predictions and the actual values. We have a problem of overplotting.
+
 ```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
-# model_arima=auto.arima(train_201401_201612,seasonal=TRUE,trace=TRUE) # It took 2 hours to fit the model
-#model_arima_0 <- model_arima
-#saveRDS(model_arima_0, "data_rds_files/model_arima_0.rds")
+
+autoplot(ts(base_model$y_pred), series="1-step fitted values") +
+  autolayer(ts(base_model$y_test),
+    series="Test data") + 
+    theme_minimal() +
+    theme(legend.position="top")
+    
+
+```
+
+We are going to plot just the first 14 days of 2017. 
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+
+two_weeks <- base_model %>% slice(1:336) # 336 corresponds to 24 hours * 14 days.
+
+autoplot(ts(two_weeks$y_pred), series="1-step fitted values") +
+  autolayer(ts(two_weeks$y_test),
+    series="Test data") + 
+    theme_minimal() +
+    theme(legend.position="top")
+
+```
+
+And as expected, we get two identical lines. But one of them, the prediction, one step forward than the line with the actual data. 
+
+
+To fit our first ARIMA model we are going to use the auto.arima function from the Forecast package. This function ...
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+# model_arima_0 = auto.arima(train_201401_201612,seasonal=TRUE,trace=TRUE) # It took 2 hours to fit the model
+# saveRDS(model_arima_0, "data_rds_files/model_arima_0.rds")
 model_arima_0 <- readRDS("data_rds_files/model_arima_0.rds")
-#plot(forecast(model_arima,h=24))
 summary(model_arima_0)
 
 #test$arima=forecast(model_arima,h=24)$mean
 
 ```
+EXPLAIN THE RESULTS p, d, q P, D, Q etc...
 
-https://stats.stackexchange.com/questions/223457/predict-from-estimated-arima-model-with-new-data
+To obtain the R-Squared...
 ```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
 
-forecast(model_arima_0, 1)
-
-y_train <- forecast(model_arima_0, 1)$fitted
+y_train <- forecast(model_arima_0, h = 1)$fitted # We make a forecast one hour ahead and we extract the fitted values from the object forecast.
 x_train <- train_201401_201612
 
-
-RMSE = RMSE(x_train, y_train)
-print(RMSE)
-
-MAE(x_train, y_train)
-print(MAE)
-
-rss <- sum((y_train - x_train) ^ 2)
-tss <- sum((x_train - mean(x_train)) ^ 2)
-R_squared <- 1 - rss/tss # ?tiene sentido r2 en un modelo arima
-print(R_squared)
+rss <- sum((y_train - x_train) ** 2)
+tss <- sum((x_train - mean(x_train)) ** 2)
+R_squared <- 1 - rss/tss
+paste(c("R-Squared:", round(R_squared, 2)))
 
 ```
 
 
-The prediction errors on the test data are smaller. It could be counterintuitive but the test period (2017-01 - 2017-09) contains much less variability (sd = 10.91) than the train period (2014-01 - 2016-12< sd = 14.83). This could be affecting the error scores. 
+The R-Squared has increased from 0.53 to 0.60. But both, RMSE (9.34) and MAE (5.77), are greater than the scores obtained with the Base Model. But we are comparing two different periods, the testing period (Base Model; 2017-01 - 2017-09) versus the training period (ARIMA model; 2014 - 2016).
+
+To make a fair comparison we will have to compare the same periods. Especially since we know they have important differences in variability. 
+
+For this we are going to apply the ARIMA model model_arima_0 on the testing data. Doing so we will be able to get the fitted values from this period and we will be able to obtain the error scores for this period.
+
 ```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
 
-y_pred <- forecast(test_201701_201709, model = model_arima_0, h=1)$fitted
+y_pred <- forecast(test_201701_201709, model = model_arima_0, h=1)$fitted # We call the forecast function passing the testing data through the ARIMA model fitted with the training data and we extract the fitted values.
+
 y_test <- test_201701_201709
 
-RMSE = RMSE(y_test, y_pred)
-print(RMSE)
+sd_test <- sd(y_test) 
 
-MAE(y_test, y_pred)
-print(MAE)
+RMSE <- RMSE(y_test, y_pred)
 
-rss <- sum((y_pred - y_test) ^ 2)
-tss <- sum((y_test - mean(y_test)) ^ 2)
-R_squared <- 1 - rss/tss # ?tiene sentido r2 en un modelo arima
-print(R_squared)
+MAE <- MAE(y_test, y_pred)
+
+rss <- sum((y_pred - y_test) ** 2)
+tss <- sum((y_test - mean(y_test)) ** 2)
+R_squared <- 1 - rss/tss
+paste(c("R-Squared:", round(R_squared, 2), "MAE:", round(MAE, 2), "RMSE:", round(RMSE, 2), "Standard Deviation (test data):", round(sd_test, 2)))
 ```
+
+We confirm we are obtaining a better R-Squared: 0.60 versus the 0.53 obtained by the Base Model. The errors are sustantially better too. The ARIMA model obtains a MAE of 4.84 (Base Model: 5.15) and a RMSE of 6.88 (Base Model: 7.45). 
+
+Furthermore, the prediction errors on the test data are smaller than in the training data. It could be counterintuitive but the test period (2017-01 - 2017-09) contains much less variability (sd = 10.91) than the training period (2014-01 - 2016-12; sd = 14.83). This could be affecting the error scores. 
 ```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
 
 sd_train <- sd(train_201401_201612)
@@ -236,29 +265,31 @@ print(sd_test)
 
 autoplot(y_test, series="Test data") +
   autolayer(y_pred,
-    series="1-step fitted values")
+    series="1-step fitted values") + 
+    theme_minimal() +
+    theme(legend.position="top")
 
 ```
 
 
 
 
-
-
-
-
-
-Lo mismo que calcule "a mano"
+Lo mismo que calcule "a mano". LO BORRO?
 ```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
 
 arima.test <- Arima(test_201701_201709, model=model_arima_0)
 accuracy(arima.test)
 ```
 
+We have made the forecast for one hour ahead and we have estimated its precission. But what happens when we try to forecast values ...?
 
+In order to check the precission of this ARIMA model with forecasts more ... we are going to use the fitted 
 ```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
 
-#h6 <- fitted(arima.test, h = 6) 
+# First of all we create with the Arima function the object arima.test
+arima.test <- Arima(test_201701_201709, model=model_arima_0)
+# And with the fitted function, setting its parameter to 6, we fit and extract the fitted values corresponding to the forecast 6 hours ahead (check redaction) 
+#h6 <- fitted(arima.test, h = 6) # It takes a lot of time
 #saveRDS(h6, "data_rds_files/arima_model_0_test_fitted_values_h6.rds")
 h6 <- readRDS("data_rds_files/arima_model_0_test_fitted_values_h6.rds")
 ```
@@ -284,12 +315,9 @@ print(MAE)
 
 rss <- sum((y_pred - y_test) ^ 2)
 tss <- sum((y_test - mean(y_test)) ^ 2)
-R_squared <- 1 - rss/tss # ?tiene sentido r2 en un modelo arima
+R_squared <- 1 - rss/tss 
 print(R_squared)
 ```
-
-
-
 
 
 
@@ -414,10 +442,18 @@ print(R_squared)
 
 
 Pending: 
-
-  - Poner el mismo maximo en el eje y de los autoplot de los datasets de train, test, validation.
+  
+  - Revisar etiquetas graficos.
+  - Comentar graficos de distribuciones de errores.
+  - Explicar lo que hace la funcion auto.arima (cogerlo del libro de Hindman)
+  - Change colors to the graphic of the base model (line of fitted data vs actual data).
+  - Re-redacting introduction
   - Hacer una mejor imputacion de nas. Ahora mismo estoy utilizando la media.
-  - Utilizar un periodo de train menor. 
+  - Utilizar un periodo de train menor.
+  - Convertir el codigo del calculo del rmse, mae, r2, sd en una funcion. 
+  - Crear tabla donde ir guardando los resultados.
+  - Revisar esto "And the standard deviation of the test data is 10.9, which is smaller than the RMSE (7.45). So, this estimation is better than using the mean."
+  - Meter variables exogenas.
 
 
 
