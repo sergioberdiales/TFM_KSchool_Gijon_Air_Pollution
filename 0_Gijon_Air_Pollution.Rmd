@@ -32,9 +32,20 @@ library(RcppRoll)
 
 ### Preface
   
-  This is the final project of a Master on Data Science. The main objective of this project is to show I  puedo aplicar de forma practica los conocimientos adquiridos durante el master. 
-  This is not a scientific paper. And I am not an specialist on air pollution. Si estas interesado en aprender sobre este tema yo empezaria por echar un vistazo a la informacion que ofrece la EPA (), la OMS () y la EU (). Y si llegaste aqui porque quieres saber algo mas especifico sobre Gijon mi recomendacion es que leas los informes del Principado de Asturias...
+  This is the final project of a Master on Data Science. The main objective of this project is to show I can apply in a practical way the adquired knowledge during the master. 
+  This is not a scientific paper. And I am not an specialist on air pollution. If you are interested in learning about air pollution my advice is to start visiting any of this web sites:
   
+    - epa https://www.epa.gov/clean-air-act-overview
+    - who https://www.who.int/airpollution/en/
+    - eu https://www.eea.europa.eu/themes/air
+    
+    - Modelización de la contaminación por partículas PM10 en la aglomeración de Gijón ftp://ftp.asturias.es/asturias/medioambiente/Planes%20de%20mejora%20de%20la%20calidad%20del%20aire/Planes%202014-16/Estudios%20planes%202014-16/02-Modelizacion_contaminacion_PM10_Area_Gijon.pdf
+    - Plan de mejora de la calidad del aire en la aglomeración área de Gijón (ES0309) https://www.asturias.es/medioambiente/articulos/ficheros/PLAN%20GIJON%20COMPLETO.pdf
+    - ESTUDIO DE CONTRIBUCIÓN DE FUENTES EN LAS PARTÍCULAS PM10 EN SUSPENSIÓN EN LA AGLOMERACIÓN ÁREA DE GIJÓN (ES0309) Y EN LA
+ZONA DE AVILÉS (ES0307)[here](ftp://ftp.asturias.es/asturias/medioambiente/Planes%20de%20mejora%20de%20la%20calidad%20del%20aire/Planes%202017-19/Estudios%20planes%202017-19/2.%20Estudio%20contribuci%F3n%20fuentes%20en%20part%EDculas%20PM10%20-%20Maqua.pdf)
+    - Calidad del Aire y Salud en Asturias. Informe Epidemiológico 2016 https://www.astursalud.es/documents/31867/36150/Calidad+del+Aire+y+Salud.pdf/c389ab51-032c-245d-8cb8-505556521cb7
+    
+    Si estas interesado en aprender sobre este tema yo empezaria por echar un vistazo a la informacion que ofrece la EPA (), la OMS () y la EU (). Y si llegaste aqui porque quieres saber algo mas especifico sobre Gijon mi recomendacion es que leas los informes del Principado de Asturias...
   
 
   
