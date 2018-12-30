@@ -1,3 +1,0 @@
-# Visualizations
-
-Tableau dashboards and more.
