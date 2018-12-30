@@ -1,5 +1,4 @@
 ---
-rmd_files: ["index.Rmd", "01-intro.Rmd"]
 
 site: "bookdown::bookdown_site"
 output:

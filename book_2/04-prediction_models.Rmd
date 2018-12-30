@@ -1,0 +1,15 @@
+# Prediction Models
+
+Making predictions with different approaches.
+
+## ARIMA
+
+## Lineal Regression
+
+## KNN
+
+## Random Forests
+
+## XGboost
+
+## Neural Networks

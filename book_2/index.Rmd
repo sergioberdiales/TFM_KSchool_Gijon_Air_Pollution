@@ -1,11 +1,15 @@
----
+--- 
 title: "Gijón Air Pollution"
 author: "Sergio Berdiales"
+date: "`r Sys.Date()`"
 site: bookdown::bookdown_site
+output: bookdown::gitbook
 documentclass: book
-output:
-  bookdown::gitbook: default
-  #bookdown::pdf_book: default
+bibliography: [book.bib, packages.bib]
+biblio-style: apalike
+link-citations: yes
+github-repo: rstudio/bookdown-demo
+description: "This is the Memory of my final project for Kschool Master of Data Science. The output format for this example is bookdown::gitbook."
 ---
 
 # Preface
@@ -33,3 +37,10 @@ And if your interest is specifically about the situation of the Air Quality at G
 
   * Modelización de la contaminación por partículas PM10 en la aglomeración de Gijón ([pdf here](ftp://ftp.asturias.es/asturias/medioambiente/Planes%20de%20mejora%20de%20la%20calidad%20del%20aire/Planes%202014-16/Estudios%20planes%202014-16/02-Modelizacion_contaminacion_PM10_Area_Gijon.pdf)).
    
+
+```{r include=FALSE}
+# automatically create a bib database for R packages
+knitr::write_bib(c(
+  .packages(), 'bookdown', 'knitr', 'rmarkdown'
+), 'packages.bib')
+```
