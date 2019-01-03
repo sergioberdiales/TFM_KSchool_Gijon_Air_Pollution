@@ -1,0 +1,15 @@
+# Introduction {#intro}
+
+
+## Why
+The quality of the air is becoming a source of public concern.
+
+## What
+
+Objectives:
+
+  * Construct a web dashboard to visualize the evolution of the main air pollution indicators of Gijon city. (Asturias; Spain).
+  
+  * Build a model to predict in the short term (<24h) the evolution of air pollutants concentration by monitoring station.
+
+## How

@@ -1,0 +1,38 @@
+# Visualizations
+
+Tableau dashboards and more.
+
+__Tableau Public stories__:
+
+Beyond the 
+
+* [PM10 story](https://public.tableau.com/views/ContaminacinaireGijncontaminantePM10/PM10_story?:embed=y&:display_count=yes)
+
+
+* [PM25 story](https://public.tableau.com/views/ContaminacinaireGijn5contaminantePM25/PM25_story?:embed=y&:display_count=yes&publish=yes)
+
+
+* [NO2 story](https://public.tableau.com/views/ContaminacinaireGijn2contaminanteNO2/NO2_story?:retry=yes&:embed=y&:display_count=yes)
+
+
+* [SO2 story](https://public.tableau.com/views/ContaminacinaireGijn3contaminanteSO2/SO2_story?:embed=y&:display_count=yes)
+
+
+* [CO story](https://public.tableau.com/shared/S9K29CBNG?:display_count=yes)  
+
+* [O3 story](https://public.tableau.com/views/ContaminacinaireGijn6contaminanteO3/O3_story?:embed=y&:display_count=yes)  
+
+
+
+Pending:
+
+  Comprobar que tamano poner.
+  
+  Hacer por lo menos una version movil.  
+  
+  Comprobar esto CO.  Según mis cálculos el 24 de junio de 2010 se habrían superado los límites de media octo horaria de CO. Pero en el informe de 2016 del Principado esto no aparece así, sino que aparece como valor máximo lo que parece un 7 (está en un gráfico). Tambien en Argentina 2008 hay otro maximo que no aparece.
+  
+  Hacer portada de cada story con la descripci'on 
+  
+  
+  

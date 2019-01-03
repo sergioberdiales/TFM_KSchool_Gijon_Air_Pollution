@@ -1,0 +1,19 @@
+# Prediction Models
+
+__"Prediction is very difficult, especially if it's about the future."__
+ Nils Bohr, Nobel laureate in Physics
+
+Making predictions with different approaches.
+
+## ARIMA
+
+__"I have seen the future and it is very much like the present, only longer."__
+Kehlog Albran, The Profit
+
+## Machine Learning Methods
+
+![](https://imgs.xkcd.com/comics/machine_learning.png)  
+[xkcd comic](https://xkcd.com/1838/)
+
+## Neural Networks
+

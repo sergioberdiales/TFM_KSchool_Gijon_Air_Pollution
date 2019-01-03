@@ -1,7 +1,10 @@
 # Introduction {#intro}
 
-The quality of the air is becoming a source of public concern. 
-  - Construct a web dashboard to visualize the evolution of the main air pollution indicators of Gijon city. (Asturias; Spain).
-  - Build a model to predict in the short term (<24h) the evolution of air pollutants concentration by monitoring station.
+The quality of the air is becoming a source of public concern.
 
-You can write citations, too. For example, we are using the **bookdown** package [@R-bookdown] in this sample book, which was built on top of R Markdown and **knitr** [@xie2015].
+Objectives:
+
+  * Construct a web dashboard to visualize the evolution of the main air pollution indicators of Gijon city. (Asturias; Spain).
+  
+  * Build a model to predict in the short term (<24h) the evolution of air pollutants concentration by monitoring station.
+

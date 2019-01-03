@@ -7,3 +7,65 @@ I downloaded 18 csv files with air pollution and weather data of Gijón from yea
 I downloaded two more files from this web, a csv file with the description of the variables and another csv file with information about the measurement stations. 
 
 ![Image source: "Informe de calidad del aire del Principado de Asturias (2016)".](imgs/gijon_stations_map.jpg)
+
+  These are the original fields from the 18 csv files downloaded: 
+  
+* __Estación__:
+* __Título__:
+* __latitud__:
+* __longitud__:
+* __Fecha__ __Solar__ __(UTC)__:
+* __SO2__: Concentracion de SO2	SO2	µg/m³
+* __NO__: Concentracion de NO	NO	µg/m³
+* __NO2__: Concentracion de NO2	NO2	µg/m³
+* __CO__: Concentracion de CO	CO	mg/m³
+* __PM10__: Particulas en suspension <10 µg/m³	PM10	µg/m³
+* __O3__: Concentracion de Ozono	O3	µg/m³
+* __dd__: Direccion del viento	DD	Grados
+* __vv__: Velocidad del viento	VV	m/s
+* __TMP__: Temperatura Seca	TMP	ºC
+* __HR__: Humedad relativa	HR	%hr
+* __PRB__: Presion Atmosferica	PRB	mb
+* __RS__: Radiacion Solar	RS	W/m²
+* __LL__: Precipitacion	LL	l/m²
+* __BEN__: Benceno	BEN	µg/m³
+* __TOL__: Tolueno	TOL	µg/m³
+* __MXIL__: MXileno	MXIL	µg/m³
+* __PM25__: Particulas en Suspension PM 2,5	PM25	µg/m³
+
+  And these are the fields of the final file 'air_data_2.csv':
+
+* __Estación__:
+* __Título__:
+* __latitud__:
+* __longitud__:
+* __Fecha__ __Solar__ __(UTC)__:
+* __SO2__: Concentracion de SO2	SO2	µg/m³
+* __NO__: Concentracion de NO	NO	µg/m³
+* __NO2__: Concentracion de NO2	NO2	µg/m³
+* __CO__: Concentracion de CO	CO	mg/m³
+* __PM10__: Particulas en suspension <10 µg/m³	PM10	µg/m³
+* __O3__: Concentracion de Ozono	O3	µg/m³
+* __dd__: Direccion del viento	DD	Grados
+* __vv__: Velocidad del viento	VV	m/s
+* __TMP__: Temperatura Seca	TMP	ºC
+* __HR__: Humedad relativa	HR	%hr
+* __PRB__: Presion Atmosferica	PRB	mb
+* __RS__: Radiacion Solar	RS	W/m²
+* __LL__: Precipitacion	LL	l/m²
+* __BEN__: Benceno	BEN	µg/m³
+* __TOL__: Tolueno	TOL	µg/m³
+* __MXIL__: MXileno	MXIL	µg/m³
+* __PM25__: Particulas en Suspension PM 2,5	PM25	µg/m³
+
+There are more csv files, with new variables, created ad hoc for the visualizations on [my Tableau Public site](https://public.tableau.com/profile/sergioberdiales#!/). They are related and described in the 'The Data' section of this document.  
+
+
+
+
+
+
+
+
+
+

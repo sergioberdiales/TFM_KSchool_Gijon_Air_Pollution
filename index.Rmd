@@ -1,0 +1,39 @@
+---
+title: "Gijón Air Pollution"
+author: "Sergio Berdiales"
+site: bookdown::bookdown_site
+documentclass: book
+output:
+  bookdown::gitbook: default
+  #bookdown::pdf_book: default
+---
+
+# Preface
+  
+  This is my final project for the [Kschool Master on Data Science](https://kschool.com/cursos/master-en-data-science-madrid/) (8th edition). The main objective of this project is to show I can apply in a practical way the adquired knowledge during the master. (DESCRIBIR CONTENIDO MASTER Y RECOMENDARLO)
+  
+  This is not a scientific paper. And I am not an specialist on air pollution. If you are interested in learning about air pollution my advice is to start visiting any of this web sites: 
+  
+  * The [site of the EU](https://www.eea.europa.eu/themes/air) (European Union) on Air Pollution.
+  
+  * The [site of the EPA](https://www.epa.gov/clean-air-act-overview) (The United States Environmental Protection Agency) on Air Pollution.
+  
+  * The [site of the WHO](https://www.who.int/airpollution/en/) (World Health Organization) on Air Pollution.
+  
+    
+And if your interest is specifically about the situation of the Air Quality at Gijón city I highly recommend you to read these reports. 
+    
+  * Plan de mejora de la calidad del aire en la aglomeración área de Gijón ([pdf here](https://www.asturias.es/medioambiente/articulos/ficheros/PLAN%20GIJON%20COMPLETO.pdf)). 
+  
+  * Calidad del Aire y Salud en Asturias. Informe Epidemiológico 2016 ([pdf here](https://www.astursalud.es/documents/31867/36150/Calidad+del+Aire+y+Salud.pdf/c389ab51-032c-245d-8cb8-505556521cb7)). 
+  
+  * Informe de calidad del aire en Asturias([pdf here](http://movil.asturias.es/medioambiente/articulos/ficheros/Informe%20de%20calidad%20del%20aire%20en%20Asturias%202016.pdf)).
+  
+  * Estudio de contribución de fuentes en las partículas PM10  en suspensión en la aglomeración área de Gijón y en la zona de Avilés ([pdf here](ftp://ftp.asturias.es/asturias/medioambiente/Planes%20de%20mejora%20de%20la%20calidad%20del%20aire/Planes%202017-19/Estudios%20planes%202017-19/2.%20Estudio%20contribuci%F3n%20fuentes%20en%20part%EDculas%20PM10%20-%20Maqua.pdf)).
+
+  * Modelización de la contaminación por partículas PM10 en la aglomeración de Gijón ([pdf here](ftp://ftp.asturias.es/asturias/medioambiente/Planes%20de%20mejora%20de%20la%20calidad%20del%20aire/Planes%202014-16/Estudios%20planes%202014-16/02-Modelizacion_contaminacion_PM10_Area_Gijon.pdf)).
+
+
+Pending:
+
+* Fix problem bookdown publishing

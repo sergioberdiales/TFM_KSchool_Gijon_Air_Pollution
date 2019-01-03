@@ -1,0 +1,13 @@
+name: tfm_kschool_gijon_air_pollution
+title: TFM_KSchool_Gijon_Air_Pollution
+username: sergioberdiales
+account: sergioberdiales
+server: bookdown.org
+hostUrl: https://bookdown.org/__api__
+appId: 2180
+bundleId: 8422
+url: https://bookdown.org/sergioberdiales/tfm_kschool_gijon_air_pollution/
+when: 1546474537.71481
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: data_final_csvs|data_raw_data|train_test_csvs

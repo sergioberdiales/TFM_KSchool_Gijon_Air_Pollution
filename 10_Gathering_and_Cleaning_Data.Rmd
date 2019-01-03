@@ -1,0 +1,477 @@
+
+# Gathering and Cleaning Data
+
+
+## Data gathering
+
+Loading packages
+```{r , warning= FALSE, message= FALSE}
+library(readr)
+library(dplyr)
+library(tidyr)
+library(purrr)
+library(lubridate)
+library(ggplot2)
+library(stringr)
+library(knitr)
+library(xts)
+library(zoo)
+library(gridExtra)
+library(fpp2)
+library(RcppRoll)
+library(kableExtra)
+
+options(knitr.table.format = "html")
+```
+
+
+First of all I have to check if I will have the basic data to make the analysis. I need air pollution and weather data of the Gijon area.
+The town hall of Gijon has an open data web portal here https://transparencia.gijon.es/. We can download pollution air data on csv format from year 2000 to 2017 [here](https://transparencia.gijon.es/search/risp_dataset/page/1808-catalogo-de-datos?utf8=%E2%9C%93&search=aire+&search_sector=&search_format=&commit=Buscar&authenticity_token=j8%2F3CvCuPcDkrRe%2F1NR5RBp0t%2FOOosiA7724w3T2mB4%3D):
+
+I downloaded 18 csv files with air pollution and weather data of Gijón from years 2000 to 2017. I saved them in the "data" folder.
+I downloaded two more files from this web, a csv file with the description of the variables and another csv file with information about the measurement stations.
+
+We take a look to the information included in  the stations_info.csv file. It includes the stations addresses, longitude, latitude and their IDs and names. All this information, as we will see, is included in the csv files with pollution and weather data too. So, we are not going to use this file anymore.
+
+
+```{r , warning= FALSE, message= FALSE}
+stations <- read_delim('data/stations_info.csv',
+                       delim = ';',
+                       escape_double = FALSE,
+                       trim_ws = TRUE,
+                       locale = locale(encoding = "ISO-8859-1"),
+                       col_types = cols(.default = "c"))
+stations
+
+```
+
+We can see on this image the location of each station. http://movil.asturias.es/medioambiente/articulos/ficheros/Informe%20de%20calidad%20del%20aire%20en%20Asturias%202016.pdf
+
+![Image source: "Informe de calidad del aire del Principado de Asturias (2016)".](imgs/gijon_stations_map.jpg)
+
+The air_data_descriptors.csv file contains information about the nature of the elements monitored by the stations. Names, descriptions and units.
+```{r , warning= FALSE, message= FALSE}
+variables <- read_csv('data/air_data_descriptors.csv', locale = locale(encoding = "ISO-8859-1"))
+variables
+
+```
+
+In order to import the data from the 18 csv files we list all the files in the object data_files.
+
+```{r warning= FALSE, message= FALSE}
+data_files <- list.files(path = "data", pattern = "air_data_20*")
+```
+
+Then, we map the function read_csv on this list in order to import every file and finally merge them in a unique dataframe (air_data_0) with reduce(rbind).
+
+```{r warning= FALSE, message= FALSE}
+air_data_0 <- data_files %>%
+    map(function(x) {
+        read_csv(paste0("./data/", x), locale = locale(encoding = "ISO-8859-1"), col_types = cols(.default = "c"))
+    }) %>%
+    reduce(rbind)
+```
+We take a look to the dataset
+```{r warning= FALSE, message= FALSE}
+glimpse(air_data_0)
+```
+
+
+We change some variables names.
+
+```{r warning= FALSE, message= FALSE}
+
+# Variables names changing
+air_data_1 <- air_data_0 %>% rename(station = `Estación`,
+                                    station_name = `Título`,
+                                    date_time_utc = `Fecha Solar (UTC)`,
+                                    latitude = latitud,
+                                    longitude = longitud)
+```
+
+## Data cleaning
+
+We imported all the columns as characters in order to avoid problems with the format attributions. So, we have to make now some format variable changes.
+
+We change the date_time_utc format from character to date time.
+```{r warning= FALSE, message= FALSE}
+
+air_data_1$date_time_utc <- ymd_hms(air_data_1$date_time_utc)
+```
+
+We change the station and station_name formats from character to factor.
+```{r warning= FALSE, message= FALSE}
+air_data_1$station <- as.factor(air_data_1$station)
+air_data_1$station_name <- as.factor(air_data_1$station_name)
+```
+
+We create a vector with all the variables we want to be numeric
+```{r warning= FALSE, message= FALSE}
+num <- colnames(air_data_1)[c(3, 4, 6:22)]
+```
+We make the conversion of this set of variables to numeric
+```{r warning= FALSE, message= FALSE}
+air_data_1 <- air_data_1 %>% mutate_at(num, as.numeric)
+```
+
+We create a dictionary with an alias for each station in order to add a new variable with more
+convenient station names
+```{r warning= FALSE, message= FALSE}
+alias_dict <- data.frame(
+      station = c("1", "2", "3", "4", "10", "11"),
+      station_alias = c("Constitución", "Argentina", "H. Felgueroso", "Castilla", "Montevil", "Santa Bárbara")
+)
+```
+We join the alias dictionary to the air_data_1 data frame to add the new variable to the data
+set.
+```{r warning= FALSE, message= FALSE}
+air_data_1 <- air_data_1 %>% left_join(alias_dict, by = 'station')
+```
+
+We call the summary function to inspect the data main indicators
+```{r warning= FALSE, message= FALSE}
+summary(air_data_1)
+```
+
+There are several variables which minimun values are -9999.
+
+```{r warning = FALSE, message = FALSE}
+
+kable(air_data_1 %>% filter(SO2 == -9999 |
+                              NO == -9999 |
+                              NO2 == -9999 |
+                              PM10 == -9999 |
+                              O3 == -9999 )) %>%
+                              kable_styling()
+
+```
+
+They are all from the same day (2000-01-27) and from the same station ('H. Felgueroso'). We replace these values by NAs.
+```{r warning = FALSE, message = FALSE}
+
+air_data_2 <- air_data_1 %>% mutate(SO2 = replace(SO2, SO2 == -9999, NA),
+                                    NO = replace(NO, NO == -9999, NA),
+                                    NO2 = replace(NO2, NO2 == -9999, NA),
+                                    PM10 = replace(PM10, PM10 == -9999, NA),
+                                    O3 = replace(O3, O3 == -9999, NA))
+
+```
+
+
+We check again the output of the summary function.
+
+```{r warning = FALSE, message = FALSE}
+summary(air_data_2)
+```
+
+Some pollutant variables have as minimum negative values. It does not make much sense. We take a look to the data in order to quantify the problem.
+
+30 SO2 observations between 2015-12-25 and 2015-12-28 from the Montevil station:
+
+```{r warning = FALSE, message = FALSE}
+(neg_SO2 <- air_data_2 %>% filter(SO2 < 0) %>%
+                          summarise(n = n()))
+
+```
+
+2 RS observations from the Constitucion station:
+
+```{r warning = FALSE, message = FALSE}
+(neg_RS <- air_data_2 %>% filter(RS < 0) %>%
+                          summarise(n = n()))
+```
+
+27 TOL observations between the 2008-12-11 and the 2008-12-15 from the Constitucion station:
+
+```{r warning = FALSE, message = FALSE}
+(neg_TOL <- air_data_2 %>% filter(TOL < 0) %>%
+                          summarise(n = n()))
+```
+
+59 MXIL observations between the 2008-12-10 and the 2008-12-15 from the Constitucion station:
+
+```{r warning = FALSE, message = FALSE}
+(neg_MXIL <- air_data_2 %>% filter(MXIL < 0) %>%
+                          summarise(n = n()))
+```
+
+There are not many cases. We replace them all by NAs and call again the summary function.
+
+```{r warning = FALSE, message = FALSE}
+
+air_data_2 <- air_data_2 %>% mutate(SO2 = replace(SO2, SO2 < 0, NA),
+                                    RS = replace(RS, RS < 0, NA),
+                                    TOL = replace(TOL, TOL < 0, NA),
+                                    MXIL = replace(MXIL, MXIL < 0, NA))
+
+summary(air_data_2)
+
+
+```
+
+We take a look to the data completeness. What proportion of nas do we have by variable, station, year, etc?
+```{r warning = FALSE, message = FALSE}
+
+data_completeness <- air_data_2 %>%
+  group_by(station_alias, year = year(date_time_utc)) %>%
+  summarise_all(funs(round(sum(!is.na(.))/n(), 2))) %>% # We obtain the proportion of 'not NAs'
+  select(-c(3:7, 25:28)) # These columns do not have any na. We exclude them.
+
+head(data_completeness, 10) %>%
+  kable() %>%
+  kable_styling()
+```
+
+We are going to check the data completeness by station:
+
+Constitución: There is data registered from the variables SO2, NO, NO2, CO, PM10, 03, dd, vv, TMP,  HR, PRB, HS and LL since the year 2000.
+There are measurements of the variables BEN, TOL and MXIL since the year 2006 (only 0.01% ). The PM25 particles are monitored since the year 2008 (2008: only covered 0,02% of the year).
+During the year 2008 the completeness of several variables (HR, PRB, HS, LL, BEN, TOL y MXIL) decrease until 88% (to do: check there was not caused by a data importing problem.)
+```{r warning = FALSE, message = FALSE}
+constitucion_data <- data_completeness %>% filter(station_alias == 'Constitución')
+constitucion_data %>%
+                  kable() %>%
+                  kable_styling()
+```
+
+Argentina: data since the year 2000. Variables: SO2, NO, NO2, CO, PM10 and 03.
+```{r warning = FALSE, message = FALSE}
+argentina_data <- data_completeness %>% filter(station_alias == 'Argentina')
+argentina_data %>%
+            kable() %>%
+            kable_styling()
+```
+
+H. Felgueroso: data since the year 2000. Variables: SO2, NO, NO2, CO, PM10 and 03. During the year 2006 the completeness of the data decrease until 88% (to do: check there was not caused by a data importing problem.)
+```{r warning = FALSE, message = FALSE}
+felgueroso_data <- data_completeness %>% filter(station_alias == 'H. Felgueroso')
+
+felgueroso_data %>%
+        kable() %>%
+        kable_styling()
+```
+
+Castilla: data since the year 2000. Variables: SO2, NO, NO2, CO, PM10 and 03. During the year 2015 the completeness of the data decrease until 77% (to do: check there was not caused by a data importing problem.)
+```{r warning = FALSE, message = FALSE}
+castilla_data <- data_completeness %>% filter(station_alias == 'Castilla')
+castilla_data %>%
+  kable() %>%
+  kable_styling()
+```
+
+Montevil: Data since the year 2009. Variables: SO2, NO, NO2, 03, dd, vv, TMP, HR, PRB, HS,
+LL and PM25.
+```{r warning = FALSE, message = FALSE}
+montevil_data <- data_completeness %>% filter(station_alias == 'Montevil')
+montevil_data %>%
+  kable() %>%
+  kable_styling()
+```
+
+Santa Bárbara: Data since the year 2016. Variables: NO, NO2, CO, PM10, 03 and PM25
+```{r warning = FALSE, message = FALSE}
+barbara_data <- data_completeness %>% filter(station_alias == 'Santa Bárbara')
+barbara_data %>%
+  kable() %>%
+  kable_styling()
+```
+
+All the stations have 2018 data, but it is just 6 observations. We drop them to avoid problems when visualising the data.
+
+```{r warning = FALSE, message = FALSE}
+observations_per_year <- air_data_2 %>% group_by(year = year(date_time_utc)) %>%
+                        summarise(n = n())
+observations_per_year %>%
+  kable() %>%
+  kable_styling()
+```
+
+```{r warning = FALSE, message = FALSE}
+air_data_2$year <- year(air_data_2$date_time_utc)
+air_data_2 <- air_data_2 %>% filter(year != '2018')
+
+```
+
+## Adding new variables
+
+### Time variables
+We add to the dataset several more time variables.
+
+```{r warning = FALSE, message = FALSE}
+
+air_data_2$month <- month(air_data_2$date_time_utc)
+air_data_2$date <- as.Date(air_data_2$date_time_utc)
+air_data_2$week_day <- wday(air_data_2$date_time_utc, week_start = getOption("lubridate.week.start", 1))
+air_data_2$hour <- hour(air_data_2$date_time_utc)
+
+```
+
+### Laboral dates
+
+And we add a variable with the with the 'non-working days' of Gijon city from 2014 to 2017.
+
+```{r warning = FALSE, message = FALSE}
+
+holydays <- read_csv('data/holiday_dates.csv', locale = locale(encoding = "ISO-8859-1"))
+
+air_data_2 <- left_join(air_data_2, holydays, by = c("date" = "holiday_date"))
+
+air_data_2 <- air_data_2 %>%  mutate(no_lab_days = ifelse((week_day < 6 & !is.na(holiday_type)) |
+                                                    (week_day >=6), "no_lab", "lab")) %>%
+                                                     mutate(no_lab_days=replace(no_lab_days, date < '2014-01-01', NA))
+
+```
+
+
+### Wind direction
+
+We create another variable to have a factor version of the 'dd' variable (wind direction in degrees).
+I took this snippet of code from here:
+https://community.rstudio.com/t/convert-wind-direction-degrees-into-factors-in-a-data-frame/14636/4
+
+I made some changes because this code caused a problem when I tried to publish the document on bookdown
+```{r warning = FALSE, message = FALSE}
+
+rose_breaks <- c(0, 360/32, (1/32 + (1:15 / 16)) * 360, 360)
+
+# The problem was the repetition of the level "N". 
+# So I splited this level in two, "N1" and "N2".
+rose_labs <- c(
+  "N1", "NNE", "NE", "ENE",
+  "E", "ES", "SE", "SSE",
+  "S", "SSW", "SW", "WS",
+  "W", "WNW", "NW", "NNW",
+  "N2"
+)
+
+air_data_2 <- air_data_2 %>%
+  mutate(
+    wd = cut(
+      dd,
+      breaks = rose_breaks,
+      labels = rose_labs,
+      right = FALSE,
+      include.lowest = TRUE
+    )
+  )
+
+# And I recoded to "N"
+air_data_2 <- air_data_2 %>% mutate(wd = recode(wd, N1 = "N",
+                                                    N2 = "N"))
+```
+
+We save the final dataset as a rds object.
+```{r warning = FALSE, message = FALSE}
+
+saveRDS(air_data_2, file = "data_rds/air_data_2.rds")
+
+```
+
+
+### Tables preparation for Tableau dashboards
+
+We are going to prepare some tables for the Tableau dashboards.
+
+First of all we export the whole table to a csv file. I am not saving this file in the "data_final_csvs" folder because it exceeds the Github file limit size (100mb)(pendiente exportar a google drive)
+
+I save the air_data_2.csv outside the project diretory because it exceeds the 100mb github limit.
+```{r warning = FALSE, message = FALSE}
+
+# write_csv(air_data_2,"C:/Users/SErgio/OneDrive/00_master_data_science/TFM/air_data_2.csv")
+
+```
+#### CO tables
+
+We create a CO dataset with CO Moving averages (each 8 hours). It is needed to measure the accomplishment of UE limits for this pollutant
+```{r warning = FALSE, message = FALSE}
+
+co_data <- air_data_2 %>% select(station_alias, date_time_utc, CO) %>%
+                          mutate(ma_co_8 = roll_mean(CO, 8, fill=0))
+
+hist(co_data$ma_co_8)
+summary(co_data$ma_co_8)
+plot(co_data$ma_co_8)
+
+# pending na treatment
+
+saveRDS(co_data, file = "data_rds/co_data.rds")
+write_csv(co_data, "data_final_csvs/co_data.csv")
+
+
+```
+
+#### O3 tables
+
+We create a O3 dataset with O3 Moving averages (each 8 hours). It is needed to measure the accomplishment of UE limits for this pollutant
+```{r warning = FALSE, message = FALSE}
+
+o3_data <- air_data_2 %>% select(station_alias, date_time_utc, O3) %>%
+                          mutate(ma_o3_8 = roll_mean(O3, 8, fill=0),
+                                 o3_8_acc = ifelse(ma_o3_8 > 125, 'no', 'yes'))
+
+
+hist(o3_data$ma_o3_8)
+summary(o3_data$ma_o3_8)
+plot(o3_data$ma_o3_8)
+
+# pending na treatment
+
+saveRDS(o3_data, file = "data_rds/o3_data.rds")
+write_csv(o3_data, "data_final_csvs/o3_data.csv")
+
+
+```
+
+
+
+#### SO2 tables
+
+RD 102/2011
+Hourly limit: 350 ug/m3 (1 hour). <= 24 times / year.
+Daily limit: 125 ug/m3 (24 hours). <= 3 times / year.
+Alert threshold: 500 ug/m3 (3 hours).
+
+
+```{r warning = FALSE, message = FALSE}
+
+so2_data <- air_data_2 %>% select(station_alias, date_time_utc, SO2)
+
+saveRDS(so2_data, file = "data_rds/so2_data.rds")
+write_csv(so2_data, "data_final_csvs/so2_data.csv")
+
+# How many times was the Hourly limit exceeded during the last 18 years?
+
+so2_hourly_limit <- so2_data %>%
+                    group_by(station_alias,
+                             year = year(date_time_utc),
+                             day = date(date_time_utc)) %>%
+                    filter(SO2 > 350) %>%
+                    summarise(n = n()) %>%
+                    arrange(year)
+
+
+so2_hourly_limit
+
+saveRDS(so2_hourly_limit, file = "data_rds/so2_hourly_limit.rds")
+write_csv(so2_hourly_limit, "data_final_csvs/so2_hourly_limit.csv")
+
+
+# How many times was the Daily limit exceeded during the last 18 years?
+
+so2_daily_limit <- so2_data %>%
+                    group_by(station_alias, date = date(date_time_utc), year = year(date_time_utc)) %>%
+                    summarise(avg = mean(SO2, na.rm = TRUE)) %>%
+                    ungroup %>%
+                    filter(avg > 125) %>%
+                    group_by(station_alias, year, date) %>%
+                    summarise(n = n()) %>%
+                    arrange(year)
+
+
+
+so2_daily_limit
+
+saveRDS(so2_daily_limit, file = "data_rds/so2_daily_limit.rds")
+write_csv(so2_daily_limit, "data_final_csvs/so2_daily_limit.csv")
+
+```
