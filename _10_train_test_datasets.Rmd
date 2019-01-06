@@ -42,6 +42,10 @@ train_PM10_201401_201612 <- constitucion_data %>% filter(date_time_utc >= '2014-
 # We generate a smaller training dataset with the last three months of 2016
 train_PM10_201610_201612 <- constitucion_data %>% filter(date_time_utc >= '2016-10-01 00:00:00',
                                        date_time_utc <= '2016-12-31 23:00:00') 
+
+# We generate a bigger training dataset with seven years of data
+train_PM10_200901_201612 <- constitucion_data %>% filter(date_time_utc >= '2009-01-01 00:00:00',
+                                       date_time_utc <= '2016-12-31 23:00:00') 
                                        
 
 test_PM10_201701_201709 <- constitucion_data %>% filter(date_time_utc >= '2017-01-01 00:00:00',
@@ -55,7 +59,7 @@ validation_PM10_201710_201712 <- constitucion_data %>% filter(date_time_utc >= '
                                        date_time_utc <= '2017-12-31 23:00:00') 
 
 # We include all the datasets in a list
-datasets_list <- list(train_PM10_201401_201612, train_PM10_201610_201612, test_PM10_201701_201709, test_PM10_20170101_20170114, validation_PM10_201710_201712)
+datasets_list <- list(train_PM10_201401_201612, train_PM10_201610_201612, train_PM10_200901_201612, test_PM10_201701_201709, test_PM10_20170101_20170114, validation_PM10_201710_201712)
 
 # And we apply the same transformations to every dataframe in the list
 datasets_list <- datasets_list %>% 
@@ -102,19 +106,19 @@ datasets_list <- datasets_list %>%
                   PM10_96 = lag(PM10_0, 96),
                   PM10_120 = lag(PM10_0, 120),
                   PM10_144 = lag(PM10_0, 144),
-                  PM10_168 = lag(PM10_0, 168))) %>%
-                na.omit()
+                  PM10_168 = lag(PM10_0, 168))) 
 
 
 # We unlist the dataframes and we rename them again.
 for (i in seq(datasets_list))
   assign(paste0("df", i), datasets_list[[i]])
 
-train_PM10_201401_201612 <- df1
-train_PM10_201610_201612 <- df2 
-test_PM10_201701_201709 <- df3
-test_PM10_20170101_20170114 <- df4 
-validation_PM10_201710_201712 <- df5
+train_PM10_201401_201612 <- df1 %>% na.omit()
+train_PM10_201610_201612 <- df2 %>% na.omit()
+train_PM10_200901_201612 <- df3 %>% na.omit()
+test_PM10_201701_201709 <- df4 %>% na.omit()
+test_PM10_20170101_20170114 <- df5 %>% na.omit()
+validation_PM10_201710_201712 <- df6 %>% na.omit()
 
 ```
 
@@ -140,6 +144,16 @@ write_csv(y_train_PM10_201610_201612, "train_test/Prediction_Models_ML_0_AR/y_tr
 
 saveRDS(X_train_PM10_201610_201612, "train_test/Prediction_Models_ML_0_AR/X_train_PM10_201610_201612.rds")
 saveRDS(y_train_PM10_201610_201612, "train_test/Prediction_Models_ML_0_AR/y_train_PM10_201610_201612.rds")
+
+y_train_PM10_200901_201612 <- train_PM10_200901_201612 %>% select(PM10_0)
+X_train_PM10_200901_201612 <- train_PM10_200901_201612 %>% select(-PM10_0)
+
+write_csv(X_train_PM10_200901_201612, "train_test/Prediction_Models_ML_0_AR/X_train_PM10_200901_201612.csv")
+write_csv(y_train_PM10_200901_201612, "train_test/Prediction_Models_ML_0_AR/y_train_PM10_200901_201612.csv")
+
+saveRDS(X_train_PM10_200901_201612, "train_test/Prediction_Models_ML_0_AR/X_train_PM10_200901_201612.rds")
+saveRDS(y_train_PM10_200901_201612, "train_test/Prediction_Models_ML_0_AR/y_train_PM10_200901_201612.rds")
+
 
 y_test_PM10_20170101_20170114 <- test_PM10_20170101_20170114 %>% select(PM10_0)
 X_test_PM10_20170101_20170114 <- test_PM10_20170101_20170114 %>% select(-PM10_0)
@@ -193,6 +207,9 @@ train_NO2_201401_201612 <- constitucion_data %>% filter(date_time_utc >= '2014-0
 train_NO2_201610_201612 <- constitucion_data %>% filter(date_time_utc >= '2016-10-01 00:00:00',
                                        date_time_utc <= '2016-12-31 23:00:00') 
                                        
+# We generate a bigger training dataset with seven years of data
+train_NO2_200901_201612 <- constitucion_data %>% filter(date_time_utc >= '2009-01-01 00:00:00',
+                                       date_time_utc <= '2016-12-31 23:00:00') 
 
 test_NO2_201701_201709 <- constitucion_data %>% filter(date_time_utc >= '2017-01-01 00:00:00',
                                        date_time_utc <= '2017-09-30 23:00:00') 
@@ -205,7 +222,7 @@ validation_NO2_201710_201712 <- constitucion_data %>% filter(date_time_utc >= '2
                                        date_time_utc <= '2017-12-31 23:00:00') 
 
 # We include all the datasets in a list
-datasets_list <- list(train_NO2_201401_201612, train_NO2_201610_201612, test_NO2_201701_201709, test_NO2_20170101_20170114, validation_NO2_201710_201712)
+datasets_list <- list(train_NO2_201401_201612, train_NO2_201610_201612, train_NO2_200901_201612, test_NO2_201701_201709, test_NO2_20170101_20170114, validation_NO2_201710_201712)
 
 # And we apply the same transformations to every dataframe in the list
 datasets_list <- datasets_list %>% 
@@ -252,19 +269,19 @@ datasets_list <- datasets_list %>%
                   NO2_96 = lag(NO2_0, 96),
                   NO2_120 = lag(NO2_0, 120),
                   NO2_144 = lag(NO2_0, 144),
-                  NO2_168 = lag(NO2_0, 168))) %>%
-                na.omit()
+                  NO2_168 = lag(NO2_0, 168))) 
 
 
 # We unlist the dataframes and we rename them again.
 for (i in seq(datasets_list))
   assign(paste0("df", i), datasets_list[[i]])
 
-train_NO2_201401_201612 <- df1
-train_NO2_201610_201612 <- df2 
-test_NO2_201701_201709 <- df3
-test_NO2_20170101_20170114 <- df4 
-validation_NO2_201710_201712 <- df5
+train_NO2_201401_201612 <- df1 %>% na.omit()
+train_NO2_201610_201612 <- df2 %>% na.omit()
+train_NO2_200901_201612 <- df3 %>% na.omit()
+test_NO2_201701_201709 <- df4 %>% na.omit()
+test_NO2_20170101_20170114 <- df5 %>% na.omit()
+validation_NO2_201710_201712 <- df6 %>% na.omit()
 
 ```
 
@@ -290,6 +307,17 @@ write_csv(y_train_NO2_201610_201612, "train_test/Prediction_Models_ML_0_AR/y_tra
 
 saveRDS(X_train_NO2_201610_201612, "train_test/Prediction_Models_ML_0_AR/X_train_NO2_201610_201612.rds")
 saveRDS(y_train_NO2_201610_201612, "train_test/Prediction_Models_ML_0_AR/y_train_NO2_201610_201612.rds")
+
+y_train_NO2_200901_201612 <- train_NO2_200901_201612 %>% select(NO2_0)
+X_train_NO2_200901_201612 <- train_NO2_200901_201612 %>% select(-NO2_0)
+
+write_csv(X_train_NO2_200901_201612, "train_test/Prediction_Models_ML_0_AR/X_train_NO2_200901_201612.csv")
+write_csv(y_train_NO2_200901_201612, "train_test/Prediction_Models_ML_0_AR/y_train_NO2_200901_201612.csv")
+
+saveRDS(X_train_NO2_200901_201612, "train_test/Prediction_Models_ML_0_AR/X_train_NO2_200901_201612.rds")
+saveRDS(y_train_NO2_200901_201612, "train_test/Prediction_Models_ML_0_AR/y_train_NO2_200901_201612.rds")
+
+
 
 y_test_NO2_20170101_20170114 <- test_NO2_20170101_20170114 %>% select(NO2_0)
 X_test_NO2_20170101_20170114 <- test_NO2_20170101_20170114 %>% select(-NO2_0)

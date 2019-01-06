@@ -1,0 +1,126 @@
+---
+title: "Pendiente"
+output: html_notebook
+---
+
+# Bookdown
+
+## Intro
+
+Incluir grafico evolucion principales contaminantes
+
+## The Data
+
+Pending:
+* Remove fields 'year_month_day', 'rose', 'holiday_type'.  
+* Change order fields.  
+* Upload final dataset to kaggle.  
+
+
+* Loops & functions:
+  
+```
+kable(air_data_1 %>% filter(SO2 == -9999 | 
+                              NO == -9999 |
+                              NO2 == -9999 |
+                              PM10 == -9999 |
+                              O3 == -9999 ))
+
+```
+
+```
+
+air_data_2 <- air_data_1 %>% mutate(SO2 = replace(SO2, SO2 == -9999, NA),
+                                    NO = replace(NO, NO == -9999, NA),
+                                    NO2 = replace(NO2, NO2 == -9999, NA),
+                                    PM10 = replace(PM10, PM10 == -9999, NA),
+                                    O3 = replace(O3, O3 == -9999, NA))
+
+```
+
+Hacer tambien un loop para el tema del conteo de negativos.
+
+'During the year 2008 the completeness of several variables (HR, PRB, HS, LL, BEN, TOL y MXIL) decrease until 88% (to do: check there was not caused by a data importing problem.)' Hacer una visualizacion chula de esto. Donde se vea si esta falta de datos a algun periodo determinado.
+
+Que se vean de un color distinto a partir de 0.95 para abajo.
+Revisar esto: 
+https://haozhu233.github.io/kableExtra/awesome_table_in_html.html
+```
+data_completeness  %>% 
+            mutate_if(is.numeric, function(x) {
+            cell_spec(x, bold = T, 
+              color = spec_color(x, end = 0.9),
+              font_size = spec_font_size(x)) 
+          })  %>% kable() %>%
+  kable_styling()
+
+  ```
+Comprobar que no se pasan de observaciones posibles por ano
+
+Ensanchar las tablas para que ocupen todo el ancho
+
+
+
+## Visualizations
+
+Pending:
+
+  
+
+  Comprobar que tamano poner.
+  
+  Hacer por lo menos una version movil.  
+  
+  Comprobar esto CO.  Según mis cálculos el 24 de junio de 2010 se habrían superado los límites de media octo horaria de CO. Pero en el informe de 2016 del Principado esto no aparece así, sino que aparece como valor máximo lo que parece un 7 (está en un gráfico). Tambien en Argentina 2008 hay otro maximo que no aparece.
+  
+  Hacer portada de cada story con la descripci'on 
+  
+  
+  
+# Scripts
+
+## Gathering and cleaning data
+
+...
+
+## Data exploration
+
+
+## Prediction Models ARIMA
+
+Pending: 
+  - Change names model arima pm10.
+  
+  - Hacer mas graficos y estadisticos descriptivos de las series de training y test
+  
+  - Revisar etiquetas graficos.
+  
+  - Comentar graficos de distribuciones de errores. A;adir linea de tendencia
+  
+  - Explicar lo que hace la funcion auto.arima (cogerlo del libro de Hindman)
+  
+  - Change colors to the graphic of the base model (line of fitted data vs actual data).
+  
+  - Re-redacting introduction
+  
+  - Hacer una mejor imputacion de nas. Ahora mismo estoy utilizando la media.
+  
+      - Utilizar un periodo de train menor. HECHO
+      
+  - Convertir el codigo del calculo del rmse, mae, r2, sd en una funcion. 
+  
+  - Crear tabla donde ir guardando los resultados.
+  
+  - Hacer loop para obtener todos los scores de h1 a h6. y que genere los graficos tambien
+  
+  - Revisar esto "And the standard deviation of the test data is 10.9, which is smaller than the RMSE (7.45). So, this estimation is better than using the mean."
+  
+  - Meter variables exogenas.
+  
+  - Por que el y_pred h6 tiene 7 nas. No tendria que tener 7?
+  
+  - Revisar que significa el Inf en los resultados de los modelos Arima (sale cuando esta creando el modelo).
+  - Comprobar como se van degradando los resultados del modelo segun va aplicandose el modelo mas adelante en el tiempo. Esto puede ser facil. Graficamente solo tendria que plotear todos los errores que resultasen del test.
+
+
+

@@ -510,43 +510,6 @@ More variability.
 Explain this.
 Include graphics.
 
-Pending: 
-  - Change names model arima pm10.
-  
-  - Hacer mas graficos y estadisticos descriptivos de las series de training y test
-  
-  - Revisar etiquetas graficos.
-  
-  - Comentar graficos de distribuciones de errores. A;adir linea de tendencia
-  
-  - Explicar lo que hace la funcion auto.arima (cogerlo del libro de Hindman)
-  
-  - Change colors to the graphic of the base model (line of fitted data vs actual data).
-  
-  - Re-redacting introduction
-  
-  - Hacer una mejor imputacion de nas. Ahora mismo estoy utilizando la media.
-  
-      - Utilizar un periodo de train menor. HECHO
-      
-  - Convertir el codigo del calculo del rmse, mae, r2, sd en una funcion. 
-  
-  - Crear tabla donde ir guardando los resultados.
-  
-  - Hacer loop para obtener todos los scores de h1 a h6. y que genere los graficos tambien
-  
-  - Revisar esto "And the standard deviation of the test data is 10.9, which is smaller than the RMSE (7.45). So, this estimation is better than using the mean."
-  
-  - Meter variables exogenas.
-  
-  - Por que el y_pred h6 tiene 7 nas. No tendria que tener 7?
-  
-  - Revisar que significa el Inf en los resultados de los modelos Arima (sale cuando esta creando el modelo).
-  - Comprobar como se van degradando los resultados del modelo segun va aplicandose el modelo mas adelante en el tiempo. Esto puede ser facil. Graficamente solo tendria que plotear todos los errores que resultasen del test.
-
-
-
-
 
 
 

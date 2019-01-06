@@ -2,14 +2,50 @@
 
 
 ## Why
-The quality of the air is becoming a source of public concern.
+
+Why did I choose this topic, the Air Pollution at the city of Gijón, for my Master of Data Science final project? 
+
+I was born in Gijón. And I was working 12 years in Madrid. Both cities suffer from air quality low levels. And in recent years the air pollution has become a great source of public concern. 
+
+So, the topic came up to me in a very natural way. Then, I saw that the city town of Gijón had an open data web. And where it had published 18 years of hourly data from its six air quality monitoring stations. That  was definitive. 
+ 
+I had a topic. And I had the data.
 
 ## What
 
-Objectives:
-
-  * Construct a web dashboard to visualize the evolution of the main air pollution indicators of Gijon city. (Asturias; Spain).
+The main objectives of this Data Science project are:  
   
-  * Build a model to predict in the short term (<24h) the evolution of air pollutants concentration by monitoring station.
+ * __1. Construct and publish a web dashboard to visualize the evolution of the main air pollution indicators of Gijon city.__   
+  
+It could seem something trivial and with litte utility. But the fact is that, after searching the web, I didn't find any service where these kind of evolutions can be consulted easily. 
+  
+This lack of public information can be contributing to generate a very pessimistic vision of the air quality of the city of Gijón. 
+
+It is true that Gijón presents air quality levels on some pollutants below the recommendations of the WHO. But, the fact is that the Gijón air quality has improved in a drastic way during the last two decades.
+
+"include graphic of main pollutants levels evolution"
+
+Probably I am being too optimistic, but I would like to think that through this work I'm helping to improve the public understanding on the matter.  
+
+In order to accomplish this objective I finally choose as main tool the Tableau software and its free service of visualizations web publishing Tableau Public.
+
+If you want to see the final result you can go to the chapter 4 "Visualizations". 
+
+ 
+ * __2. Build forecasting models to predict pollution levels.__
+ 
+ My second objective is to try to forecast hourly pollution levels with one to twenty four hours in advance.   
+ Initially, my intention was to create models for every pollutant and every monitoring station. But, following the advice of one of the Master professors, I have focused my efforts on only one station (Constitución) and only two of the pollutants, the PM10 and the NO2. 
+
+I choose the Constitución station because is the unique station which has published weather data too.   
+
 
 ## How
+
+* R for cleaning and exploring the data and for preparing the data for the models.  
+* Python, and mostly Sklearn for making the models (except the ARIMA models, made with R and the fantastic Forecast package).  
+* Bookdown package to build the html book. And Bookdown.org publishing free service to publish the final document.  
+* I used Git and Github for control version of mi work. All the code, data files (except the final table because its size) and other files needed are in this [Github repository]https://github.com/sergioberdiales/TFM_KSchool_Gijon_Air_Pollution  
+* I used the Kaggle platform to upload the final dataset with all the data.   
+* I used R-Studio on a Windows laptop to manage all the R code and Google Collab notebooks to write the Python code.   
+* Tableau Desktop (student license) to create the dashboards and Tableau Public to publish the final stories.

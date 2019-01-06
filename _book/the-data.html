@@ -115,7 +115,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 </ul></li>
 <li class="chapter" data-level="6" data-path="conclusions.html"><a href="conclusions.html"><i class="fa fa-check"></i><b>6</b> Conclusions</a></li>
 <li class="chapter" data-level="" data-path="references.html"><a href="references.html"><i class="fa fa-check"></i>References</a></li>
-<li class="chapter" data-level="" data-path="r-scripts.html"><a href="r-scripts.html"><i class="fa fa-check"></i>R scripts</a></li>
+<li><a href="r-scripts.html#r-scripts"><em>R scripts</em></a></li>
 <li class="chapter" data-level="7" data-path="gathering-and-cleaning-data.html"><a href="gathering-and-cleaning-data.html"><i class="fa fa-check"></i><b>7</b> Gathering and Cleaning Data</a><ul>
 <li class="chapter" data-level="7.1" data-path="gathering-and-cleaning-data.html"><a href="gathering-and-cleaning-data.html#data-gathering"><i class="fa fa-check"></i><b>7.1</b> Data gathering</a></li>
 <li class="chapter" data-level="7.2" data-path="gathering-and-cleaning-data.html"><a href="gathering-and-cleaning-data.html#data-cleaning"><i class="fa fa-check"></i><b>7.2</b> Data cleaning</a></li>
@@ -123,7 +123,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <li class="chapter" data-level="7.3.1" data-path="gathering-and-cleaning-data.html"><a href="gathering-and-cleaning-data.html#time-variables"><i class="fa fa-check"></i><b>7.3.1</b> Time variables</a></li>
 <li class="chapter" data-level="7.3.2" data-path="gathering-and-cleaning-data.html"><a href="gathering-and-cleaning-data.html#laboral-dates"><i class="fa fa-check"></i><b>7.3.2</b> Laboral dates</a></li>
 <li class="chapter" data-level="7.3.3" data-path="gathering-and-cleaning-data.html"><a href="gathering-and-cleaning-data.html#wind-direction"><i class="fa fa-check"></i><b>7.3.3</b> Wind direction</a></li>
-<li class="chapter" data-level="7.3.4" data-path="gathering-and-cleaning-data.html"><a href="gathering-and-cleaning-data.html#tables-preparation-for-tableau-dashboards"><i class="fa fa-check"></i><b>7.3.4</b> Tables preparation for Tableau Dashboards</a></li>
+<li class="chapter" data-level="7.3.4" data-path="gathering-and-cleaning-data.html"><a href="gathering-and-cleaning-data.html#tables-preparation-for-tableau-dashboards"><i class="fa fa-check"></i><b>7.3.4</b> Tables preparation for Tableau dashboards</a></li>
 </ul></li>
 </ul></li>
 <li class="chapter" data-level="8" data-path="data-exploration.html"><a href="data-exploration.html"><i class="fa fa-check"></i><b>8</b> Data Exploration</a><ul>
@@ -142,7 +142,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <li class="chapter" data-level="9.2.2" data-path="prediction-models-arima.html"><a href="prediction-models-arima.html#arima-model-1"><i class="fa fa-check"></i><b>9.2.2</b> ARIMA model</a></li>
 </ul></li>
 </ul></li>
-<li class="chapter" data-level="" data-path="python-scripts.html"><a href="python-scripts.html"><i class="fa fa-check"></i>Python scripts</a></li>
+<li><a href="python-scripts.html#python-scripts"><em>Python scripts</em></a></li>
 </ul>
 
       </nav>
@@ -164,7 +164,12 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <h1><span class="header-section-number">3</span> The Data</h1>
 <p><strong>“In God we trust. All others must bring data.”</strong> – W. Edwards Deming, statistician, professor and author.</p>
 <p>I gathered the data used in this project from the open data web portal of the town hall of Gijón <a href="https://transparencia.gijon.es/" class="uri">https://transparencia.gijon.es/</a>. The data can be downloaded from <a href="https://transparencia.gijon.es/search/risp_dataset/page/1808-catalogo-de-datos?utf8=%E2%9C%93&amp;search=aire+&amp;search_sector=&amp;search_format=&amp;commit=Buscar&amp;authenticity_token=j8%2F3CvCuPcDkrRe%2F1NR5RBp0t%2FOOosiA7724w3T2mB4%3D">here</a>:</p>
+<p>Describe the data: kind of data stored. pollutant data, weather data, geographical data. number of monitoring stations. short description of them.</p>
 <p>I downloaded 18 csv files with air pollution and weather data of Gijón from years 2000 to 2017. I saved them in the “data” folder. I downloaded two more files from this web, a csv file with the description of the variables and another csv file with information about the measurement stations.</p>
+<p>There are more csv files, with new variables, created ad hoc for the visualizations on <a href="https://public.tableau.com/profile/sergioberdiales#!/">my Tableau Public site</a>. They are related and described in the ‘Visualizations’ section of this document.</p>
+<p>Reference to the train / test / validation datasets created.</p>
+<p>All the data files are in the Github repository project. Except the air_data_2.csv. I uploaded this file tho Kaggle.</p>
+<p>Holiday dates csv file.</p>
 <div class="figure">
 <img src="imgs/gijon_stations_map.jpg" alt="Image source: Informe de calidad del aire del Principado de Asturias (2016)." />
 <p class="caption">Image source: “Informe de calidad del aire del Principado de Asturias (2016)”.</p>
@@ -195,7 +200,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <li><strong>MXIL</strong>: M-Xylene (µg/m³).</li>
 <li><strong>PM25</strong>: Particulate Matter (&lt;2.5 µg/m³).</li>
 </ul>
-<p>And these are the fields of the final file ‘air_data_2.csv’:</p>
+<p>Relate transformations made to the original data. Short summary of the final data table. And these are the fields of the final file ‘air_data_2.csv’:</p>
 <ul>
 <li><strong>station</strong>: Station id.</li>
 <li><strong>station_name</strong>: Station name.</li>
@@ -228,31 +233,6 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <li><strong>lab</strong>: lab = working day / no_lab = no working day.</li>
 <li><strong>wd</strong>: Wind direction in factor format.</li>
 </ul>
-<p>There are more csv files, with new variables, created ad hoc for the visualizations on <a href="https://public.tableau.com/profile/sergioberdiales#!/">my Tableau Public site</a>. They are related and described in the ‘Visualizations’ section of this document.</p>
-<p>Pending: * Remove fields ‘year_month_day’, ‘rose’, ‘holiday_type’.<br />
-* Change order fields.<br />
-* Upload final dataset to kaggle.</p>
-<ul>
-<li>Loops &amp; functions:</li>
-</ul>
-<pre><code>kable(air_data_1 %&gt;% filter(SO2 == -9999 | 
-                              NO == -9999 |
-                              NO2 == -9999 |
-                              PM10 == -9999 |
-                              O3 == -9999 ))
-</code></pre>
-<pre><code>
-air_data_2 &lt;- air_data_1 %&gt;% mutate(SO2 = replace(SO2, SO2 == -9999, NA),
-                                    NO = replace(NO, NO == -9999, NA),
-                                    NO2 = replace(NO2, NO2 == -9999, NA),
-                                    PM10 = replace(PM10, PM10 == -9999, NA),
-                                    O3 = replace(O3, O3 == -9999, NA))
-</code></pre>
-<p>Hacer tambien un loop para el tema del conteo de negativos.</p>
-<p>‘During the year 2008 the completeness of several variables (HR, PRB, HS, LL, BEN, TOL y MXIL) decrease until 88% (to do: check there was not caused by a data importing problem.)’ Hacer una visualizacion chula de esto. Donde se vea si esta falta de datos a algun periodo determinado.</p>
-<p>Que se vean de un color distinto a partir de 0.95 para abajo. Revisar esto: <a href="https://haozhu233.github.io/kableExtra/awesome_table_in_html.html" class="uri">https://haozhu233.github.io/kableExtra/awesome_table_in_html.html</a> ``` data_completeness %&gt;% mutate_if(is.numeric, function(x) { cell_spec(x, bold = T, color = spec_color(x, end = 0.9), font_size = spec_font_size(x)) }) %&gt;% kable() %&gt;% kable_styling()</p>
-<p>``` Comprobar que no se pasan de observaciones posibles por ano</p>
-<p>Ensanchar las tablas para que ocupen todo el ancho</p>
 
 </div>
             </section>

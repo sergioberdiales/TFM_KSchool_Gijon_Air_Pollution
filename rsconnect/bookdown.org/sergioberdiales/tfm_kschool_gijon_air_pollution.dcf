@@ -5,9 +5,9 @@ account: sergioberdiales
 server: bookdown.org
 hostUrl: https://bookdown.org/__api__
 appId: 2180
-bundleId: 8422
+bundleId: 8454
 url: https://bookdown.org/sergioberdiales/tfm_kschool_gijon_air_pollution/
-when: 1546474537.71481
+when: 1546707035.38516
 asMultiple: FALSE
 asStatic: FALSE
-ignoredFiles: data_final_csvs|data_raw_data|train_test_csvs
+ignoredFiles: data_raw_data|data_rds|train_test

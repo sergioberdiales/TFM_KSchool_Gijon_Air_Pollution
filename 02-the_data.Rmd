@@ -3,12 +3,22 @@
 __“In God we trust. All others must bring data.”__ – W. Edwards Deming, statistician, professor and author. 
 
 
-
 I gathered the data used in this project from the open data web portal of the town hall of Gijón https://transparencia.gijon.es/. The data can be downloaded from  [here](https://transparencia.gijon.es/search/risp_dataset/page/1808-catalogo-de-datos?utf8=%E2%9C%93&search=aire+&search_sector=&search_format=&commit=Buscar&authenticity_token=j8%2F3CvCuPcDkrRe%2F1NR5RBp0t%2FOOosiA7724w3T2mB4%3D): 
 
+Describe the data:
+  kind of data stored. pollutant data, weather data, geographical data.
+  number of monitoring stations. short description of them.
 
 I downloaded 18 csv files with air pollution and weather data of Gijón from years 2000 to 2017. I saved them in the "data" folder.
 I downloaded two more files from this web, a csv file with the description of the variables and another csv file with information about the measurement stations. 
+
+There are more csv files, with new variables, created ad hoc for the visualizations on [my Tableau Public site](https://public.tableau.com/profile/sergioberdiales#!/). They are related and described in the 'Visualizations' section of this document. 
+
+Reference to the train / test / validation datasets created.
+
+All the data files are in the Github repository project. Except the air_data_2.csv. I uploaded this file tho Kaggle. 
+
+Holiday dates csv file.
 
 ![Image source: "Informe de calidad del aire del Principado de Asturias (2016)".](imgs/gijon_stations_map.jpg)
 
@@ -38,6 +48,9 @@ I downloaded two more files from this web, a csv file with the description of th
 * __MXIL__: M-Xylene (µg/m³).
 * __PM25__: Particulate Matter (<2.5 µg/m³).
 
+
+  Relate transformations made to the original data. 
+  Short summary of the final data table.
   And these are the fields of the final file 'air_data_2.csv':
 
 * __station__: Station id.
@@ -72,56 +85,12 @@ I downloaded two more files from this web, a csv file with the description of th
 * __wd__: Wind direction in factor format.
 
 
-There are more csv files, with new variables, created ad hoc for the visualizations on [my Tableau Public site](https://public.tableau.com/profile/sergioberdiales#!/). They are related and described in the 'Visualizations' section of this document.  
 
 
-Pending:
-* Remove fields 'year_month_day', 'rose', 'holiday_type'.  
-* Change order fields.  
-* Upload final dataset to kaggle.  
 
 
-* Loops & functions:
-  
-```
-kable(air_data_1 %>% filter(SO2 == -9999 | 
-                              NO == -9999 |
-                              NO2 == -9999 |
-                              PM10 == -9999 |
-                              O3 == -9999 ))
 
-```
 
-```
-
-air_data_2 <- air_data_1 %>% mutate(SO2 = replace(SO2, SO2 == -9999, NA),
-                                    NO = replace(NO, NO == -9999, NA),
-                                    NO2 = replace(NO2, NO2 == -9999, NA),
-                                    PM10 = replace(PM10, PM10 == -9999, NA),
-                                    O3 = replace(O3, O3 == -9999, NA))
-
-```
-
-Hacer tambien un loop para el tema del conteo de negativos.
-
-'During the year 2008 the completeness of several variables (HR, PRB, HS, LL, BEN, TOL y MXIL) decrease until 88% (to do: check there was not caused by a data importing problem.)' Hacer una visualizacion chula de esto. Donde se vea si esta falta de datos a algun periodo determinado.
-
-Que se vean de un color distinto a partir de 0.95 para abajo.
-Revisar esto: 
-https://haozhu233.github.io/kableExtra/awesome_table_in_html.html
-```
-data_completeness  %>% 
-            mutate_if(is.numeric, function(x) {
-            cell_spec(x, bold = T, 
-              color = spec_color(x, end = 0.9),
-              font_size = spec_font_size(x)) 
-          })  %>% kable() %>%
-  kable_styling()
-
-  ```
-Comprobar que no se pasan de observaciones posibles por ano
-
-Ensanchar las tablas para que ocupen todo el ancho
 
 
 

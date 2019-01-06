@@ -115,7 +115,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 </ul></li>
 <li class="chapter" data-level="6" data-path="conclusions.html"><a href="conclusions.html"><i class="fa fa-check"></i><b>6</b> Conclusions</a></li>
 <li class="chapter" data-level="" data-path="references.html"><a href="references.html"><i class="fa fa-check"></i>References</a></li>
-<li class="chapter" data-level="" data-path="r-scripts.html"><a href="r-scripts.html"><i class="fa fa-check"></i>R scripts</a></li>
+<li><a href="r-scripts.html#r-scripts"><em>R scripts</em></a></li>
 <li class="chapter" data-level="7" data-path="gathering-and-cleaning-data.html"><a href="gathering-and-cleaning-data.html"><i class="fa fa-check"></i><b>7</b> Gathering and Cleaning Data</a><ul>
 <li class="chapter" data-level="7.1" data-path="gathering-and-cleaning-data.html"><a href="gathering-and-cleaning-data.html#data-gathering"><i class="fa fa-check"></i><b>7.1</b> Data gathering</a></li>
 <li class="chapter" data-level="7.2" data-path="gathering-and-cleaning-data.html"><a href="gathering-and-cleaning-data.html#data-cleaning"><i class="fa fa-check"></i><b>7.2</b> Data cleaning</a></li>
@@ -123,7 +123,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <li class="chapter" data-level="7.3.1" data-path="gathering-and-cleaning-data.html"><a href="gathering-and-cleaning-data.html#time-variables"><i class="fa fa-check"></i><b>7.3.1</b> Time variables</a></li>
 <li class="chapter" data-level="7.3.2" data-path="gathering-and-cleaning-data.html"><a href="gathering-and-cleaning-data.html#laboral-dates"><i class="fa fa-check"></i><b>7.3.2</b> Laboral dates</a></li>
 <li class="chapter" data-level="7.3.3" data-path="gathering-and-cleaning-data.html"><a href="gathering-and-cleaning-data.html#wind-direction"><i class="fa fa-check"></i><b>7.3.3</b> Wind direction</a></li>
-<li class="chapter" data-level="7.3.4" data-path="gathering-and-cleaning-data.html"><a href="gathering-and-cleaning-data.html#tables-preparation-for-tableau-dashboards"><i class="fa fa-check"></i><b>7.3.4</b> Tables preparation for Tableau Dashboards</a></li>
+<li class="chapter" data-level="7.3.4" data-path="gathering-and-cleaning-data.html"><a href="gathering-and-cleaning-data.html#tables-preparation-for-tableau-dashboards"><i class="fa fa-check"></i><b>7.3.4</b> Tables preparation for Tableau dashboards</a></li>
 </ul></li>
 </ul></li>
 <li class="chapter" data-level="8" data-path="data-exploration.html"><a href="data-exploration.html"><i class="fa fa-check"></i><b>8</b> Data Exploration</a><ul>
@@ -142,7 +142,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <li class="chapter" data-level="9.2.2" data-path="prediction-models-arima.html"><a href="prediction-models-arima.html#arima-model-1"><i class="fa fa-check"></i><b>9.2.2</b> ARIMA model</a></li>
 </ul></li>
 </ul></li>
-<li class="chapter" data-level="" data-path="python-scripts.html"><a href="python-scripts.html"><i class="fa fa-check"></i>Python scripts</a></li>
+<li><a href="python-scripts.html#python-scripts"><em>Python scripts</em></a></li>
 </ul>
 
       </nav>
@@ -164,18 +164,48 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <h1><span class="header-section-number">2</span> Introduction</h1>
 <div id="why" class="section level2">
 <h2><span class="header-section-number">2.1</span> Why</h2>
-<p>The quality of the air is becoming a source of public concern.</p>
+<p>Why did I choose this topic, the Air Pollution at the city of Gijón, for my Master of Data Science final project?</p>
+<p>I was born in Gijón. And I was working 12 years in Madrid. Both cities suffer from air quality low levels. And in recent years the air pollution has become a great source of public concern.</p>
+<p>So, the topic came up to me in a very natural way. Then, I saw that the city town of Gijón had an open data web. And where it had published 18 years of hourly data from its six air quality monitoring stations. That was definitive.</p>
+<p>I had a topic. And I had the data.</p>
 </div>
 <div id="what" class="section level2">
 <h2><span class="header-section-number">2.2</span> What</h2>
-<p>Objectives:</p>
+<p>The main objectives of this Data Science project are:</p>
 <ul>
-<li><p>Construct a web dashboard to visualize the evolution of the main air pollution indicators of Gijon city. (Asturias; Spain).</p></li>
-<li><p>Build a model to predict in the short term (&lt;24h) the evolution of air pollutants concentration by monitoring station.</p></li>
+<li><strong>1. Construct and publish a web dashboard to visualize the evolution of the main air pollution indicators of Gijon city.</strong></li>
 </ul>
+<p>It could seem something trivial and with litte utility. But the fact is that, after searching the web, I didn’t find any service where these kind of evolutions can be consulted easily.</p>
+<p>This lack of public information can be contributing to generate a very pessimistic vision of the air quality of the city of Gijón.</p>
+<p>It is true that Gijón presents air quality levels on some pollutants below the recommendations of the WHO. But, the fact is that the Gijón air quality has improved in a drastic way during the last two decades.</p>
+<p>“include graphic of main pollutants levels evolution”</p>
+<p>Probably I am being too optimistic, but I would like to think that through this work I’m helping to improve the public understanding on the matter.</p>
+<p>In order to accomplish this objective I finally choose as main tool the Tableau software and its free service of visualizations web publishing Tableau Public.</p>
+<p>If you want to see the final result you can go to the chapter 4 “Visualizations”.</p>
+<ul>
+<li><strong>2. Build forecasting models to predict pollution levels.</strong></li>
+</ul>
+<p>My second objective is to try to forecast hourly pollution levels with one to twenty four hours in advance.<br />
+Initially, my intention was to create models for every pollutant and every monitoring station. But, following the advice of one of the Master professors, I have focused my efforts on only one station (Constitución) and only two of the pollutants, the PM10 and the NO2.</p>
+<p>I choose the Constitución station because is the unique station which has published weather data too.</p>
 </div>
 <div id="how" class="section level2">
 <h2><span class="header-section-number">2.3</span> How</h2>
+<ul>
+<li>R for cleaning and exploring the data and for preparing the data for the models.<br />
+</li>
+<li>Python, and mostly Sklearn for making the models (except the ARIMA models, made with R and the fantastic Forecast package).<br />
+</li>
+<li>Bookdown package to build the html book. And Bookdown.org publishing free service to publish the final document.<br />
+</li>
+<li>I used Git and Github for control version of mi work. All the code, data files (except the final table because its size) and other files needed are in this [Github repository]<a href="https://github.com/sergioberdiales/TFM_KSchool_Gijon_Air_Pollution" class="uri">https://github.com/sergioberdiales/TFM_KSchool_Gijon_Air_Pollution</a><br />
+</li>
+<li>I used the Kaggle platform to upload the final dataset with all the data.<br />
+</li>
+<li>I used R-Studio on a Windows laptop to manage all the R code and Google Collab notebooks to write the Python code.<br />
+</li>
+<li>Tableau Desktop (student license) to create the dashboards and Tableau Public to publish the final stories.</li>
+</ul>
 
 </div>
 </div>

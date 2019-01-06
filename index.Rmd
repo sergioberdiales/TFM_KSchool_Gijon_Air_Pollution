@@ -10,7 +10,11 @@ output:
 
 # Preface
   
-  This is my final project for the [Kschool Master on Data Science](https://kschool.com/cursos/master-en-data-science-madrid/) (8th edition). The main objective of this project is to show I can apply in a practical way the adquired knowledge during the master. (DESCRIBIR CONTENIDO MASTER Y RECOMENDARLO)
+  My name is Sergio Berdiales and I am a Data Analyst with 10+ years of experience in Customer Experience and Quality areas. If you want to know more about me or contacting me you can visit my [Linkedin profile](https://www.linkedin.com/in/sergioberdiales/) or my [Twitter account](https://twitter.com/SergioBerdiales). 
+  
+  This is my final project for the [Kschool Master on Data Science](https://kschool.com/cursos/master-en-data-science-madrid/) (8th edition). The main objective of this project is to show I can apply in a practical way the adquired knowledge during the master.
+  
+  The Master on Data Science of Kschool is a 230 hours course which includes Python and R programming, Statistics, Machile Learning methods, Visualization tools, a Deep Learning introduction and much more (use of Git / Github, linux command line, Jupyter and Google Collab notebooks, etc). And all of these in a very practical and useful way. If you are interested in becoming a Data Scientist this course could be [your first step](https://kschool.com/cursos/master-en-data-science-madrid/).
   
   This is not a scientific paper. And I am not an specialist on air pollution. If you are interested in learning about air pollution my advice is to start visiting any of this web sites: 
   
@@ -21,19 +25,29 @@ output:
   * The [site of the WHO](https://www.who.int/airpollution/en/) (World Health Organization) on Air Pollution.
   
     
-And if your interest is specifically about the situation of the Air Quality at Gijón city I highly recommend you to read these reports. 
+And if your interest is specifically about the situation of the air quality at Gijón city I highly recommend you to read these reports. 
     
-  * Plan de mejora de la calidad del aire en la aglomeración área de Gijón ([pdf here](https://www.asturias.es/medioambiente/articulos/ficheros/PLAN%20GIJON%20COMPLETO.pdf)). 
+  * "Plan de mejora de la calidad del aire en la aglomeración área de Gijón." ([pdf here](https://www.asturias.es/medioambiente/articulos/ficheros/PLAN%20GIJON%20COMPLETO.pdf)). 
   
-  * Calidad del Aire y Salud en Asturias. Informe Epidemiológico 2016 ([pdf here](https://www.astursalud.es/documents/31867/36150/Calidad+del+Aire+y+Salud.pdf/c389ab51-032c-245d-8cb8-505556521cb7)). 
+  * "Calidad del Aire y Salud en Asturias. Informe Epidemiológico 2016." ([pdf here](https://www.astursalud.es/documents/31867/36150/Calidad+del+Aire+y+Salud.pdf/c389ab51-032c-245d-8cb8-505556521cb7)). 
   
-  * Informe de calidad del aire en Asturias([pdf here](http://movil.asturias.es/medioambiente/articulos/ficheros/Informe%20de%20calidad%20del%20aire%20en%20Asturias%202016.pdf)).
+  * "Informe de calidad del aire en Asturias."([pdf here](http://movil.asturias.es/medioambiente/articulos/ficheros/Informe%20de%20calidad%20del%20aire%20en%20Asturias%202016.pdf)).
   
-  * Estudio de contribución de fuentes en las partículas PM10  en suspensión en la aglomeración área de Gijón y en la zona de Avilés ([pdf here](ftp://ftp.asturias.es/asturias/medioambiente/Planes%20de%20mejora%20de%20la%20calidad%20del%20aire/Planes%202017-19/Estudios%20planes%202017-19/2.%20Estudio%20contribuci%F3n%20fuentes%20en%20part%EDculas%20PM10%20-%20Maqua.pdf)).
+  * "Estudio de contribución de fuentes en las partículas PM10  en suspensión en la aglomeración área de Gijón y en la zona de Avilés." ([pdf here](ftp://ftp.asturias.es/asturias/medioambiente/Planes%20de%20mejora%20de%20la%20calidad%20del%20aire/Planes%202017-19/Estudios%20planes%202017-19/2.%20Estudio%20contribuci%F3n%20fuentes%20en%20part%EDculas%20PM10%20-%20Maqua.pdf)).
 
-  * Modelización de la contaminación por partículas PM10 en la aglomeración de Gijón ([pdf here](ftp://ftp.asturias.es/asturias/medioambiente/Planes%20de%20mejora%20de%20la%20calidad%20del%20aire/Planes%202014-16/Estudios%20planes%202014-16/02-Modelizacion_contaminacion_PM10_Area_Gijon.pdf)).
+  * "Modelización de la contaminación por partículas PM10 en la aglomeración de Gijón." ([pdf here](ftp://ftp.asturias.es/asturias/medioambiente/Planes%20de%20mejora%20de%20la%20calidad%20del%20aire/Planes%202014-16/Estudios%20planes%202014-16/02-Modelizacion_contaminacion_PM10_Area_Gijon.pdf)).
 
 
-Pending:
+This is a work in progress. And my intention is that it is just the start of something much bigger. The next step is to improve the forecasts of pollutants levels including the weather forecasts in the models. So, I think this models would give more accurate predictions. Then, I would put the models in production in order to give predictions on real time via Twitter. 
 
-* Fix problem bookdown publishing
+I am learning. And there is a huge ammount of things I don't know or I'm not getting right. For sure. So, if you see something wrong in my code, my reasoning or whatever you think I could improve or fix, please, tell me. I would really appreciate your help. You can contact me via [Linkedin profile](https://www.linkedin.com/in/sergioberdiales/), [Twitter account](https://twitter.com/SergioBerdiales) or [Gmail](mailto:sergioberdiales@gmail.com). 
+
+
+* __Structure of this document__
+
+This document is divided in two basic parts. 
+
+* 1. __Project Memory__. From the "Preface" to the "References" section would be the memory of the project. The purpose of this section is to explain in a few words what are the objectives of this project, which methodology I used in order to achieve these objectives, and what are my final conclusions. 
+
+* 2. __R and Python code__. After this first section I included all the R code used (this R code is saved too as rmarkdown files in the Github project repository).  
+The Python code is not included in this document but you have the links to the Google Collab notebooks at the Python scripts section. All the Python notebooks  are in the Github repository project too as Jupyter notebooks. 
