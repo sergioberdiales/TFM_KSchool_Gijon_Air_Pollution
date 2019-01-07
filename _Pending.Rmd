@@ -9,6 +9,10 @@ output: html_notebook
 
 Incluir grafico evolucion principales contaminantes
 
+how
+
+Incluir version y configuracion de r / r-studio.
+
 ## The Data
 
 Pending:

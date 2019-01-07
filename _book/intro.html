@@ -191,21 +191,27 @@ Initially, my intention was to create models for every pollutant and every monit
 </div>
 <div id="how" class="section level2">
 <h2><span class="header-section-number">2.3</span> How</h2>
+<p>The following is a list the software tools and services I used to develop this project:</p>
 <ul>
-<li>R for cleaning and exploring the data and for preparing the data for the models.<br />
+<li>R for importing, cleaning, exploring and preparing the data for the prediction models.<br />
 </li>
-<li>Python, and mostly Sklearn for making the models (except the ARIMA models, made with R and the fantastic Forecast package).<br />
+<li>Python for making the models (except the ARIMA models, made with R and the fantastic Forecast package).<br />
 </li>
-<li>Bookdown package to build the html book. And Bookdown.org publishing free service to publish the final document.<br />
+<li>Rmarkdown to write this document and the Bookdown package to build the html book. And I took advantage too from the publishing free service of Bookdown.org to publish the final document.<br />
 </li>
-<li>I used Git and Github for control version of mi work. All the code, data files (except the final table because its size) and other files needed are in this [Github repository]<a href="https://github.com/sergioberdiales/TFM_KSchool_Gijon_Air_Pollution" class="uri">https://github.com/sergioberdiales/TFM_KSchool_Gijon_Air_Pollution</a><br />
+<li>Git and Github for control version of my work.<br />
 </li>
-<li>I used the Kaggle platform to upload the final dataset with all the data.<br />
+<li>The Kaggle platform to publish the <a href="https://www.kaggle.com/goseri/air-quality-data-gijn-city-2000-2017">final dataset</a> with all the data.<br />
 </li>
-<li>I used R-Studio on a Windows laptop to manage all the R code and Google Collab notebooks to write the Python code.<br />
+<li>R-Studio on a Windows laptop to manage all the R code and Google Collab notebooks to write the Python code.<br />
 </li>
 <li>Tableau Desktop (student license) to create the dashboards and Tableau Public to publish the final stories.</li>
+<li>Microsoft Excel (heresy!) to elaborate the csv file with the Gijón holiday dates and the table with the compilations of all the model scores.</li>
 </ul>
+<p>All the files and the code needed to replicate the entire work is saved in this <a href="https://github.com/sergioberdiales/TFM_KSchool_Gijon_Air_Pollution">Github repository</a>, with the exception of the final csv file with all the data used by the Tableau Public visualizations (it exceeds the Github file size limits). This file can be downloaded from <a href="https://www.kaggle.com/goseri/air-quality-data-gijn-city-2000-2017">Kaggle</a>.</p>
+<p>To reproduce the project all you need to do is to execute the following scripts in order. The rmarkdown files are executable locally, but the Python notebooks were created and executed in Google Colab. So, to assure their correct running my advice is to use the same platform:</p>
+<p>… … … … … …</p>
+<p>And to render this html book you would have to install the Bookdown package on R and follow <a href="https://bookdown.org/yihui/bookdown/usage.html">these instructions</a>.</p>
 
 </div>
 </div>

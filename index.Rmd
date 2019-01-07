@@ -1,5 +1,5 @@
 ---
-title: "Gijón Air Pollution"
+title: "Gijón Air Pollution - An exercise of visualization and forecasting"
 author: "Sergio Berdiales"
 site: bookdown::bookdown_site
 documentclass: book
@@ -47,7 +47,7 @@ I am learning. And there is a huge ammount of things I don't know or I'm not get
 
 This document is divided in two basic parts. 
 
-* 1. __Project Memory__. From the "Preface" to the "References" section would be the memory of the project. The purpose of this section is to explain in a few words what are the objectives of this project, which methodology I used in order to achieve these objectives, and what are my final conclusions. 
+* 1. __Project Memory__. From the "Preface" to the "References" section would be the memory of the project. The purpose of this part is to explain in a few words what are the objectives of this project, which methodology I used in order to achieve these objectives, and what are my final conclusions. 
 
-* 2. __R and Python code__. After this first section I included all the R code used (this R code is saved too as rmarkdown files in the Github project repository).  
+* 2. __R and Python code__. I included in this part all the R code used (this R code is saved too as rmarkdown files in the Github project repository).  
 The Python code is not included in this document but you have the links to the Google Collab notebooks at the Python scripts section. All the Python notebooks  are in the Github repository project too as Jupyter notebooks. 

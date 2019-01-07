@@ -66,7 +66,7 @@ We drop the Santa Bárbara and Montevil stations. These stations have much less 
 ```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
 
 air_data_3 <- air_data_2 %>% filter(station_alias != 'Montevil' , 
-                                         station_alias != 'Santa B?rbara' )
+                                         station_alias != 'Santa Bárbara' )
 
 ```
 
@@ -80,8 +80,8 @@ year_avgs <- air_data_3 %>% select(station_alias, date_time_utc, PM10, PM25, SO2
 # We convert the table to long format
 
 year_avgs_long <- gather(year_avgs, contaminante, value, 3:length(year_avgs)) %>%
-                    filter(!(station_alias == 'Constituci?n' & year == '2006' & contaminante %in% c('BEN', 'MXIL', 'TOL'))) %>% # We filter this data because is only completed in 0.01%
-                    filter(!(station_alias == 'Constituci?n' & year == '2008' & contaminante == 'PM25')) # We filter this data because is only completed in 0.02%
+                    filter(!(station_alias == 'Constitución' & year == '2006' & contaminante %in% c('BEN', 'MXIL', 'TOL'))) %>% # We filter this data because is only completed in 0.01%
+                    filter(!(station_alias == 'Constitución' & year == '2008' & contaminante == 'PM25')) # We filter this data because is only completed in 0.02%
 
 # We present the data in a grid of graphs
 
