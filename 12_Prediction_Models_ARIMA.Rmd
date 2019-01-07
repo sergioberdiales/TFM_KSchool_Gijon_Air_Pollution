@@ -69,7 +69,7 @@ train_201401_201612 <- constitucion_data %>% filter(date_time_utc >= '2014-01-01
                                        ts(frequency = 24)
 
 # We generate a smaller training dataset with the last three months of 2016
-train_201610_2016_12 <- constitucion_data %>% filter(date_time_utc >= '2016-10-01 00:00:00',
+train_201610_201612 <- constitucion_data %>% filter(date_time_utc >= '2016-10-01 00:00:00',
                                        date_time_utc <= '2016-12-31 23:00:00') %>%
                                        select(PM10) %>%
                                        mutate(PM10 = replace_na(PM10, mean(PM10, na.rm = TRUE))) %>%
@@ -199,14 +199,17 @@ And as expected, we get two identical lines. But one of them, the prediction, on
 
 ### ARIMA model
 
-To fit our first ARIMA model we are going to use the auto.arima function from the Forecast package. This function ...
+To fit our first ARIMA model we are going to use the auto.arima function from the Forecast package. This function fits several ARIMA models, with different parameters, and selects the model with the best performance. To do this the function auto.arima uses some approximations to speed up the search of the best model. More info about the algorithm applied [here](https://otexts.org/fpp2/arima-r.html). 
+
+We set the parameter seasonal=TRUE because we want  the function looks for seasonal elements (24 hours). 
+
+We have saved the model fitted as an rds object because of the long time of processing. 
 ```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
 # model_arima_0 = auto.arima(train_201401_201612,seasonal=TRUE,trace=TRUE) # It took 2 hours to fit the model
 # saveRDS(model_arima_0, "data_rds/model_arima_0.rds")
 model_arima_0 <- readRDS("data_rds/model_arima_0.rds")
 summary(model_arima_0)
 
-#test$arima=forecast(model_arima,h=24)$mean
 
 ```
 EXPLAIN THE RESULTS p, d, q P, D, Q etc...
@@ -432,12 +435,21 @@ autoplot(y_test, series="Test data") +
 
 ### NO2 Predictions
 
+
+We generate the train, test and validations datasets
 ```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
 
-train_201610_2016_12 <- constitucion_data %>% filter(date_time_utc >= '2016-10-01 00:00:00',
+train_201610_201612 <- constitucion_data %>% filter(date_time_utc >= '2016-10-01 00:00:00',
                                        date_time_utc <= '2016-12-31 23:00:00') %>%
                                        select(NO2) %>%
                                        mutate(NO2 = replace_na(NO2, mean(NO2, na.rm = TRUE))) %>%
+                                       rename(NO2_0 = NO2) %>%
+                                       ts(frequency = 24)
+
+train_201401_201612 <- constitucion_data %>% filter(date_time_utc >= '2014-01-01 00:00:00',
+                                       date_time_utc <= '2016-12-31 23:00:00') %>%
+                                       select(NO2) %>%
+                                       mutate(NO2 = replace_na(NO2, mean(NO2, na.rm = TRUE))) %>% # replacing NAs by the mean.
                                        rename(NO2_0 = NO2) %>%
                                        ts(frequency = 24)
 
@@ -472,7 +484,33 @@ This time we are going straight to create an ARIMA model.
 
 ### ARIMA model
 
-Using the train_201610_2016_12
+Training period: 201401_201612
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+NO2_model_arima_0 = auto.arima(train_201401_201612,seasonal=TRUE,trace=TRUE) 
+saveRDS(NO2_model_arima_0, "data_rds/NO2_model_arima_0.rds")
+```
+
+
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+
+y_pred <- forecast(test_201701_201709, model = NO2_model_arima_0, h=1)$fitted # We call the forecast function passing the testing data through the ARIMA model fitted with the training data and we extract the fitted values.
+
+y_test <- test_201701_201709
+
+sd_test <- sd(y_test) 
+
+RMSE <- RMSE(y_test, y_pred)
+
+MAE <- MAE(y_test, y_pred)
+
+rss <- sum((y_pred - y_test) ** 2)
+tss <- sum((y_test - mean(y_test)) ** 2)
+R_squared <- 1 - rss/tss
+paste(c("R-Squared:", round(R_squared, 4), "MAE:", round(MAE, 2), "RMSE:", round(RMSE, 2), "Standard Deviation (test data):", round(sd_test, 2)))
+```
+
+
+Training period 201610_201612
 ```
 NO2_model_arima_1 = auto.arima(train_201610_2016_12,seasonal=TRUE,trace=TRUE) 
 saveRDS(NO2_model_arima_1, "data_rds/NO2_model_arima_1.rds")

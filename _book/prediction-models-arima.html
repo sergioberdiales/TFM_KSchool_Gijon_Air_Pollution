@@ -5,11 +5,11 @@
 
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <title>9 Prediction Models. ARIMA | Gijón Air Pollution</title>
-  <meta name="description" content="9 Prediction Models. ARIMA | Gijón Air Pollution">
+  <title>9 Prediction Models. ARIMA | Gijón Air Pollution - An exercise of visualization and forecasting</title>
+  <meta name="description" content="9 Prediction Models. ARIMA | Gijón Air Pollution - An exercise of visualization and forecasting">
   <meta name="generator" content="bookdown  and GitBook 2.6.7">
 
-  <meta property="og:title" content="9 Prediction Models. ARIMA | Gijón Air Pollution" />
+  <meta property="og:title" content="9 Prediction Models. ARIMA | Gijón Air Pollution - An exercise of visualization and forecasting" />
   <meta property="og:type" content="book" />
   
   
@@ -17,7 +17,7 @@
   
 
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="9 Prediction Models. ARIMA | Gijón Air Pollution" />
+  <meta name="twitter:title" content="9 Prediction Models. ARIMA | Gijón Air Pollution - An exercise of visualization and forecasting" />
   
   
   
@@ -152,7 +152,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
       <div class="body-inner">
         <div class="book-header" role="navigation">
           <h1>
-            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Gijón Air Pollution</a>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Gijón Air Pollution - An exercise of visualization and forecasting</a>
           </h1>
         </div>
 
@@ -211,7 +211,7 @@ constitucion_data &lt;-<span class="st"> </span>air_data_<span class="dv">2</spa
 <span class="st">                                       </span><span class="kw">ts</span>(<span class="dt">frequency =</span> <span class="dv">24</span>)
 
 <span class="co"># We generate a smaller training dataset with the last three months of 2016</span>
-train_201610_2016_<span class="dv">12</span> &lt;-<span class="st"> </span>constitucion_data <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">filter</span>(date_time_utc <span class="op">&gt;=</span><span class="st"> &#39;2016-10-01 00:00:00&#39;</span>,
+train_201610_<span class="dv">201612</span> &lt;-<span class="st"> </span>constitucion_data <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">filter</span>(date_time_utc <span class="op">&gt;=</span><span class="st"> &#39;2016-10-01 00:00:00&#39;</span>,
                                        date_time_utc <span class="op">&lt;=</span><span class="st"> &#39;2016-12-31 23:00:00&#39;</span>) <span class="op">%&gt;%</span>
 <span class="st">                                       </span><span class="kw">select</span>(PM10) <span class="op">%&gt;%</span>
 <span class="st">                                       </span><span class="kw">mutate</span>(<span class="dt">PM10 =</span> <span class="kw">replace_na</span>(PM10, <span class="kw">mean</span>(PM10, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>))) <span class="op">%&gt;%</span>
@@ -318,7 +318,9 @@ y_pred_y_test_base_model_graph</code></pre></div>
 </div>
 <div id="arima-model" class="section level3">
 <h3><span class="header-section-number">9.1.4</span> ARIMA model</h3>
-<p>To fit our first ARIMA model we are going to use the auto.arima function from the Forecast package. This function …</p>
+<p>To fit our first ARIMA model we are going to use the auto.arima function from the Forecast package. This function fits several ARIMA models, with different parameters, and selects the model with the best performance. To do this the function auto.arima uses some approximations to speed up the search of the best model. More info about the algorithm applied <a href="https://otexts.org/fpp2/arima-r.html">here</a>.</p>
+<p>We set the parameter seasonal=TRUE because we want the function looks for seasonal elements (24 hours).</p>
+<p>We have saved the model fitted as an rds object because of the long time of processing.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># model_arima_0 = auto.arima(train_201401_201612,seasonal=TRUE,trace=TRUE) # It took 2 hours to fit the model</span>
 <span class="co"># saveRDS(model_arima_0, &quot;data_rds/model_arima_0.rds&quot;)</span>
 model_arima_<span class="dv">0</span> &lt;-<span class="st"> </span><span class="kw">readRDS</span>(<span class="st">&quot;data_rds/model_arima_0.rds&quot;</span>)
@@ -337,7 +339,6 @@ model_arima_<span class="dv">0</span> &lt;-<span class="st"> </span><span class=
 ## Training set error measures:
 ##                       ME     RMSE      MAE  MPE MAPE      MASE        ACF1
 ## Training set 0.003353175 9.341125 5.774614 -Inf  Inf 0.5111664 0.002213004</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#test$arima=forecast(model_arima,h=24)$mean</span></code></pre></div>
 <p>EXPLAIN THE RESULTS p, d, q P, D, Q etc…</p>
 <p>To obtain the R-Squared…</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">y_train &lt;-<span class="st"> </span><span class="kw">forecast</span>(model_arima_<span class="dv">0</span>, <span class="dt">h =</span> <span class="dv">1</span>)<span class="op">$</span>fitted <span class="co"># We make a forecast one hour ahead and we extract the fitted values from the object forecast.</span>
@@ -516,10 +517,18 @@ h2_lite &lt;-<span class="st"> </span><span class="kw">fitted</span>(arima.test_
 <p><img src="_main_files/figure-html/unnamed-chunk-89-1.png" width="\textwidth" /></p>
 <div id="no2-predictions" class="section level3">
 <h3><span class="header-section-number">9.2.1</span> NO2 Predictions</h3>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">train_201610_2016_<span class="dv">12</span> &lt;-<span class="st"> </span>constitucion_data <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">filter</span>(date_time_utc <span class="op">&gt;=</span><span class="st"> &#39;2016-10-01 00:00:00&#39;</span>,
+<p>We generate the train, test and validations datasets</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">train_201610_<span class="dv">201612</span> &lt;-<span class="st"> </span>constitucion_data <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">filter</span>(date_time_utc <span class="op">&gt;=</span><span class="st"> &#39;2016-10-01 00:00:00&#39;</span>,
                                        date_time_utc <span class="op">&lt;=</span><span class="st"> &#39;2016-12-31 23:00:00&#39;</span>) <span class="op">%&gt;%</span>
 <span class="st">                                       </span><span class="kw">select</span>(NO2) <span class="op">%&gt;%</span>
 <span class="st">                                       </span><span class="kw">mutate</span>(<span class="dt">NO2 =</span> <span class="kw">replace_na</span>(NO2, <span class="kw">mean</span>(NO2, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>))) <span class="op">%&gt;%</span>
+<span class="st">                                       </span><span class="kw">rename</span>(<span class="dt">NO2_0 =</span> NO2) <span class="op">%&gt;%</span>
+<span class="st">                                       </span><span class="kw">ts</span>(<span class="dt">frequency =</span> <span class="dv">24</span>)
+
+train_201401_<span class="dv">201612</span> &lt;-<span class="st"> </span>constitucion_data <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">filter</span>(date_time_utc <span class="op">&gt;=</span><span class="st"> &#39;2014-01-01 00:00:00&#39;</span>,
+                                       date_time_utc <span class="op">&lt;=</span><span class="st"> &#39;2016-12-31 23:00:00&#39;</span>) <span class="op">%&gt;%</span>
+<span class="st">                                       </span><span class="kw">select</span>(NO2) <span class="op">%&gt;%</span>
+<span class="st">                                       </span><span class="kw">mutate</span>(<span class="dt">NO2 =</span> <span class="kw">replace_na</span>(NO2, <span class="kw">mean</span>(NO2, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>))) <span class="op">%&gt;%</span><span class="st"> </span><span class="co"># replacing NAs by the mean.</span>
 <span class="st">                                       </span><span class="kw">rename</span>(<span class="dt">NO2_0 =</span> NO2) <span class="op">%&gt;%</span>
 <span class="st">                                       </span><span class="kw">ts</span>(<span class="dt">frequency =</span> <span class="dv">24</span>)
 
@@ -552,7 +561,68 @@ validation_201710_<span class="dv">201712</span> &lt;-<span class="st"> </span>c
 </div>
 <div id="arima-model-1" class="section level3">
 <h3><span class="header-section-number">9.2.2</span> ARIMA model</h3>
-<p>Using the train_201610_2016_12</p>
+<p>Training period: 201401_201612</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">NO2_model_arima_<span class="dv">0</span> =<span class="st"> </span><span class="kw">auto.arima</span>(train_201401_<span class="dv">201612</span>,<span class="dt">seasonal=</span><span class="ot">TRUE</span>,<span class="dt">trace=</span><span class="ot">TRUE</span>) </code></pre></div>
+<pre><code>## 
+##  Fitting models using approximations to speed things up...
+## 
+##  ARIMA(2,1,2)(1,0,1)[24] with drift         : Inf
+##  ARIMA(0,1,0)            with drift         : 181400.9
+##  ARIMA(1,1,0)(1,0,0)[24] with drift         : 179477.5
+##  ARIMA(0,1,1)(0,0,1)[24] with drift         : 179834.6
+##  ARIMA(0,1,0)                               : 181398.9
+##  ARIMA(1,1,0)            with drift         : 180875
+##  ARIMA(1,1,0)(2,0,0)[24] with drift         : 178736.5
+##  ARIMA(1,1,0)(2,0,1)[24] with drift         : Inf
+##  ARIMA(0,1,0)(2,0,0)[24] with drift         : 178765.3
+##  ARIMA(2,1,0)(2,0,0)[24] with drift         : 178533.2
+##  ARIMA(2,1,1)(2,0,0)[24] with drift         : Inf
+##  ARIMA(3,1,1)(2,0,0)[24] with drift         : Inf
+##  ARIMA(2,1,0)(2,0,0)[24]                    : 178531.2
+##  ARIMA(2,1,0)(1,0,0)[24]                    : 179337
+##  ARIMA(2,1,0)(2,0,1)[24]                    : Inf
+##  ARIMA(1,1,0)(2,0,0)[24]                    : 178734.5
+##  ARIMA(3,1,0)(2,0,0)[24]                    : 178390.3
+##  ARIMA(3,1,1)(2,0,0)[24]                    : Inf
+##  ARIMA(4,1,1)(2,0,0)[24]                    : Inf
+##  ARIMA(3,1,0)(2,0,0)[24] with drift         : 178392.3
+##  ARIMA(3,1,0)(1,0,0)[24]                    : 179197.7
+##  ARIMA(3,1,0)(2,0,1)[24]                    : Inf
+##  ARIMA(4,1,0)(2,0,0)[24]                    : 178133.6
+##  ARIMA(5,1,1)(2,0,0)[24]                    : Inf
+##  ARIMA(4,1,0)(2,0,0)[24] with drift         : 178135.6
+##  ARIMA(4,1,0)(1,0,0)[24]                    : 178915
+##  ARIMA(4,1,0)(2,0,1)[24]                    : Inf
+##  ARIMA(5,1,0)(2,0,0)[24]                    : 177867.5
+##  ARIMA(5,1,0)(2,0,0)[24] with drift         : 177869.5
+##  ARIMA(5,1,0)(1,0,0)[24]                    : 178598.3
+##  ARIMA(5,1,0)(2,0,1)[24]                    : Inf
+## 
+##  Now re-fitting the best model(s) without approximations...
+## 
+##  ARIMA(5,1,0)(2,0,0)[24]                    : 177976
+## 
+##  Best model: ARIMA(5,1,0)(2,0,0)[24]</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">saveRDS</span>(NO2_model_arima_<span class="dv">0</span>, <span class="st">&quot;data_rds/NO2_model_arima_0.rds&quot;</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">y_pred &lt;-<span class="st"> </span><span class="kw">forecast</span>(test_201701_<span class="dv">201709</span>, <span class="dt">model =</span> NO2_model_arima_<span class="dv">0</span>, <span class="dt">h=</span><span class="dv">1</span>)<span class="op">$</span>fitted <span class="co"># We call the forecast function passing the testing data through the ARIMA model fitted with the training data and we extract the fitted values.</span>
+
+y_test &lt;-<span class="st"> </span>test_201701_<span class="dv">201709</span>
+
+sd_test &lt;-<span class="st"> </span><span class="kw">sd</span>(y_test) 
+
+RMSE &lt;-<span class="st"> </span><span class="kw">RMSE</span>(y_test, y_pred)
+
+MAE &lt;-<span class="st"> </span><span class="kw">MAE</span>(y_test, y_pred)
+
+rss &lt;-<span class="st"> </span><span class="kw">sum</span>((y_pred <span class="op">-</span><span class="st"> </span>y_test) <span class="op">**</span><span class="st"> </span><span class="dv">2</span>)
+tss &lt;-<span class="st"> </span><span class="kw">sum</span>((y_test <span class="op">-</span><span class="st"> </span><span class="kw">mean</span>(y_test)) <span class="op">**</span><span class="st"> </span><span class="dv">2</span>)
+R_squared &lt;-<span class="st"> </span><span class="dv">1</span> <span class="op">-</span><span class="st"> </span>rss<span class="op">/</span>tss
+<span class="kw">paste</span>(<span class="kw">c</span>(<span class="st">&quot;R-Squared:&quot;</span>, <span class="kw">round</span>(R_squared, <span class="dv">4</span>), <span class="st">&quot;MAE:&quot;</span>, <span class="kw">round</span>(MAE, <span class="dv">2</span>), <span class="st">&quot;RMSE:&quot;</span>, <span class="kw">round</span>(RMSE, <span class="dv">2</span>), <span class="st">&quot;Standard Deviation (test data):&quot;</span>, <span class="kw">round</span>(sd_test, <span class="dv">2</span>)))</code></pre></div>
+<pre><code>## [1] &quot;R-Squared:&quot;                      &quot;0.7382&quot;                         
+## [3] &quot;MAE:&quot;                            &quot;6.17&quot;                           
+## [5] &quot;RMSE:&quot;                           &quot;9.47&quot;                           
+## [7] &quot;Standard Deviation (test data):&quot; &quot;18.51&quot;</code></pre>
+<p>Training period 201610_201612</p>
 <pre><code>NO2_model_arima_1 = auto.arima(train_201610_2016_12,seasonal=TRUE,trace=TRUE) 
 saveRDS(NO2_model_arima_1, &quot;data_rds/NO2_model_arima_1.rds&quot;)</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">NO2_model_arima_<span class="dv">1</span> &lt;-<span class="st"> </span><span class="kw">readRDS</span>(<span class="st">&quot;data_rds/NO2_model_arima_1.rds&quot;</span>)
