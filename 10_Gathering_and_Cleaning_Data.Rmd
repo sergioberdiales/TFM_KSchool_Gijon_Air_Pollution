@@ -28,7 +28,7 @@ options(knitr.table.format = "html")
 First of all I have to check if I will have the basic data to make the analysis. I need air pollution and weather data of the Gijon area.
 The town hall of Gijon has an open data web portal here https://transparencia.gijon.es/. We can download pollution air data on csv format from year 2000 to 2017 [here](https://transparencia.gijon.es/search/risp_dataset/page/1808-catalogo-de-datos?utf8=%E2%9C%93&search=aire+&search_sector=&search_format=&commit=Buscar&authenticity_token=j8%2F3CvCuPcDkrRe%2F1NR5RBp0t%2FOOosiA7724w3T2mB4%3D):
 
-I downloaded 18 csv files with air pollution and weather data of Gijón from years 2000 to 2017. I saved them in the "data" folder.
+I downloaded 18 csv files with air pollution and weather data of Gijon from years 2000 to 2017. I saved them in the "data" folder.
 I downloaded two more files from this web, a csv file with the description of the variables and another csv file with information about the measurement stations.
 
 We take a look to the information included in  the stations_info.csv file. It includes the stations addresses, longitude, latitude and their IDs and names. All this information, as we will see, is included in the csv files with pollution and weather data too. So, we are not going to use this file anymore.
@@ -82,11 +82,13 @@ We change some variables names.
 ```{r warning= FALSE, message= FALSE}
 
 # Variables names changing
-air_data_1 <- air_data_0 %>% rename(station = `Estación`,
-                                    station_name = `Título`,
-                                    date_time_utc = `Fecha Solar (UTC)`,
+air_data_1 <- air_data_0 %>% rename(station = 'Estación',
+                                    station_name = 'Título',
+                                    date_time_utc = 'Fecha Solar (UTC)',
                                     latitude = latitud,
-                                    longitude = longitud)
+                                    longitude = longitud,
+                                    wd = dd,
+                                    ws = vv)
 ```
 
 ## Data cleaning
@@ -119,7 +121,7 @@ convenient station names
 ```{r warning= FALSE, message= FALSE}
 alias_dict <- data.frame(
       station = c("1", "2", "3", "4", "10", "11"),
-      station_alias = c("Constitución", "Argentina", "H. Felgueroso", "Castilla", "Montevil", "Santa Bárbara")
+      station_alias = c("Constitucion", "Argentina", "H. Felgueroso", "Castilla", "Montevil", "Santa Barbara")
 )
 ```
 We join the alias dictionary to the air_data_1 data frame to add the new variable to the data
@@ -228,7 +230,7 @@ Constitución: There is data registered from the variables SO2, NO, NO2, CO, PM1
 There are measurements of the variables BEN, TOL and MXIL since the year 2006 (only 0.01% ). The PM25 particles are monitored since the year 2008 (2008: only covered 0,02% of the year).
 During the year 2008 the completeness of several variables (HR, PRB, HS, LL, BEN, TOL y MXIL) decrease until 88% (to do: check there was not caused by a data importing problem.)
 ```{r warning = FALSE, message = FALSE}
-constitucion_data <- data_completeness %>% filter(station_alias == 'Constitución')
+constitucion_data <- data_completeness %>% filter(station_alias == 'Constitucion')
 constitucion_data %>%
                   kable() %>%
                   kable_styling()
@@ -270,7 +272,7 @@ montevil_data %>%
 
 Santa Bárbara: Data since the year 2016. Variables: NO, NO2, CO, PM10, 03 and PM25
 ```{r warning = FALSE, message = FALSE}
-barbara_data <- data_completeness %>% filter(station_alias == 'Santa Bárbara')
+barbara_data <- data_completeness %>% filter(station_alias == 'Santa Barbara')
 barbara_data %>%
   kable() %>%
   kable_styling()
@@ -346,8 +348,8 @@ rose_labs <- c(
 
 air_data_2 <- air_data_2 %>%
   mutate(
-    wd = cut(
-      dd,
+    wd_code = cut(
+      wd,
       breaks = rose_breaks,
       labels = rose_labs,
       right = FALSE,
@@ -356,7 +358,7 @@ air_data_2 <- air_data_2 %>%
   )
 
 # And I recoded to "N"
-air_data_2 <- air_data_2 %>% mutate(wd = recode(wd, N1 = "N",
+air_data_2 <- air_data_2 %>% mutate(wd_code = recode(wd_code, N1 = "N",
                                                     N2 = "N"))
 ```
 
@@ -432,7 +434,7 @@ Daily limit: 125 ug/m3 (24 hours). <= 3 times / year.
 Alert threshold: 500 ug/m3 (3 hours).
 
 
-```{r warning = FALSE, message = FALSE}
+```{r so2_data, warning = FALSE, message = FALSE}
 
 so2_data <- air_data_2 %>% select(station_alias, date_time_utc, SO2)
 
@@ -475,3 +477,4 @@ saveRDS(so2_daily_limit, file = "data_rds/so2_daily_limit.rds")
 write_csv(so2_daily_limit, "data_final_csvs/so2_daily_limit.csv")
 
 ```
+

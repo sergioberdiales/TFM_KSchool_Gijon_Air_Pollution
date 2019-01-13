@@ -47,7 +47,6 @@
 
 
 
-<script src="libs/kePrint-0.0.1/kePrint.js"></script>
 
 
 <style type="text/css">
@@ -136,10 +135,8 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <li class="chapter" data-level="9.1.2" data-path="prediction-models-arima.html"><a href="prediction-models-arima.html#train-test-and-validation-data"><i class="fa fa-check"></i><b>9.1.2</b> Train, test and validation data</a></li>
 <li class="chapter" data-level="9.1.3" data-path="prediction-models-arima.html"><a href="prediction-models-arima.html#data-exploration-1"><i class="fa fa-check"></i><b>9.1.3</b> Data Exploration</a></li>
 <li class="chapter" data-level="9.1.4" data-path="prediction-models-arima.html"><a href="prediction-models-arima.html#arima-model"><i class="fa fa-check"></i><b>9.1.4</b> ARIMA model</a></li>
-</ul></li>
-<li class="chapter" data-level="9.2" data-path="prediction-models-arima.html"><a href="prediction-models-arima.html#we-have-been-using-a-dataset-for-training-of-3-years.-is-this-necessary-does-the-arima-algorithm-take-advantage-of-a-so-long-time-series"><i class="fa fa-check"></i><b>9.2</b> We have been using a dataset for training of 3 years. Is this necessary? Does the Arima algorithm take advantage of a so long time series?</a><ul>
-<li class="chapter" data-level="9.2.1" data-path="prediction-models-arima.html"><a href="prediction-models-arima.html#no2-predictions"><i class="fa fa-check"></i><b>9.2.1</b> NO2 Predictions</a></li>
-<li class="chapter" data-level="9.2.2" data-path="prediction-models-arima.html"><a href="prediction-models-arima.html#arima-model-1"><i class="fa fa-check"></i><b>9.2.2</b> ARIMA model</a></li>
+<li class="chapter" data-level="9.1.5" data-path="prediction-models-arima.html"><a href="prediction-models-arima.html#no2-predictions"><i class="fa fa-check"></i><b>9.1.5</b> NO2 Predictions</a></li>
+<li class="chapter" data-level="9.1.6" data-path="prediction-models-arima.html"><a href="prediction-models-arima.html#arima-model-1"><i class="fa fa-check"></i><b>9.1.6</b> ARIMA model</a></li>
 </ul></li>
 </ul></li>
 <li><a href="python-scripts.html#python-scripts"><em>Python scripts</em></a></li>
@@ -162,7 +159,8 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
             <section class="normal" id="section-">
 <div id="prediction-models.-arima" class="section level1">
 <h1><span class="header-section-number">9</span> Prediction Models. ARIMA</h1>
-<p>On this notebook we are going to try to predict one hour - six hours ahead with ARIMA PM10 NO2</p>
+<p>In this notebook we are going to use ARIMA models to forecast hourly levels of the PM10 / NO2 pollutants.<br />
+We are going to focus on the Constitucion station, which is the only station we have meteorological data. We are not going to use the meteorological data in the ARIMA models, but we will use later with machine learning models.</p>
 <div id="pm10-hourly-prediction-models" class="section level2">
 <h2><span class="header-section-number">9.1</span> PM10 hourly prediction models</h2>
 <p>We are going to focus on the Constitucion station, which is the only station w e have meteorological data. And, at first, we are going to construct models only for predicting PM10 levels.</p>
@@ -218,6 +216,14 @@ train_201610_<span class="dv">201612</span> &lt;-<span class="st"> </span>consti
 <span class="st">                                       </span><span class="kw">rename</span>(<span class="dt">PM10_0 =</span> PM10) <span class="op">%&gt;%</span>
 <span class="st">                                       </span><span class="kw">ts</span>(<span class="dt">frequency =</span> <span class="dv">24</span>)
 
+
+<span class="co"># We generate a bigger training dataset with 9 years (2009-2017)</span>
+train_200901_<span class="dv">201612</span> &lt;-<span class="st"> </span>constitucion_data <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">filter</span>(date_time_utc <span class="op">&gt;=</span><span class="st"> &#39;2009-01-01 00:00:00&#39;</span>,
+                                       date_time_utc <span class="op">&lt;=</span><span class="st"> &#39;2016-12-31 23:00:00&#39;</span>) <span class="op">%&gt;%</span>
+<span class="st">                                       </span><span class="kw">select</span>(PM10) <span class="op">%&gt;%</span>
+<span class="st">                                       </span><span class="kw">mutate</span>(<span class="dt">PM10 =</span> <span class="kw">replace_na</span>(PM10, <span class="kw">mean</span>(PM10, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>))) <span class="op">%&gt;%</span>
+<span class="st">                                       </span><span class="kw">rename</span>(<span class="dt">PM10_0 =</span> PM10) <span class="op">%&gt;%</span>
+<span class="st">                                       </span><span class="kw">ts</span>(<span class="dt">frequency =</span> <span class="dv">24</span>)
                                        
 
 test_201701_<span class="dv">201709</span> &lt;-<span class="st"> </span>constitucion_data <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">filter</span>(date_time_utc <span class="op">&gt;=</span><span class="st"> &#39;2017-01-01 00:00:00&#39;</span>,
@@ -248,11 +254,11 @@ validation_201710_<span class="dv">201712</span> &lt;-<span class="st"> </span>c
 <h3><span class="header-section-number">9.1.3</span> Data Exploration</h3>
 <p>we plot the three time series using the function autoplot we just generated.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">autoplot</span>(train_201401_<span class="dv">201612</span>)</code></pre></div>
-<p><img src="_main_files/figure-html/unnamed-chunk-65-1.png" width="\textwidth" /></p>
+<p><img src="_main_files/figure-html/unnamed-chunk-4-1.png" width="\textwidth" /></p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">autoplot</span>(test_201701_<span class="dv">201709</span>, <span class="dt">ylim =</span> <span class="kw">c</span>(<span class="dv">0</span>, <span class="dv">400</span>))</code></pre></div>
-<p><img src="_main_files/figure-html/unnamed-chunk-65-2.png" width="\textwidth" /></p>
+<p><img src="_main_files/figure-html/unnamed-chunk-4-2.png" width="\textwidth" /></p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">autoplot</span>(validation_201710_<span class="dv">201712</span>,<span class="dt">ylim =</span> <span class="kw">c</span>(<span class="dv">0</span>, <span class="dv">400</span>))</code></pre></div>
-<p><img src="_main_files/figure-html/unnamed-chunk-65-3.png" width="\textwidth" /> ### Base model.</p>
+<p><img src="_main_files/figure-html/unnamed-chunk-4-3.png" width="\textwidth" /> ### Base model.</p>
 <p>In order to create a base model we are going to take as prediction the value from the previous hour, forecasting just one hour ahead.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># As we don&#39;t need any training, because we have already defined the model as Xt = Xt-1, we only need to create a testing dataset. We choose the same period as before but we don&#39;t use the time series format (ts).</span>
 
@@ -293,18 +299,18 @@ y_pred_y_test_base_model_graph &lt;-<span class="st"> </span><span class="kw">gg
 <span class="st">                        </span><span class="kw">theme_minimal</span>()
 
 y_pred_y_test_base_model_graph</code></pre></div>
-<p><img src="_main_files/figure-html/unnamed-chunk-67-1.png" width="\textwidth" /> We plot the distribution of the errors</p>
+<p><img src="_main_files/figure-html/unnamed-chunk-6-1.png" width="\textwidth" /> We plot the distribution of the errors</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ggplot</span>(<span class="dt">data =</span> df, <span class="kw">aes</span>(<span class="dt">x =</span> y_pred <span class="op">-</span><span class="st"> </span>y_test)) <span class="op">+</span>
 <span class="st">                        </span><span class="kw">geom_histogram</span>() <span class="op">+</span>
 <span class="st">                        </span><span class="kw">theme_minimal</span>()</code></pre></div>
-<p><img src="_main_files/figure-html/unnamed-chunk-68-1.png" width="\textwidth" /></p>
+<p><img src="_main_files/figure-html/unnamed-chunk-7-1.png" width="\textwidth" /></p>
 <p>We plot two lines with the predictions and the actual values. We have a problem of overplotting.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">autoplot</span>(<span class="kw">ts</span>(base_model<span class="op">$</span>y_pred), <span class="dt">series=</span><span class="st">&quot;1-step fitted values&quot;</span>) <span class="op">+</span>
 <span class="st">  </span><span class="kw">autolayer</span>(<span class="kw">ts</span>(base_model<span class="op">$</span>y_test),
     <span class="dt">series=</span><span class="st">&quot;Test data&quot;</span>) <span class="op">+</span><span class="st"> </span>
 <span class="st">    </span><span class="kw">theme_minimal</span>() <span class="op">+</span>
 <span class="st">    </span><span class="kw">theme</span>(<span class="dt">legend.position=</span><span class="st">&quot;top&quot;</span>)</code></pre></div>
-<p><img src="_main_files/figure-html/unnamed-chunk-69-1.png" width="\textwidth" /></p>
+<p><img src="_main_files/figure-html/unnamed-chunk-8-1.png" width="\textwidth" /></p>
 <p>We plot just the first 14 days of 2017.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">two_weeks &lt;-<span class="st"> </span>base_model <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">slice</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">336</span>) <span class="co"># 336 corresponds to 24 hours * 14 days.</span>
 
@@ -313,7 +319,7 @@ y_pred_y_test_base_model_graph</code></pre></div>
     <span class="dt">series=</span><span class="st">&quot;Test data&quot;</span>) <span class="op">+</span><span class="st"> </span>
 <span class="st">    </span><span class="kw">theme_minimal</span>() <span class="op">+</span>
 <span class="st">    </span><span class="kw">theme</span>(<span class="dt">legend.position=</span><span class="st">&quot;top&quot;</span>)</code></pre></div>
-<p><img src="_main_files/figure-html/unnamed-chunk-70-1.png" width="\textwidth" /></p>
+<p><img src="_main_files/figure-html/unnamed-chunk-9-1.png" width="\textwidth" /></p>
 <p>And as expected, we get two identical lines. But one of them, the prediction, one step forward than the line with the actual data.</p>
 </div>
 <div id="arima-model" class="section level3">
@@ -378,7 +384,7 @@ R_squared &lt;-<span class="st"> </span><span class="dv">1</span> <span class="o
     <span class="dt">series=</span><span class="st">&quot;1-step fitted values&quot;</span>) <span class="op">+</span><span class="st"> </span>
 <span class="st">    </span><span class="kw">theme_minimal</span>() <span class="op">+</span>
 <span class="st">    </span><span class="kw">theme</span>(<span class="dt">legend.position=</span><span class="st">&quot;top&quot;</span>)</code></pre></div>
-<p><img src="_main_files/figure-html/unnamed-chunk-74-1.png" width="\textwidth" /></p>
+<p><img src="_main_files/figure-html/unnamed-chunk-13-1.png" width="\textwidth" /></p>
 <p>We have made the forecast for one hour ahead and we have estimated its precission. But what happens when we try to forecast more distant values?</p>
 <p>In order to check the precission of this ARIMA model with forecasts more … we are going to use the fitted</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># First of all we create with the Arima function the object arima.test</span>
@@ -425,10 +431,47 @@ R_squared &lt;-<span class="st"> </span><span class="dv">1</span> <span class="o
 ## [5] &quot;RMSE:&quot;                           &quot;9.68&quot;                           
 ## [7] &quot;Standard Deviation (test data):&quot; &quot;10.9&quot;</code></pre>
 <p>R-Squared: 0.2118. When we try to predict the levels of PM10 6 hours ahead this Arima model is only able to explain a 21% of the variability. Errors: Consequentely the errors grow too…</p>
-</div>
-</div>
-<div id="we-have-been-using-a-dataset-for-training-of-3-years.-is-this-necessary-does-the-arima-algorithm-take-advantage-of-a-so-long-time-series" class="section level2">
-<h2><span class="header-section-number">9.2</span> We have been using a dataset for training of 3 years. Is this necessary? Does the Arima algorithm take advantage of a so long time series?</h2>
+<p>We have been using a dataset for training of 3 years. What if we take a longer period to fit an ARIMA model? We are going to try to improve the result taking as training period 9 years of data: 200901-201612.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#model_arima_9y = auto.arima(train_200901_201612,seasonal=TRUE,trace=TRUE) </span>
+<span class="co">#saveRDS(model_arima_9y, &quot;data_rds/model_arima_9y.rds&quot;)</span>
+<span class="co">#summary(model_arima_9y)</span></code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">model_arima_9y &lt;-<span class="st"> </span><span class="kw">readRDS</span>(<span class="st">&quot;data_rds/model_arima_9y.rds&quot;</span>)
+<span class="kw">summary</span>(model_arima_9y)</code></pre></div>
+<pre><code>## Series: train_200901_201612 
+## ARIMA(3,1,2)(0,0,2)[24] 
+## 
+## Coefficients:
+##          ar1     ar2     ar3      ma1      ma2    sma1    sma2
+##       0.0878  0.3272  0.1539  -0.4929  -0.4748  0.0572  0.0330
+## s.e.  0.0266  0.0161  0.0042   0.0269   0.0257  0.0039  0.0037
+## 
+## sigma^2 estimated as 126.3:  log likelihood=-269164.4
+## AIC=538344.8   AICc=538344.8   BIC=538418.1
+## 
+## Training set error measures:
+##                         ME     RMSE      MAE  MPE MAPE      MASE
+## Training set -4.331726e-05 11.23784 6.325201 -Inf  Inf 0.5096805
+##                       ACF1
+## Training set -0.0003654974</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">y_pred &lt;-<span class="st"> </span><span class="kw">forecast</span>(test_201701_<span class="dv">201709</span>, <span class="dt">model =</span> model_arima_9y, <span class="dt">h=</span><span class="dv">1</span>)<span class="op">$</span>fitted <span class="co"># We call the forecast function passing the testing data through the ARIMA model fitted with the training data and we extract the fitted values.</span>
+
+y_test &lt;-<span class="st"> </span>test_201701_<span class="dv">201709</span>
+
+sd_test &lt;-<span class="st"> </span><span class="kw">sd</span>(y_test) 
+
+RMSE &lt;-<span class="st"> </span><span class="kw">RMSE</span>(y_test, y_pred)
+
+MAE &lt;-<span class="st"> </span><span class="kw">MAE</span>(y_test, y_pred)
+
+rss &lt;-<span class="st"> </span><span class="kw">sum</span>((y_pred <span class="op">-</span><span class="st"> </span>y_test) <span class="op">**</span><span class="st"> </span><span class="dv">2</span>)
+tss &lt;-<span class="st"> </span><span class="kw">sum</span>((y_test <span class="op">-</span><span class="st"> </span><span class="kw">mean</span>(y_test)) <span class="op">**</span><span class="st"> </span><span class="dv">2</span>)
+R_squared &lt;-<span class="st"> </span><span class="dv">1</span> <span class="op">-</span><span class="st"> </span>rss<span class="op">/</span>tss
+<span class="kw">paste</span>(<span class="kw">c</span>(<span class="st">&quot;R-Squared:&quot;</span>, <span class="kw">round</span>(R_squared, <span class="dv">4</span>), <span class="st">&quot;MAE:&quot;</span>, <span class="kw">round</span>(MAE, <span class="dv">2</span>), <span class="st">&quot;RMSE:&quot;</span>, <span class="kw">round</span>(RMSE, <span class="dv">2</span>), <span class="st">&quot;Standard Deviation (test data):&quot;</span>, <span class="kw">round</span>(sd_test, <span class="dv">2</span>)))</code></pre></div>
+<pre><code>## [1] &quot;R-Squared:&quot;                      &quot;0.5966&quot;                         
+## [3] &quot;MAE:&quot;                            &quot;4.88&quot;                           
+## [5] &quot;RMSE:&quot;                           &quot;6.93&quot;                           
+## [7] &quot;Standard Deviation (test data):&quot; &quot;10.9&quot;</code></pre>
+<p>We have been using a dataset for training of 3 years. Is this necessary? Does the Arima algorithm take advantage of a so long time series?</p>
 <p>To check this we are going to use now a training period much shorter. We will use just three months, the last three months of 2016.</p>
 <p>We repeat …</p>
 <pre><code>model_arima_1 = auto.arima(train_201610_2016_12,seasonal=TRUE,trace=TRUE) # 
@@ -495,7 +538,7 @@ R_squared &lt;-<span class="st"> </span><span class="dv">1</span> <span class="o
 <span class="st">  </span><span class="kw">autolayer</span>(y_pred,
     <span class="dt">series=</span><span class="st">&quot;1-step fitted values&quot;</span>) <span class="op">+</span>
 <span class="st">    </span><span class="kw">theme</span>(<span class="dt">legend.position=</span><span class="st">&quot;top&quot;</span>)</code></pre></div>
-<p><img src="_main_files/figure-html/unnamed-chunk-84-1.png" width="\textwidth" /></p>
+<p><img src="_main_files/figure-html/unnamed-chunk-26-1.png" width="\textwidth" /></p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">arima.test_20170101_<span class="dv">20170114</span> &lt;-<span class="st"> </span><span class="kw">Arima</span>(test_20170101_<span class="dv">20170114</span>, <span class="dt">model=</span>model_arima_<span class="dv">1</span>)
 <span class="kw">accuracy</span>(arima.test)</code></pre></div>
 <pre><code>##                       ME     RMSE      MAE       MPE     MAPE      MASE
@@ -509,14 +552,15 @@ h2_lite &lt;-<span class="st"> </span><span class="kw">fitted</span>(arima.test_
 <span class="st">  </span><span class="kw">autolayer</span>(h6_lite,
     <span class="dt">series=</span><span class="st">&quot;6-step fitted values&quot;</span>) <span class="op">+</span>
 <span class="st">    </span><span class="kw">theme</span>(<span class="dt">legend.position=</span><span class="st">&quot;top&quot;</span>)</code></pre></div>
-<p><img src="_main_files/figure-html/unnamed-chunk-88-1.png" width="\textwidth" /></p>
+<p><img src="_main_files/figure-html/unnamed-chunk-30-1.png" width="\textwidth" /></p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">autoplot</span>(y_test, <span class="dt">series=</span><span class="st">&quot;Test data&quot;</span>) <span class="op">+</span>
 <span class="st">  </span><span class="kw">autolayer</span>(h1_lite,
     <span class="dt">series=</span><span class="st">&quot;1-step fitted values&quot;</span>) <span class="op">+</span>
 <span class="st">    </span><span class="kw">theme</span>(<span class="dt">legend.position=</span><span class="st">&quot;top&quot;</span>)</code></pre></div>
-<p><img src="_main_files/figure-html/unnamed-chunk-89-1.png" width="\textwidth" /></p>
+<p><img src="_main_files/figure-html/unnamed-chunk-31-1.png" width="\textwidth" /></p>
+</div>
 <div id="no2-predictions" class="section level3">
-<h3><span class="header-section-number">9.2.1</span> NO2 Predictions</h3>
+<h3><span class="header-section-number">9.1.5</span> NO2 Predictions</h3>
 <p>We generate the train, test and validations datasets</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">train_201610_<span class="dv">201612</span> &lt;-<span class="st"> </span>constitucion_data <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">filter</span>(date_time_utc <span class="op">&gt;=</span><span class="st"> &#39;2016-10-01 00:00:00&#39;</span>,
                                        date_time_utc <span class="op">&lt;=</span><span class="st"> &#39;2016-12-31 23:00:00&#39;</span>) <span class="op">%&gt;%</span>
@@ -532,7 +576,13 @@ train_201401_<span class="dv">201612</span> &lt;-<span class="st"> </span>consti
 <span class="st">                                       </span><span class="kw">rename</span>(<span class="dt">NO2_0 =</span> NO2) <span class="op">%&gt;%</span>
 <span class="st">                                       </span><span class="kw">ts</span>(<span class="dt">frequency =</span> <span class="dv">24</span>)
 
-                                       
+                     <span class="co"># We generate a bigger training dataset with 9 years (2009-2017)</span>
+train_200901_<span class="dv">201612</span> &lt;-<span class="st"> </span>constitucion_data <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">filter</span>(date_time_utc <span class="op">&gt;=</span><span class="st"> &#39;2009-01-01 00:00:00&#39;</span>,
+                                       date_time_utc <span class="op">&lt;=</span><span class="st"> &#39;2016-12-31 23:00:00&#39;</span>) <span class="op">%&gt;%</span>
+<span class="st">                                       </span><span class="kw">select</span>(NO2) <span class="op">%&gt;%</span>
+<span class="st">                                       </span><span class="kw">mutate</span>(<span class="dt">NO2 =</span> <span class="kw">replace_na</span>(NO2, <span class="kw">mean</span>(NO2, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>))) <span class="op">%&gt;%</span>
+<span class="st">                                       </span><span class="kw">rename</span>(<span class="dt">NO2_0 =</span> NO2) <span class="op">%&gt;%</span>
+<span class="st">                                       </span><span class="kw">ts</span>(<span class="dt">frequency =</span> <span class="dv">24</span>)                  
 
 test_201701_<span class="dv">201709</span> &lt;-<span class="st"> </span>constitucion_data <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">filter</span>(date_time_utc <span class="op">&gt;=</span><span class="st"> &#39;2017-01-01 00:00:00&#39;</span>,
                                        date_time_utc <span class="op">&lt;=</span><span class="st"> &#39;2017-09-30 23:00:00&#39;</span>) <span class="op">%&gt;%</span>
@@ -560,50 +610,28 @@ validation_201710_<span class="dv">201712</span> &lt;-<span class="st"> </span>c
 <p>This time we are going straight to create an ARIMA model.</p>
 </div>
 <div id="arima-model-1" class="section level3">
-<h3><span class="header-section-number">9.2.2</span> ARIMA model</h3>
+<h3><span class="header-section-number">9.1.6</span> ARIMA model</h3>
 <p>Training period: 201401_201612</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">NO2_model_arima_<span class="dv">0</span> =<span class="st"> </span><span class="kw">auto.arima</span>(train_201401_<span class="dv">201612</span>,<span class="dt">seasonal=</span><span class="ot">TRUE</span>,<span class="dt">trace=</span><span class="ot">TRUE</span>) </code></pre></div>
-<pre><code>## 
-##  Fitting models using approximations to speed things up...
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#NO2_model_arima_0 = auto.arima(train_201401_201612,seasonal=TRUE,trace=TRUE) </span>
+<span class="co">#saveRDS(NO2_model_arima_0, &quot;data_rds/NO2_model_arima_0.rds&quot;)</span></code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">NO2_model_arima_<span class="dv">0</span> &lt;-<span class="st"> </span><span class="kw">readRDS</span>(<span class="st">&quot;data_rds/NO2_model_arima_0.rds&quot;</span>)
+<span class="kw">summary</span>(NO2_model_arima_<span class="dv">0</span>)</code></pre></div>
+<pre><code>## Series: train_201401_201612 
+## ARIMA(5,1,0)(2,0,0)[24] 
 ## 
-##  ARIMA(2,1,2)(1,0,1)[24] with drift         : Inf
-##  ARIMA(0,1,0)            with drift         : 181400.9
-##  ARIMA(1,1,0)(1,0,0)[24] with drift         : 179477.5
-##  ARIMA(0,1,1)(0,0,1)[24] with drift         : 179834.6
-##  ARIMA(0,1,0)                               : 181398.9
-##  ARIMA(1,1,0)            with drift         : 180875
-##  ARIMA(1,1,0)(2,0,0)[24] with drift         : 178736.5
-##  ARIMA(1,1,0)(2,0,1)[24] with drift         : Inf
-##  ARIMA(0,1,0)(2,0,0)[24] with drift         : 178765.3
-##  ARIMA(2,1,0)(2,0,0)[24] with drift         : 178533.2
-##  ARIMA(2,1,1)(2,0,0)[24] with drift         : Inf
-##  ARIMA(3,1,1)(2,0,0)[24] with drift         : Inf
-##  ARIMA(2,1,0)(2,0,0)[24]                    : 178531.2
-##  ARIMA(2,1,0)(1,0,0)[24]                    : 179337
-##  ARIMA(2,1,0)(2,0,1)[24]                    : Inf
-##  ARIMA(1,1,0)(2,0,0)[24]                    : 178734.5
-##  ARIMA(3,1,0)(2,0,0)[24]                    : 178390.3
-##  ARIMA(3,1,1)(2,0,0)[24]                    : Inf
-##  ARIMA(4,1,1)(2,0,0)[24]                    : Inf
-##  ARIMA(3,1,0)(2,0,0)[24] with drift         : 178392.3
-##  ARIMA(3,1,0)(1,0,0)[24]                    : 179197.7
-##  ARIMA(3,1,0)(2,0,1)[24]                    : Inf
-##  ARIMA(4,1,0)(2,0,0)[24]                    : 178133.6
-##  ARIMA(5,1,1)(2,0,0)[24]                    : Inf
-##  ARIMA(4,1,0)(2,0,0)[24] with drift         : 178135.6
-##  ARIMA(4,1,0)(1,0,0)[24]                    : 178915
-##  ARIMA(4,1,0)(2,0,1)[24]                    : Inf
-##  ARIMA(5,1,0)(2,0,0)[24]                    : 177867.5
-##  ARIMA(5,1,0)(2,0,0)[24] with drift         : 177869.5
-##  ARIMA(5,1,0)(1,0,0)[24]                    : 178598.3
-##  ARIMA(5,1,0)(2,0,1)[24]                    : Inf
+## Coefficients:
+##          ar1      ar2      ar3      ar4      ar5    sar1    sar2
+##       0.0157  -0.1001  -0.0797  -0.0964  -0.1019  0.2094  0.1616
+## s.e.  0.0065   0.0062   0.0061   0.0061   0.0062  0.0064  0.0063
 ## 
-##  Now re-fitting the best model(s) without approximations...
+## sigma^2 estimated as 50.81:  log likelihood=-88980
+## AIC=177976   AICc=177976   BIC=178041.4
 ## 
-##  ARIMA(5,1,0)(2,0,0)[24]                    : 177976
-## 
-##  Best model: ARIMA(5,1,0)(2,0,0)[24]</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">saveRDS</span>(NO2_model_arima_<span class="dv">0</span>, <span class="st">&quot;data_rds/NO2_model_arima_0.rds&quot;</span>)</code></pre></div>
+## Training set error measures:
+##                       ME    RMSE      MAE       MPE     MAPE      MASE
+## Training set 0.001106035 7.12686 4.885192 -5.922583 23.39609 0.4653533
+##                     ACF1
+## Training set -0.01176791</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">y_pred &lt;-<span class="st"> </span><span class="kw">forecast</span>(test_201701_<span class="dv">201709</span>, <span class="dt">model =</span> NO2_model_arima_<span class="dv">0</span>, <span class="dt">h=</span><span class="dv">1</span>)<span class="op">$</span>fitted <span class="co"># We call the forecast function passing the testing data through the ARIMA model fitted with the training data and we extract the fitted values.</span>
 
 y_test &lt;-<span class="st"> </span>test_201701_<span class="dv">201709</span>
@@ -664,6 +692,46 @@ R_squared &lt;-<span class="st"> </span><span class="dv">1</span> <span class="o
 ## [7] &quot;Standard Deviation (test data):&quot; &quot;18.51&quot;</code></pre>
 <p>Better R-Squared than the PM10 model. But worse errors scores. Different units. Maybe we can’t compare. More variability.</p>
 <p>Explain this. Include graphics.</p>
+<p>We have been using a dataset for training of 3 years. What if we take a longer period to fit an ARIMA model? We are going to try to improve the result taking as training period 9 years of data: 200901-201612.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#NO2_model_arima_9y = auto.arima(train_200901_201612,seasonal=TRUE,trace=TRUE) </span>
+<span class="co">#saveRDS(NO2_model_arima_9y, &quot;data_rds/NO2_model_arima_9y.rds&quot;)</span>
+<span class="co">#summary(NO2_model_arima_9y)</span></code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">NO2_model_arima_9y &lt;-<span class="st"> </span><span class="kw">readRDS</span>(<span class="st">&quot;data_rds/NO2_model_arima_9y.rds&quot;</span>)
+<span class="kw">summary</span>(NO2_model_arima_9y)</code></pre></div>
+<pre><code>## Series: train_200901_201612 
+## ARIMA(5,1,0)(2,0,0)[24] 
+## 
+## Coefficients:
+##          ar1      ar2      ar3      ar4      ar5    sar1    sar2
+##       0.0239  -0.1010  -0.0703  -0.0885  -0.1165  0.1971  0.1432
+## s.e.  0.0040   0.0038   0.0038   0.0037   0.0038  0.0039  0.0038
+## 
+## sigma^2 estimated as 86.51:  log likelihood=-255897.2
+## AIC=511810.4   AICc=511810.4   BIC=511883.7
+## 
+## Training set error measures:
+##                         ME     RMSE      MAE       MPE     MAPE      MASE
+## Training set -9.926224e-05 9.300711 6.206921 -6.372945 24.31429 0.4616188
+##                     ACF1
+## Training set -0.01271755</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">y_pred &lt;-<span class="st"> </span><span class="kw">forecast</span>(test_201701_<span class="dv">201709</span>, <span class="dt">model =</span> NO2_model_arima_9y, <span class="dt">h=</span><span class="dv">1</span>)<span class="op">$</span>fitted <span class="co"># We call the forecast function passing the testing data through the ARIMA model fitted with the training data and we extract the fitted values.</span>
+
+y_test &lt;-<span class="st"> </span>test_201701_<span class="dv">201709</span>
+
+sd_test &lt;-<span class="st"> </span><span class="kw">sd</span>(y_test) 
+
+RMSE &lt;-<span class="st"> </span><span class="kw">RMSE</span>(y_test, y_pred)
+
+MAE &lt;-<span class="st"> </span><span class="kw">MAE</span>(y_test, y_pred)
+
+rss &lt;-<span class="st"> </span><span class="kw">sum</span>((y_pred <span class="op">-</span><span class="st"> </span>y_test) <span class="op">**</span><span class="st"> </span><span class="dv">2</span>)
+tss &lt;-<span class="st"> </span><span class="kw">sum</span>((y_test <span class="op">-</span><span class="st"> </span><span class="kw">mean</span>(y_test)) <span class="op">**</span><span class="st"> </span><span class="dv">2</span>)
+R_squared &lt;-<span class="st"> </span><span class="dv">1</span> <span class="op">-</span><span class="st"> </span>rss<span class="op">/</span>tss
+<span class="kw">paste</span>(<span class="kw">c</span>(<span class="st">&quot;R-Squared:&quot;</span>, <span class="kw">round</span>(R_squared, <span class="dv">4</span>), <span class="st">&quot;MAE:&quot;</span>, <span class="kw">round</span>(MAE, <span class="dv">2</span>), <span class="st">&quot;RMSE:&quot;</span>, <span class="kw">round</span>(RMSE, <span class="dv">2</span>), <span class="st">&quot;Standard Deviation (test data):&quot;</span>, <span class="kw">round</span>(sd_test, <span class="dv">2</span>)))</code></pre></div>
+<pre><code>## [1] &quot;R-Squared:&quot;                      &quot;0.7383&quot;                         
+## [3] &quot;MAE:&quot;                            &quot;6.16&quot;                           
+## [5] &quot;RMSE:&quot;                           &quot;9.47&quot;                           
+## [7] &quot;Standard Deviation (test data):&quot; &quot;18.51&quot;</code></pre>
 
 </div>
 </div>

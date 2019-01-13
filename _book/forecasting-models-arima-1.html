@@ -1,0 +1,1017 @@
+<!DOCTYPE html>
+<html >
+
+<head>
+
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>9 Forecasting models. ARIMA | Gijón Air Pollution - An exercise of visualization and forecasting</title>
+  <meta name="description" content="9 Forecasting models. ARIMA | Gijón Air Pollution - An exercise of visualization and forecasting">
+  <meta name="generator" content="bookdown  and GitBook 2.6.7">
+
+  <meta property="og:title" content="9 Forecasting models. ARIMA | Gijón Air Pollution - An exercise of visualization and forecasting" />
+  <meta property="og:type" content="book" />
+  
+  
+  
+  
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="9 Forecasting models. ARIMA | Gijón Air Pollution - An exercise of visualization and forecasting" />
+  
+  
+  
+
+<meta name="author" content="Sergio Berdiales">
+
+
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  
+  
+<link rel="prev" href="forecasting-models-arima.html">
+<link rel="next" href="forecasting-models-arima-2.html">
+<script src="libs/jquery-2.2.3/jquery.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+
+<style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+</style>
+
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i>Preface</a></li>
+<li class="chapter" data-level="1" data-path="intro.html"><a href="intro.html"><i class="fa fa-check"></i><b>1</b> Introduction</a><ul>
+<li class="chapter" data-level="1.1" data-path="intro.html"><a href="intro.html#why"><i class="fa fa-check"></i><b>1.1</b> Why</a></li>
+<li class="chapter" data-level="1.2" data-path="intro.html"><a href="intro.html#what"><i class="fa fa-check"></i><b>1.2</b> What</a></li>
+<li class="chapter" data-level="1.3" data-path="intro.html"><a href="intro.html#how"><i class="fa fa-check"></i><b>1.3</b> How</a></li>
+</ul></li>
+<li class="chapter" data-level="2" data-path="the-data.html"><a href="the-data.html"><i class="fa fa-check"></i><b>2</b> The Data</a></li>
+<li class="chapter" data-level="3" data-path="visualizations.html"><a href="visualizations.html"><i class="fa fa-check"></i><b>3</b> Visualizations</a></li>
+<li class="chapter" data-level="4" data-path="prediction-models.html"><a href="prediction-models.html"><i class="fa fa-check"></i><b>4</b> Prediction Models</a><ul>
+<li class="chapter" data-level="4.1" data-path="prediction-models.html"><a href="prediction-models.html#arima"><i class="fa fa-check"></i><b>4.1</b> ARIMA</a></li>
+<li class="chapter" data-level="4.2" data-path="prediction-models.html"><a href="prediction-models.html#machine-learning-methods"><i class="fa fa-check"></i><b>4.2</b> Machine Learning Methods</a></li>
+<li class="chapter" data-level="4.3" data-path="prediction-models.html"><a href="prediction-models.html#neural-networks"><i class="fa fa-check"></i><b>4.3</b> Neural Networks</a></li>
+</ul></li>
+<li class="chapter" data-level="5" data-path="conclusions.html"><a href="conclusions.html"><i class="fa fa-check"></i><b>5</b> Conclusions</a></li>
+<li class="chapter" data-level="" data-path="references.html"><a href="references.html"><i class="fa fa-check"></i>References</a></li>
+<li><a href="r-scripts.html#r-scripts"><em>R scripts</em></a></li>
+<li class="chapter" data-level="6" data-path="gathering-and-cleaning-data.html"><a href="gathering-and-cleaning-data.html"><i class="fa fa-check"></i><b>6</b> Gathering and Cleaning Data</a><ul>
+<li class="chapter" data-level="6.1" data-path="gathering-and-cleaning-data.html"><a href="gathering-and-cleaning-data.html#data-gathering"><i class="fa fa-check"></i><b>6.1</b> Data gathering</a></li>
+<li class="chapter" data-level="6.2" data-path="gathering-and-cleaning-data.html"><a href="gathering-and-cleaning-data.html#data-cleaning"><i class="fa fa-check"></i><b>6.2</b> Data cleaning</a></li>
+<li class="chapter" data-level="6.3" data-path="gathering-and-cleaning-data.html"><a href="gathering-and-cleaning-data.html#adding-new-variables"><i class="fa fa-check"></i><b>6.3</b> Adding new variables</a><ul>
+<li class="chapter" data-level="6.3.1" data-path="gathering-and-cleaning-data.html"><a href="gathering-and-cleaning-data.html#time-variables"><i class="fa fa-check"></i><b>6.3.1</b> Time variables</a></li>
+<li class="chapter" data-level="6.3.2" data-path="gathering-and-cleaning-data.html"><a href="gathering-and-cleaning-data.html#laboral-dates"><i class="fa fa-check"></i><b>6.3.2</b> Laboral dates</a></li>
+<li class="chapter" data-level="6.3.3" data-path="gathering-and-cleaning-data.html"><a href="gathering-and-cleaning-data.html#wind-direction"><i class="fa fa-check"></i><b>6.3.3</b> Wind direction</a></li>
+<li class="chapter" data-level="6.3.4" data-path="gathering-and-cleaning-data.html"><a href="gathering-and-cleaning-data.html#tables-preparation-for-tableau-dashboards"><i class="fa fa-check"></i><b>6.3.4</b> Tables preparation for Tableau dashboards</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="7" data-path="data-exploration.html"><a href="data-exploration.html"><i class="fa fa-check"></i><b>7</b> Data Exploration</a><ul>
+<li class="chapter" data-level="7.1" data-path="data-exploration.html"><a href="data-exploration.html#pm10-constitucion-station"><i class="fa fa-check"></i><b>7.1</b> PM10 Constitucion Station</a></li>
+<li class="chapter" data-level="7.2" data-path="data-exploration.html"><a href="data-exploration.html#relationships-between-variables"><i class="fa fa-check"></i><b>7.2</b> Relationships between variables</a></li>
+<li class="chapter" data-level="7.3" data-path="data-exploration.html"><a href="data-exploration.html#no2-constitucion-station"><i class="fa fa-check"></i><b>7.3</b> NO2 Constitucion Station</a></li>
+</ul></li>
+<li class="chapter" data-level="8" data-path="forecasting-models-arima.html"><a href="forecasting-models-arima.html"><i class="fa fa-check"></i><b>8</b> Forecasting models. ARIMA</a><ul>
+<li class="chapter" data-level="8.0.1" data-path="forecasting-models-arima.html"><a href="forecasting-models-arima.html#data-loading"><i class="fa fa-check"></i><b>8.0.1</b> Data loading</a></li>
+<li class="chapter" data-level="8.0.2" data-path="forecasting-models-arima.html"><a href="forecasting-models-arima.html#pm10-forecasting-models"><i class="fa fa-check"></i><b>8.0.2</b> PM10 forecasting models</a></li>
+<li class="chapter" data-level="8.0.3" data-path="forecasting-models-arima.html"><a href="forecasting-models-arima.html#train-test-and-validation-data-pm10-models"><i class="fa fa-check"></i><b>8.0.3</b> Train, test and validation data (PM10 models)</a></li>
+<li class="chapter" data-level="8.0.4" data-path="forecasting-models-arima.html"><a href="forecasting-models-arima.html#data-exploration-1"><i class="fa fa-check"></i><b>8.0.4</b> Data Exploration</a></li>
+<li class="chapter" data-level="8.0.5" data-path="forecasting-models-arima.html"><a href="forecasting-models-arima.html#base-model."><i class="fa fa-check"></i><b>8.0.5</b> Base model.</a></li>
+<li class="chapter" data-level="8.0.6" data-path="forecasting-models-arima.html"><a href="forecasting-models-arima.html#pm10-arima-models"><i class="fa fa-check"></i><b>8.0.6</b> PM10 ARIMA models</a></li>
+<li class="chapter" data-level="8.0.7" data-path="forecasting-models-arima.html"><a href="forecasting-models-arima.html#pm10_model_arima_3m"><i class="fa fa-check"></i><b>8.0.7</b> PM10_model_arima_3m</a></li>
+<li class="chapter" data-level="8.0.8" data-path="forecasting-models-arima.html"><a href="forecasting-models-arima.html#pm10_model_arima_3y"><i class="fa fa-check"></i><b>8.0.8</b> PM10_model_arima_3y</a></li>
+<li class="chapter" data-level="8.0.9" data-path="forecasting-models-arima.html"><a href="forecasting-models-arima.html#pm10_model_arima_9y"><i class="fa fa-check"></i><b>8.0.9</b> PM10_model_arima_9y</a></li>
+<li class="chapter" data-level="8.0.10" data-path="forecasting-models-arima.html"><a href="forecasting-models-arima.html#pm10-h-6"><i class="fa fa-check"></i><b>8.0.10</b> PM10 h = 6</a></li>
+<li class="chapter" data-level="8.0.11" data-path="forecasting-models-arima.html"><a href="forecasting-models-arima.html#pm10-h-12"><i class="fa fa-check"></i><b>8.0.11</b> PM10 h = 12</a></li>
+<li class="chapter" data-level="8.0.12" data-path="forecasting-models-arima.html"><a href="forecasting-models-arima.html#pm10-h-24"><i class="fa fa-check"></i><b>8.0.12</b> PM10 h = 24</a></li>
+<li class="chapter" data-level="8.0.13" data-path="forecasting-models-arima.html"><a href="forecasting-models-arima.html#no2-predictions"><i class="fa fa-check"></i><b>8.0.13</b> NO2 Predictions</a></li>
+<li class="chapter" data-level="8.0.14" data-path="forecasting-models-arima.html"><a href="forecasting-models-arima.html#no2-base-model"><i class="fa fa-check"></i><b>8.0.14</b> NO2 Base Model</a></li>
+<li class="chapter" data-level="8.0.15" data-path="forecasting-models-arima.html"><a href="forecasting-models-arima.html#no2-arima-models"><i class="fa fa-check"></i><b>8.0.15</b> NO2 ARIMA models</a></li>
+</ul></li>
+<li class="chapter" data-level="9" data-path="forecasting-models-arima-1.html"><a href="forecasting-models-arima-1.html"><i class="fa fa-check"></i><b>9</b> Forecasting models. ARIMA</a><ul>
+<li class="chapter" data-level="9.0.1" data-path="forecasting-models-arima-1.html"><a href="forecasting-models-arima-1.html#data-loading-1"><i class="fa fa-check"></i><b>9.0.1</b> Data loading</a></li>
+<li class="chapter" data-level="9.0.2" data-path="forecasting-models-arima-1.html"><a href="forecasting-models-arima-1.html#pm10-forecasting-models-1"><i class="fa fa-check"></i><b>9.0.2</b> PM10 forecasting models</a></li>
+<li class="chapter" data-level="9.0.3" data-path="forecasting-models-arima-1.html"><a href="forecasting-models-arima-1.html#train-test-and-validation-data-pm10-models-1"><i class="fa fa-check"></i><b>9.0.3</b> Train, test and validation data (PM10 models)</a></li>
+<li class="chapter" data-level="9.0.4" data-path="forecasting-models-arima-1.html"><a href="forecasting-models-arima-1.html#data-exploration-2"><i class="fa fa-check"></i><b>9.0.4</b> Data Exploration</a></li>
+<li class="chapter" data-level="9.1" data-path="forecasting-models-arima-1.html"><a href="forecasting-models-arima-1.html#base-model.-1"><i class="fa fa-check"></i><b>9.1</b> Base model.</a></li>
+<li class="chapter" data-level="9.2" data-path="forecasting-models-arima-1.html"><a href="forecasting-models-arima-1.html#pm10-arima-models-1"><i class="fa fa-check"></i><b>9.2</b> PM10 ARIMA models</a><ul>
+<li class="chapter" data-level="9.2.1" data-path="forecasting-models-arima-1.html"><a href="forecasting-models-arima-1.html#pm10_model_arima_3m-1"><i class="fa fa-check"></i><b>9.2.1</b> PM10_model_arima_3m</a></li>
+<li class="chapter" data-level="9.2.2" data-path="forecasting-models-arima-1.html"><a href="forecasting-models-arima-1.html#pm10_model_arima_3y-1"><i class="fa fa-check"></i><b>9.2.2</b> PM10_model_arima_3y</a></li>
+<li class="chapter" data-level="9.2.3" data-path="forecasting-models-arima-1.html"><a href="forecasting-models-arima-1.html#pm10_model_arima_9y-1"><i class="fa fa-check"></i><b>9.2.3</b> PM10_model_arima_9y</a></li>
+<li class="chapter" data-level="9.2.4" data-path="forecasting-models-arima-1.html"><a href="forecasting-models-arima-1.html#pm10-h-6-1"><i class="fa fa-check"></i><b>9.2.4</b> PM10 h = 6</a></li>
+<li class="chapter" data-level="9.2.5" data-path="forecasting-models-arima-1.html"><a href="forecasting-models-arima-1.html#pm10-h-12-1"><i class="fa fa-check"></i><b>9.2.5</b> PM10 h = 12</a></li>
+<li class="chapter" data-level="9.2.6" data-path="forecasting-models-arima-1.html"><a href="forecasting-models-arima-1.html#pm10-h-24-1"><i class="fa fa-check"></i><b>9.2.6</b> PM10 h = 24</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="10" data-path="forecasting-models-arima-2.html"><a href="forecasting-models-arima-2.html"><i class="fa fa-check"></i><b>10</b> Forecasting models. ARIMA</a><ul>
+<li class="chapter" data-level="10.0.1" data-path="forecasting-models-arima-2.html"><a href="forecasting-models-arima-2.html#data-loading-2"><i class="fa fa-check"></i><b>10.0.1</b> Data loading</a></li>
+<li class="chapter" data-level="10.0.2" data-path="forecasting-models-arima-2.html"><a href="forecasting-models-arima-2.html#pm10-forecasting-models-2"><i class="fa fa-check"></i><b>10.0.2</b> PM10 forecasting models</a></li>
+<li class="chapter" data-level="10.0.3" data-path="forecasting-models-arima-2.html"><a href="forecasting-models-arima-2.html#train-test-and-validation-data-pm10-models-2"><i class="fa fa-check"></i><b>10.0.3</b> Train, test and validation data (PM10 models)</a></li>
+<li class="chapter" data-level="10.0.4" data-path="forecasting-models-arima-2.html"><a href="forecasting-models-arima-2.html#data-exploration-3"><i class="fa fa-check"></i><b>10.0.4</b> Data Exploration</a></li>
+<li class="chapter" data-level="10.1" data-path="forecasting-models-arima-2.html"><a href="forecasting-models-arima-2.html#base-model.-2"><i class="fa fa-check"></i><b>10.1</b> Base model.</a></li>
+<li class="chapter" data-level="10.2" data-path="forecasting-models-arima-2.html"><a href="forecasting-models-arima-2.html#pm10-arima-models-2"><i class="fa fa-check"></i><b>10.2</b> PM10 ARIMA models</a><ul>
+<li class="chapter" data-level="10.2.1" data-path="forecasting-models-arima-2.html"><a href="forecasting-models-arima-2.html#pm10_model_arima_3m-2"><i class="fa fa-check"></i><b>10.2.1</b> PM10_model_arima_3m</a></li>
+<li class="chapter" data-level="10.2.2" data-path="forecasting-models-arima-2.html"><a href="forecasting-models-arima-2.html#pm10_model_arima_3y-2"><i class="fa fa-check"></i><b>10.2.2</b> PM10_model_arima_3y</a></li>
+<li class="chapter" data-level="10.2.3" data-path="forecasting-models-arima-2.html"><a href="forecasting-models-arima-2.html#pm10_model_arima_9y-2"><i class="fa fa-check"></i><b>10.2.3</b> PM10_model_arima_9y</a></li>
+<li class="chapter" data-level="10.2.4" data-path="forecasting-models-arima-2.html"><a href="forecasting-models-arima-2.html#pm10-h-6-2"><i class="fa fa-check"></i><b>10.2.4</b> PM10 h = 6</a></li>
+<li class="chapter" data-level="10.2.5" data-path="forecasting-models-arima-2.html"><a href="forecasting-models-arima-2.html#pm10-h-12-2"><i class="fa fa-check"></i><b>10.2.5</b> PM10 h = 12</a></li>
+<li class="chapter" data-level="10.2.6" data-path="forecasting-models-arima-2.html"><a href="forecasting-models-arima-2.html#pm10-h-24-2"><i class="fa fa-check"></i><b>10.2.6</b> PM10 h = 24</a></li>
+<li class="chapter" data-level="10.2.7" data-path="forecasting-models-arima-2.html"><a href="forecasting-models-arima-2.html#no2-predictions-1"><i class="fa fa-check"></i><b>10.2.7</b> NO2 Predictions</a></li>
+<li class="chapter" data-level="10.2.8" data-path="forecasting-models-arima-2.html"><a href="forecasting-models-arima-2.html#no2-base-model-1"><i class="fa fa-check"></i><b>10.2.8</b> NO2 Base Model</a></li>
+<li class="chapter" data-level="10.2.9" data-path="forecasting-models-arima-2.html"><a href="forecasting-models-arima-2.html#no2-arima-models-1"><i class="fa fa-check"></i><b>10.2.9</b> NO2 ARIMA models</a></li>
+</ul></li>
+</ul></li>
+<li><a href="python-scripts.html#python-scripts"><em>Python scripts</em></a></li>
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Gijón Air Pollution - An exercise of visualization and forecasting</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="forecasting-models.-arima-1" class="section level1">
+<h1><span class="header-section-number">9</span> Forecasting models. ARIMA</h1>
+<p>In this notebook we are going to use ARIMA models to forecast hourly levels of the PM10 and NO2 pollutants.</p>
+<p>We are going to focus on the Constitucion station, which is the only station we have meteorological data. We are not going to use the meteorological data in the ARIMA models, but we will use them later with machine learning models.</p>
+<p>Loading packages</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(readr)
+<span class="kw">library</span>(dplyr)
+<span class="kw">library</span>(tidyr)
+<span class="kw">library</span>(openair) <span class="co"># http://davidcarslaw.github.io/openair/</span>
+<span class="kw">library</span>(purrr)
+<span class="kw">library</span>(lubridate)
+<span class="kw">library</span>(ggplot2)
+<span class="kw">library</span>(stringr)
+<span class="kw">library</span>(knitr)
+<span class="kw">library</span>(xts)
+<span class="kw">library</span>(zoo)
+<span class="kw">library</span>(gridExtra)
+<span class="kw">library</span>(astsa)
+<span class="kw">library</span>(rvest)
+<span class="kw">library</span>(fpp2)
+<span class="kw">library</span>(ranger)
+<span class="kw">library</span>(broom)
+<span class="kw">library</span>(RcppRoll)
+<span class="kw">library</span>(caret)</code></pre></div>
+<div id="data-loading-1" class="section level3">
+<h3><span class="header-section-number">9.0.1</span> Data loading</h3>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">air_data_<span class="dv">2</span> &lt;-<span class="st"> </span><span class="kw">readRDS</span>(<span class="st">&quot;data_rds/air_data_2.rds&quot;</span>)
+constitucion_data &lt;-<span class="st"> </span>air_data_<span class="dv">2</span> <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">filter</span>(station <span class="op">==</span><span class="st"> &quot;1&quot;</span>)</code></pre></div>
+</div>
+<div id="pm10-forecasting-models-1" class="section level3">
+<h3><span class="header-section-number">9.0.2</span> PM10 forecasting models</h3>
+</div>
+<div id="train-test-and-validation-data-pm10-models-1" class="section level3">
+<h3><span class="header-section-number">9.0.3</span> Train, test and validation data (PM10 models)</h3>
+<p>We have 18 years of avalaible data. But we are not going to use all the data. We are going to test three different periods for the training of the models, 2009-01-01 - 2016-12-31, 2014-01-01 - 2016-12-31 and 2016-10-01 - 2016-12-31. We will use the 2017-01-01 - 2017-09-30 period for testing and the 2017-10-01 - 2017-12-31 one for validation.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">train_201401_<span class="dv">201612</span> &lt;-<span class="st"> </span>constitucion_data <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">filter</span>(date_time_utc <span class="op">&gt;=</span><span class="st"> &#39;2014-01-01 00:00:00&#39;</span>,
+                                       date_time_utc <span class="op">&lt;=</span><span class="st"> &#39;2016-12-31 23:00:00&#39;</span>) <span class="op">%&gt;%</span>
+<span class="st">                                       </span><span class="kw">select</span>(PM10) <span class="op">%&gt;%</span>
+<span class="st">                                       </span><span class="kw">mutate</span>(<span class="dt">PM10 =</span> <span class="kw">replace_na</span>(PM10, <span class="kw">mean</span>(PM10, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>))) <span class="op">%&gt;%</span><span class="st"> </span><span class="co"># replacing NAs by the mean.</span>
+<span class="st">                                       </span><span class="kw">rename</span>(<span class="dt">PM10_0 =</span> PM10) <span class="op">%&gt;%</span>
+<span class="st">                                       </span><span class="kw">ts</span>(<span class="dt">frequency =</span> <span class="dv">24</span>)
+
+<span class="co"># We generate a smaller training dataset with the last three months of 2016</span>
+train_201610_<span class="dv">201612</span> &lt;-<span class="st"> </span>constitucion_data <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">filter</span>(date_time_utc <span class="op">&gt;=</span><span class="st"> &#39;2016-10-01 00:00:00&#39;</span>,
+                                       date_time_utc <span class="op">&lt;=</span><span class="st"> &#39;2016-12-31 23:00:00&#39;</span>) <span class="op">%&gt;%</span>
+<span class="st">                                       </span><span class="kw">select</span>(PM10) <span class="op">%&gt;%</span>
+<span class="st">                                       </span><span class="kw">mutate</span>(<span class="dt">PM10 =</span> <span class="kw">replace_na</span>(PM10, <span class="kw">mean</span>(PM10, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>))) <span class="op">%&gt;%</span>
+<span class="st">                                       </span><span class="kw">rename</span>(<span class="dt">PM10_0 =</span> PM10) <span class="op">%&gt;%</span>
+<span class="st">                                       </span><span class="kw">ts</span>(<span class="dt">frequency =</span> <span class="dv">24</span>)
+
+
+<span class="co"># We generate a bigger training dataset with 9 years (2009-2017)</span>
+train_200901_<span class="dv">201612</span> &lt;-<span class="st"> </span>constitucion_data <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">filter</span>(date_time_utc <span class="op">&gt;=</span><span class="st"> &#39;2009-01-01 00:00:00&#39;</span>,
+                                       date_time_utc <span class="op">&lt;=</span><span class="st"> &#39;2016-12-31 23:00:00&#39;</span>) <span class="op">%&gt;%</span>
+<span class="st">                                       </span><span class="kw">select</span>(PM10) <span class="op">%&gt;%</span>
+<span class="st">                                       </span><span class="kw">mutate</span>(<span class="dt">PM10 =</span> <span class="kw">replace_na</span>(PM10, <span class="kw">mean</span>(PM10, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>))) <span class="op">%&gt;%</span>
+<span class="st">                                       </span><span class="kw">rename</span>(<span class="dt">PM10_0 =</span> PM10) <span class="op">%&gt;%</span>
+<span class="st">                                       </span><span class="kw">ts</span>(<span class="dt">frequency =</span> <span class="dv">24</span>)
+                                       
+<span class="co"># We generate the test dataset</span>
+test_201701_<span class="dv">201709</span> &lt;-<span class="st"> </span>constitucion_data <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">filter</span>(date_time_utc <span class="op">&gt;=</span><span class="st"> &#39;2017-01-01 00:00:00&#39;</span>,
+                                       date_time_utc <span class="op">&lt;=</span><span class="st"> &#39;2017-09-30 23:00:00&#39;</span>) <span class="op">%&gt;%</span>
+<span class="st">                                       </span><span class="kw">select</span>(PM10) <span class="op">%&gt;%</span>
+<span class="st">                                       </span><span class="kw">mutate</span>(<span class="dt">PM10 =</span> <span class="kw">replace_na</span>(PM10, <span class="kw">mean</span>(PM10, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>))) <span class="op">%&gt;%</span>
+<span class="st">                                       </span><span class="kw">rename</span>(<span class="dt">PM10_0 =</span> PM10) <span class="op">%&gt;%</span>
+<span class="st">                                       </span><span class="kw">ts</span>(<span class="dt">frequency =</span> <span class="dv">24</span>)
+
+<span class="co"># We generate a smaller testing dataset with the first two weeks of 2017 (for visualization purposes)</span>
+test_20170101_<span class="dv">20170114</span> &lt;-<span class="st"> </span>constitucion_data <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">filter</span>(date_time_utc <span class="op">&gt;=</span><span class="st"> &#39;2017-01-01 00:00:00&#39;</span>,
+                                       date_time_utc <span class="op">&lt;=</span><span class="st"> &#39;2017-01-14 23:00:00&#39;</span>) <span class="op">%&gt;%</span>
+<span class="st">                                       </span><span class="kw">select</span>(PM10) <span class="op">%&gt;%</span>
+<span class="st">                                       </span><span class="kw">mutate</span>(<span class="dt">PM10 =</span> <span class="kw">replace_na</span>(PM10, <span class="kw">mean</span>(PM10, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>))) <span class="op">%&gt;%</span>
+<span class="st">                                       </span><span class="kw">rename</span>(<span class="dt">PM10_0 =</span> PM10) <span class="op">%&gt;%</span>
+<span class="st">                                       </span><span class="kw">ts</span>(<span class="dt">frequency =</span> <span class="dv">24</span>)
+
+
+<span class="co"># And the validation period</span>
+validation_201710_<span class="dv">201712</span> &lt;-<span class="st"> </span>constitucion_data <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">filter</span>(date_time_utc <span class="op">&gt;=</span><span class="st"> &#39;2017-10-01 00:00:00&#39;</span>,
+                                       date_time_utc <span class="op">&lt;=</span><span class="st"> &#39;2017-12-31 23:00:00&#39;</span>) <span class="op">%&gt;%</span>
+<span class="st">                                       </span><span class="kw">select</span>(PM10) <span class="op">%&gt;%</span>
+<span class="st">                                       </span><span class="kw">mutate</span>(<span class="dt">PM10 =</span> <span class="kw">replace_na</span>(PM10, <span class="kw">mean</span>(PM10, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>))) <span class="op">%&gt;%</span>
+<span class="st">                                       </span><span class="kw">rename</span>(<span class="dt">PM10_0 =</span> PM10) <span class="op">%&gt;%</span>
+<span class="st">                                       </span><span class="kw">ts</span>(<span class="dt">frequency =</span> <span class="dv">24</span>)</code></pre></div>
+</div>
+<div id="data-exploration-2" class="section level3">
+<h3><span class="header-section-number">9.0.4</span> Data Exploration</h3>
+<p>The reason we are not using data before 2009 is because, in general, as we could see in the Data Exploration part, the levels of the pollutants, their variability, and even their trends and patterns are very different from now.</p>
+<p>We recover this PM10 evolution graph as example.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">PM10_day_avg &lt;-<span class="st">  </span>constitucion_data <span class="op">%&gt;%</span>
+<span class="st">                  </span><span class="kw">select</span>(date_time_utc, PM10) <span class="op">%&gt;%</span>
+<span class="st">                   </span><span class="kw">group_by</span>(<span class="dt">day =</span> <span class="kw">date</span>(date_time_utc)) <span class="op">%&gt;%</span>
+<span class="st">                          </span><span class="kw">summarise</span>(<span class="dt">day_avg =</span> <span class="kw">mean</span>(PM10, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>))
+
+<span class="kw">ggplot</span>(PM10_day_avg, <span class="kw">aes</span>(<span class="dt">x =</span> day, <span class="dt">y =</span> day_avg, , <span class="dt">colour =</span> day_avg)) <span class="op">+</span><span class="st"> </span>
+<span class="st">         </span><span class="kw">geom_point</span>(<span class="dt">alpha =</span> <span class="fl">0.5</span>) <span class="op">+</span>
+<span class="st">         </span><span class="kw">geom_smooth</span>(<span class="dt">color =</span> <span class="st">&quot;grey&quot;</span>, <span class="dt">alpha =</span> <span class="fl">0.2</span>) <span class="op">+</span>
+<span class="st">         </span><span class="kw">scale_colour_gradientn</span>(<span class="dt">colours =</span> <span class="kw">terrain.colors</span>(<span class="dv">10</span>)) <span class="op">+</span>
+<span class="st">         </span><span class="kw">theme</span>(<span class="dt">legend.position =</span> <span class="kw">c</span>(<span class="fl">0.3</span>, <span class="fl">0.9</span>),
+                <span class="dt">legend.background =</span> <span class="kw">element_rect</span>(<span class="dt">colour =</span> <span class="st">&quot;transparent&quot;</span>, <span class="dt">fill =</span> <span class="ot">NA</span>), <span class="dt">legend.direction =</span> <span class="st">&quot;horizontal&quot;</span>) <span class="op">+</span>
+<span class="st">         </span><span class="kw">labs</span>(<span class="dt">colour =</span> <span class="st">&quot;PM10 daily average (colour scale)&quot;</span>, <span class="dt">x =</span> <span class="st">&quot;Year&quot;</span>, <span class="dt">y =</span> <span class="st">&quot;PM10 daily average&quot;</span>, <span class="dt">title =</span> <span class="st">&quot;PM10 daily average - 2000-2017 evolution (Constitucion station)&quot;</span>)</code></pre></div>
+<p><img src="_main_files/figure-html/unnamed-chunk-4-1.png" width="\textwidth" /></p>
+<p>We obtain the main descriptive statistics of each period</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">sum_train_2009_<span class="dv">2016</span> &lt;-<span class="st"> </span><span class="kw">as.data.frame</span>(train_200901_<span class="dv">201612</span>) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">                        </span><span class="kw">summarise</span>(<span class="dt">min. =</span> <span class="kw">min</span>(PM10_<span class="dv">0</span>),
+                                  <span class="dt">q25 =</span> <span class="kw">quantile</span>(PM10_<span class="dv">0</span>, <span class="fl">0.25</span>),
+                                  <span class="dt">avg =</span> <span class="kw">round</span>(<span class="kw">mean</span>(PM10_<span class="dv">0</span>), <span class="dv">2</span>),
+                                  <span class="dt">median =</span> <span class="kw">median</span>(PM10_<span class="dv">0</span>),
+                                  <span class="dt">max. =</span> <span class="kw">max</span>(PM10_<span class="dv">0</span>),
+                                  <span class="dt">q75 =</span> <span class="kw">quantile</span>(PM10_<span class="dv">0</span>, <span class="fl">0.75</span>),
+                                  <span class="dt">sd   =</span> <span class="kw">round</span>(<span class="kw">sd</span>(PM10_<span class="dv">0</span>), <span class="dv">2</span>))  <span class="op">%&gt;%</span>
+<span class="st">                        </span><span class="kw">mutate</span>(<span class="dt">period =</span> <span class="st">&quot;2009-01-2016-12&quot;</span>)
+
+sum_train_2014_<span class="dv">2016</span> &lt;-<span class="st"> </span><span class="kw">as.data.frame</span>(train_201401_<span class="dv">201612</span>) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">                        </span><span class="kw">summarise</span>(<span class="dt">min. =</span> <span class="kw">min</span>(PM10_<span class="dv">0</span>),
+                                  <span class="dt">q25 =</span> <span class="kw">quantile</span>(PM10_<span class="dv">0</span>, <span class="fl">0.25</span>),
+                                  <span class="dt">avg =</span> <span class="kw">round</span>(<span class="kw">mean</span>(PM10_<span class="dv">0</span>), <span class="dv">2</span>),
+                                  <span class="dt">median =</span> <span class="kw">median</span>(PM10_<span class="dv">0</span>),
+                                  <span class="dt">max. =</span> <span class="kw">max</span>(PM10_<span class="dv">0</span>),
+                                  <span class="dt">q75 =</span> <span class="kw">quantile</span>(PM10_<span class="dv">0</span>, <span class="fl">0.75</span>),
+                                  <span class="dt">sd   =</span> <span class="kw">round</span>(<span class="kw">sd</span>(PM10_<span class="dv">0</span>), <span class="dv">2</span>)) <span class="op">%&gt;%</span>
+<span class="st">                        </span><span class="kw">mutate</span>(<span class="dt">period =</span> <span class="st">&quot;2014-01-2016-12&quot;</span>)
+
+
+sum_train_201610_<span class="dv">201612</span> &lt;-<span class="st"> </span><span class="kw">as.data.frame</span>(train_201610_<span class="dv">201612</span>) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">                        </span><span class="kw">summarise</span>(<span class="dt">min. =</span> <span class="kw">min</span>(PM10_<span class="dv">0</span>),
+                                  <span class="dt">q25 =</span> <span class="kw">quantile</span>(PM10_<span class="dv">0</span>, <span class="fl">0.25</span>),
+                                  <span class="dt">avg =</span> <span class="kw">round</span>(<span class="kw">mean</span>(PM10_<span class="dv">0</span>), <span class="dv">2</span>),
+                                  <span class="dt">median =</span> <span class="kw">median</span>(PM10_<span class="dv">0</span>),
+                                  <span class="dt">max. =</span> <span class="kw">max</span>(PM10_<span class="dv">0</span>),
+                                  <span class="dt">q75 =</span> <span class="kw">quantile</span>(PM10_<span class="dv">0</span>, <span class="fl">0.75</span>),
+                                  <span class="dt">sd   =</span> <span class="kw">round</span>(<span class="kw">sd</span>(PM10_<span class="dv">0</span>), <span class="dv">2</span>)) <span class="op">%&gt;%</span>
+<span class="st">                        </span><span class="kw">mutate</span>(<span class="dt">period =</span> <span class="st">&quot;2016-10-2016-12&quot;</span>)
+
+
+sum_test_201701_<span class="dv">201709</span> &lt;-<span class="st"> </span><span class="kw">as.data.frame</span>(test_201701_<span class="dv">201709</span>) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">                        </span><span class="kw">summarise</span>(<span class="dt">min. =</span> <span class="kw">min</span>(PM10_<span class="dv">0</span>),
+                                  <span class="dt">q25 =</span> <span class="kw">quantile</span>(PM10_<span class="dv">0</span>, <span class="fl">0.25</span>),
+                                  <span class="dt">avg =</span> <span class="kw">round</span>(<span class="kw">mean</span>(PM10_<span class="dv">0</span>), <span class="dv">2</span>),
+                                  <span class="dt">median =</span> <span class="kw">median</span>(PM10_<span class="dv">0</span>),
+                                  <span class="dt">max. =</span> <span class="kw">max</span>(PM10_<span class="dv">0</span>),
+                                  <span class="dt">q75 =</span> <span class="kw">quantile</span>(PM10_<span class="dv">0</span>, <span class="fl">0.75</span>),
+                                  <span class="dt">sd   =</span> <span class="kw">round</span>(<span class="kw">sd</span>(PM10_<span class="dv">0</span>), <span class="dv">2</span>))  <span class="op">%&gt;%</span>
+<span class="st">                        </span><span class="kw">mutate</span>(<span class="dt">period =</span> <span class="st">&quot;2017-01-2017-09&quot;</span>)
+
+sum_validation_201710_<span class="dv">201712</span> &lt;-<span class="st"> </span><span class="kw">as.data.frame</span>(validation_201710_<span class="dv">201712</span>) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">                        </span><span class="kw">summarise</span>(<span class="dt">min. =</span> <span class="kw">min</span>(PM10_<span class="dv">0</span>),
+                                  <span class="dt">q25 =</span> <span class="kw">quantile</span>(PM10_<span class="dv">0</span>, <span class="fl">0.25</span>),
+                                  <span class="dt">avg =</span> <span class="kw">round</span>(<span class="kw">mean</span>(PM10_<span class="dv">0</span>), <span class="dv">2</span>),
+                                  <span class="dt">median =</span> <span class="kw">median</span>(PM10_<span class="dv">0</span>),
+                                  <span class="dt">max. =</span> <span class="kw">max</span>(PM10_<span class="dv">0</span>),
+                                  <span class="dt">q75 =</span> <span class="kw">quantile</span>(PM10_<span class="dv">0</span>, <span class="fl">0.75</span>),
+                                  <span class="dt">sd   =</span> <span class="kw">round</span>(<span class="kw">sd</span>(PM10_<span class="dv">0</span>), <span class="dv">2</span>))  <span class="op">%&gt;%</span>
+<span class="st">                        </span><span class="kw">mutate</span>(<span class="dt">period =</span> <span class="st">&quot;2017-10-2017-12&quot;</span>)
+
+periods_summary &lt;-<span class="st"> </span><span class="kw">bind_rows</span>(sum_train_2009_<span class="dv">2016</span>, sum_train_2014_<span class="dv">2016</span>, sum_train_201610_<span class="dv">201612</span>, sum_test_201701_<span class="dv">201709</span>, sum_validation_201710_<span class="dv">201712</span>) <span class="op">%&gt;%</span>
+<span class="st">                  </span><span class="kw">select</span>(period, <span class="kw">everything</span>()) <span class="co"># I move the &quot;period&quot; column to the first position</span>
+
+periods_summary</code></pre></div>
+<pre><code>##            period min. q25   avg median max. q75    sd
+## 1 2009-01-2016-12    0  16 25.92     23  888  32 17.01
+## 2 2014-01-2016-12    0  15 24.73     22  422  30 14.83
+## 3 2016-10-2016-12    0  11 20.10     18  189  26 13.06
+## 4 2017-01-2017-09    1  13 20.66     19  100  26 10.90
+## 5 2017-10-2017-12    1  13 20.79     17  172  25 13.35</code></pre>
+</div>
+<div id="base-model.-1" class="section level2">
+<h2><span class="header-section-number">9.1</span> Base model.</h2>
+<p>In order to create a base model we are going to take as prediction the value from the previous hour, forecasting just one hour ahead.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># As we don&#39;t need any training, because we have already defined the model as Xt = Xt-1, we only need to create a testing dataset. We use the period defined  before (2017-01-01 - 2017-09-30) but  without the time series format (ts).</span>
+
+test_201701_201709_<span class="dv">2</span> &lt;-<span class="st"> </span>constitucion_data <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">filter</span>(date_time_utc <span class="op">&gt;=</span><span class="st"> &#39;2017-01-01 00:00:00&#39;</span>,
+                                       date_time_utc <span class="op">&lt;</span><span class="st"> &#39;2017-10-01 00:00:00&#39;</span>) <span class="op">%&gt;%</span>
+<span class="st">                                       </span><span class="kw">select</span>(PM10, date_time_utc) <span class="op">%&gt;%</span>
+<span class="st">                                       </span><span class="kw">mutate</span>(<span class="dt">PM10 =</span> <span class="kw">replace_na</span>(PM10, <span class="kw">mean</span>(PM10, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>))) <span class="co"># We replace the nas (36) by the mean.</span>
+
+
+base_model &lt;-<span class="st"> </span>test_201701_201709_<span class="dv">2</span> <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">mutate</span>(<span class="dt">y_pred =</span> <span class="kw">lag</span>(PM10, <span class="dv">1</span>)) <span class="op">%&gt;%</span><span class="st"> </span><span class="co"># We create the column y_pred with the lagged value of PM10 (one hour).</span>
+<span class="st">                                     </span><span class="kw">rename</span>(<span class="dt">y_test =</span> PM10) <span class="op">%&gt;%</span><span class="st">         </span><span class="co"># We change the name of the PM10 column to y_test</span>
+<span class="st">                                     </span><span class="kw">na.omit</span>()                         <span class="co"># We remove the observations with nas (just the first row)</span>
+
+<span class="co"># We extract the y_test and y_pred datasets       </span>
+y_test &lt;-<span class="st"> </span>base_model<span class="op">$</span>y_test
+y_pred &lt;-<span class="st"> </span>base_model<span class="op">$</span>y_pred
+
+<span class="co"># And we obtain some statistics scores to measure the goodness of the model</span>
+
+<span class="co"># Root mean square error</span>
+RMSE &lt;-<span class="st"> </span><span class="kw">RMSE</span>(y_test, y_pred)
+
+<span class="co"># Mean absolute error</span>
+MAE &lt;-<span class="st"> </span><span class="kw">MAE</span>(y_test, y_pred)
+
+<span class="co"># R-squared</span>
+rss &lt;-<span class="st"> </span><span class="kw">sum</span>((y_test <span class="op">-</span><span class="st"> </span>y_pred) <span class="op">**</span><span class="st"> </span><span class="dv">2</span>)
+tss &lt;-<span class="st"> </span><span class="kw">sum</span>((y_test <span class="op">-</span><span class="st"> </span><span class="kw">mean</span>(y_test)) <span class="op">**</span><span class="st"> </span><span class="dv">2</span>)
+R_squared &lt;-<span class="st"> </span><span class="dv">1</span> <span class="op">-</span><span class="st"> </span>rss<span class="op">/</span>tss
+
+
+<span class="kw">paste</span>(<span class="kw">c</span>(<span class="st">&quot;R-squared:&quot;</span>, <span class="kw">round</span>(R_squared, <span class="dv">4</span>), <span class="st">&quot;MAE:&quot;</span>, <span class="kw">round</span>(MAE, <span class="dv">2</span>), <span class="st">&quot;RMSE:&quot;</span>, <span class="kw">round</span>(RMSE, <span class="dv">2</span>)))</code></pre></div>
+<pre><code>## [1] &quot;R-squared:&quot; &quot;0.5327&quot;     &quot;MAE:&quot;       &quot;5.15&quot;       &quot;RMSE:&quot;     
+## [6] &quot;7.45&quot;</code></pre>
+<p>So, for the one hour ahead PM10 prediction if we take as prediction the previous PM10 hour level we would have a R-squared of 0.5327. So, the model is explaining 53% of the variability of the target variable.</p>
+<p><strong>Estimation of errors</strong>. We are going to use the MAE (Mean Absolute Error) in order to compare the different models. We choose the MAE over the RMSE (Root Mean Square Error) because it is easier to interpret and at the same time it is more robust (less sensitive to outliers). Either way, we are going to calculate the RMSE too, precisely because its sensitivity to outliers. It will give us useful information about the behaviour of each model.</p>
+<p>We plot two lines with the predictions and the actual values. We have a problem of overplotting.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">test_201701_201709_<span class="dv">2</span> </code></pre></div>
+<pre><code>## # A tibble: 6,551 x 2
+##     PM10 date_time_utc      
+##    &lt;dbl&gt; &lt;dttm&gt;             
+##  1  46   2016-12-31 23:00:00
+##  2  20.7 2017-01-01 00:00:00
+##  3  38   2017-01-01 01:00:00
+##  4  35   2017-01-01 02:00:00
+##  5  36   2017-01-01 03:00:00
+##  6  31   2017-01-01 04:00:00
+##  7  22   2017-01-01 05:00:00
+##  8  32   2017-01-01 06:00:00
+##  9  21   2017-01-01 07:00:00
+## 10  20   2017-01-01 08:00:00
+## # ... with 6,541 more rows</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">autoplot</span>(<span class="kw">ts</span>(base_model<span class="op">$</span>y_pred), <span class="dt">series=</span><span class="st">&quot;1-step fitted values&quot;</span>) <span class="op">+</span>
+<span class="st">  </span><span class="kw">autolayer</span>(<span class="kw">ts</span>(base_model<span class="op">$</span>y_test),
+    <span class="dt">series=</span><span class="st">&quot;Test data&quot;</span>) <span class="op">+</span><span class="st"> </span>
+<span class="st">    </span><span class="kw">theme_minimal</span>() <span class="op">+</span>
+<span class="st">    </span><span class="kw">theme</span>(<span class="dt">legend.position=</span><span class="st">&quot;top&quot;</span>)</code></pre></div>
+<p><img src="_main_files/figure-html/unnamed-chunk-6-1.png" width="\textwidth" /></p>
+<p>To avoid the overplotting we plot just the first 14 days of 2017.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">two_weeks &lt;-<span class="st"> </span>base_model <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">slice</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">336</span>) <span class="co"># 336 corresponds to 24 hours * 14 days.</span>
+
+two_weeks_base_model_graph &lt;-<span class="st"> </span><span class="kw">autoplot</span>(<span class="kw">ts</span>(two_weeks<span class="op">$</span>y_pred), <span class="dt">series=</span><span class="st">&quot;1-step fitted values&quot;</span>) <span class="op">+</span>
+<span class="st">  </span><span class="kw">autolayer</span>(<span class="kw">ts</span>(two_weeks<span class="op">$</span>y_test),
+    <span class="dt">series=</span><span class="st">&quot;Test data&quot;</span>) <span class="op">+</span><span class="st"> </span>
+<span class="st">    </span><span class="kw">theme_minimal</span>() <span class="op">+</span>
+<span class="st">    </span><span class="kw">theme</span>(<span class="dt">legend.position=</span><span class="st">&quot;top&quot;</span>)
+
+two_weeks_base_model_graph</code></pre></div>
+<p><img src="_main_files/figure-html/unnamed-chunk-7-1.png" width="\textwidth" /></p>
+<p>And as expected, we get two identical lines. But one of them, the prediction, one step forward than the line with the actual data.</p>
+<p>We plot in a graph the actual versus the predicted values</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">df &lt;-<span class="st"> </span><span class="kw">bind_cols</span>(<span class="kw">as.data.frame</span>(y_pred), <span class="kw">as.data.frame</span>(y_test))
+                
+y_pred_y_test_base_model_graph &lt;-<span class="st"> </span><span class="kw">ggplot</span>(<span class="dt">data =</span> df, <span class="kw">aes</span>(<span class="dt">x =</span> y_test, <span class="dt">y =</span> y_pred)) <span class="op">+</span>
+<span class="st">                        </span><span class="kw">geom_point</span>(<span class="dt">alpha =</span> <span class="fl">0.5</span>) <span class="op">+</span>
+<span class="st">                        </span><span class="kw">theme_minimal</span>()</code></pre></div>
+<p>We create another graph with the distribution of the residuals</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">residual_distribution_base_model_graph &lt;-<span class="st"> </span><span class="kw">ggplot</span>(<span class="dt">data =</span> df, <span class="kw">aes</span>(<span class="dt">x =</span> y_pred, <span class="dt">y =</span> (y_test <span class="op">-</span><span class="st"> </span>y_pred))) <span class="op">+</span><span class="st"> </span>
+<span class="st">                  </span><span class="kw">geom_point</span>() <span class="op">+</span>
+<span class="st">                  </span><span class="kw">geom_hline</span>(<span class="dt">yintercept=</span><span class="dv">0</span>) <span class="op">+</span>
+<span class="st">                  </span><span class="kw">geom_point</span>(<span class="dt">alpha =</span> <span class="fl">0.5</span>) <span class="op">+</span>
+<span class="st">                        </span><span class="kw">theme_minimal</span>()</code></pre></div>
+<p>And a histogram with the distribution of the errors</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">residual_histogram_base_model_graph &lt;-<span class="st"> </span><span class="kw">ggplot</span>(<span class="dt">data =</span> df, <span class="kw">aes</span>(<span class="dt">x =</span> y_test <span class="op">-</span><span class="st"> </span>y_pred)) <span class="op">+</span>
+<span class="st">                        </span><span class="kw">geom_histogram</span>() <span class="op">+</span>
+<span class="st">                        </span><span class="kw">theme_minimal</span>()</code></pre></div>
+<p>And the evolution of the residuals during the test period</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">date_time &lt;-<span class="st"> </span>constitucion_data <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">select</span>(date_time_utc) <span class="op">%&gt;%</span>
+<span class="st">                       </span><span class="kw">filter</span>(date_time_utc <span class="op">&gt;</span><span class="st"> &#39;2017-01-01 00:00:00&#39;</span>,
+                              date_time_utc <span class="op">&lt;=</span><span class="st"> &#39;2017-09-30 23:00:00&#39;</span>)
+
+y_pred &lt;-<span class="st"> </span><span class="kw">as.data.frame</span>(y_pred)
+y_test &lt;-<span class="st"> </span><span class="kw">as.data.frame</span>(y_test)
+
+residuals_dates &lt;-<span class="st"> </span><span class="kw">bind_cols</span>(date_time, y_pred, y_test) <span class="op">%&gt;%</span>
+<span class="st">                   </span><span class="kw">mutate</span>(<span class="dt">residuals =</span> y_test <span class="op">-</span><span class="st"> </span>y_pred) <span class="op">%&gt;%</span>
+<span class="st">                   </span><span class="kw">select</span>(date_time_utc, residuals) 
+                   
+
+residuals_date_time_base_model_graph &lt;-<span class="st"> </span><span class="kw">ggplot</span>(<span class="dt">data =</span> residuals_dates, 
+                                              <span class="kw">aes</span>(<span class="dt">x =</span> date_time_utc, <span class="dt">y =</span> residuals))<span class="op">+</span>
+<span class="st">                                                 </span><span class="kw">geom_line</span>() <span class="op">+</span>
+<span class="st">                                                 </span><span class="kw">theme_minimal</span>()
+
+residuals_date_time_base_model_graph</code></pre></div>
+<p><img src="_main_files/figure-html/unnamed-chunk-11-1.png" width="\textwidth" /> It seems at first sight there is not much variation in the residuals along time. But</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">daily_mae &lt;-<span class="st"> </span><span class="kw">bind_cols</span>(date_time, y_pred, y_test) <span class="op">%&gt;%</span>
+<span class="st">                   </span><span class="kw">group_by</span>(<span class="kw">date</span>(date_time_utc)) <span class="op">%&gt;%</span>
+<span class="st">                   </span><span class="kw">mutate</span>(<span class="dt">mae =</span> <span class="kw">MAE</span>(y_pred, y_test)) <span class="op">%&gt;%</span>
+<span class="st">                   </span><span class="kw">select</span>(date_time_utc, mae)
+                   
+      
+daily_mae_base_model_graph &lt;-<span class="st"> </span><span class="kw">ggplot</span>(<span class="dt">data =</span> daily_mae, 
+                    <span class="kw">aes</span>(<span class="dt">x =</span> <span class="kw">date</span>(date_time_utc), <span class="dt">y =</span> mae))<span class="op">+</span>
+<span class="st">                    </span><span class="kw">geom_line</span>() <span class="op">+</span>
+<span class="st">                    </span><span class="kw">theme_minimal</span>() <span class="op">+</span>
+<span class="st">                    </span><span class="kw">ylim</span>(<span class="dv">0</span>, <span class="dv">9</span>)
+
+daily_mae_base_model_graph</code></pre></div>
+<p><img src="_main_files/figure-html/unnamed-chunk-12-1.png" width="\textwidth" /></p>
+<p>Monthly mae evolution</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">weekly_mae &lt;-<span class="st"> </span><span class="kw">bind_cols</span>(date_time, y_pred, y_test) <span class="op">%&gt;%</span>
+<span class="st">                   </span><span class="kw">group_by</span>(<span class="kw">week</span>(date_time_utc)) <span class="op">%&gt;%</span>
+<span class="st">                   </span><span class="kw">mutate</span>(<span class="dt">mae =</span> <span class="kw">MAE</span>(y_pred, y_test)) <span class="op">%&gt;%</span>
+<span class="st">                   </span><span class="kw">select</span>(date_time_utc, mae)
+                   
+      
+weekly_mae_base_model_graph &lt;-<span class="st"> </span><span class="kw">ggplot</span>(<span class="dt">data =</span> weekly_mae, 
+                    <span class="kw">aes</span>(<span class="dt">x =</span> <span class="kw">week</span>(date_time_utc), <span class="dt">y =</span> mae))<span class="op">+</span>
+<span class="st">                    </span><span class="kw">geom_line</span>() <span class="op">+</span>
+<span class="st">                    </span><span class="kw">theme_minimal</span>() <span class="op">+</span>
+<span class="st">                    </span><span class="kw">ylim</span>(<span class="dv">0</span>, <span class="dv">9</span>)
+
+weekly_mae_base_model_graph</code></pre></div>
+<p><img src="_main_files/figure-html/unnamed-chunk-13-1.png" width="\textwidth" /></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">monthly_mae_base_model &lt;-<span class="st"> </span><span class="kw">bind_cols</span>(date_time, y_pred, y_test) <span class="op">%&gt;%</span>
+<span class="st">                   </span><span class="kw">group_by</span>(<span class="kw">month</span>(date_time_utc)) <span class="op">%&gt;%</span>
+<span class="st">                   </span><span class="kw">mutate</span>(<span class="dt">mae =</span> <span class="kw">MAE</span>(y_pred, y_test)) <span class="op">%&gt;%</span>
+<span class="st">                   </span><span class="kw">select</span>(date_time_utc, mae)
+                   
+      
+monthly_mae_base_model_graph &lt;-<span class="st"> </span><span class="kw">ggplot</span>(<span class="dt">data =</span> monthly_mae_base_model, 
+                    <span class="kw">aes</span>(<span class="dt">x =</span> <span class="kw">month</span>(date_time_utc), <span class="dt">y =</span> mae))<span class="op">+</span>
+<span class="st">                    </span><span class="kw">geom_line</span>() <span class="op">+</span>
+<span class="st">                    </span><span class="kw">theme_minimal</span>() <span class="op">+</span>
+<span class="st">                    </span><span class="kw">ylim</span>(<span class="dv">0</span>, <span class="dv">8</span>)  
+
+monthly_mae_base_model_graph</code></pre></div>
+<p><img src="_main_files/figure-html/unnamed-chunk-14-1.png" width="\textwidth" /></p>
+<p>And we arrange the four plots in one grid</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">grid.arrange</span>(y_pred_y_test_base_model_graph, 
+             residual_distribution_base_model_graph, 
+             residual_histogram_base_model_graph,
+             monthly_mae_base_model_graph, 
+             <span class="dt">ncol =</span> <span class="dv">2</span>)</code></pre></div>
+<p><img src="_main_files/figure-html/unnamed-chunk-15-1.png" width="\textwidth" /></p>
+</div>
+<div id="pm10-arima-models-1" class="section level2">
+<h2><span class="header-section-number">9.2</span> PM10 ARIMA models</h2>
+<p>To fit our first ARIMA model we are going to use the auto.arima function from the Forecast package. This function fits several ARIMA models, with different parameters, and selects the model with the best performance. To do this the function auto.arima uses some approximations to speed up the search of the best model. More info about the algorithm applied <a href="https://otexts.org/fpp2/arima-r.html">here</a>.</p>
+<p>We set the parameter seasonal=TRUE because we want the function looks for seasonal elements (24 hours).</p>
+<p>We are going to save all the models fitted as rds objects in the “data_rds” folder of the project.</p>
+<div id="pm10_model_arima_3m-1" class="section level3">
+<h3><span class="header-section-number">9.2.1</span> PM10_model_arima_3m</h3>
+<p>We generate our first ARIMA model using the three months training period 2016-10-01 - 2016-12-31</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># PM10_model_arima_3m = auto.arima(train_201610_201612,seasonal=TRUE,trace=TRUE) # </span>
+<span class="co"># saveRDS(PM10_model_arima_3m, &quot;data_rds/PM10_model_arima_3m.rds&quot;)</span></code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">PM10_model_arima_3m &lt;-<span class="st"> </span><span class="kw">readRDS</span>(<span class="st">&quot;data_rds/PM10_model_arima_3m.rds&quot;</span>)
+<span class="kw">summary</span>(PM10_model_arima_3m)</code></pre></div>
+<pre><code>## Series: train_201610_201612 
+## ARIMA(2,1,4)(0,0,2)[24] 
+## 
+## Coefficients:
+##          ar1    ar2      ma1      ma2     ma3      ma4    sma1    sma2
+##       0.1006  0.547  -0.5222  -0.6079  0.1543  -0.0107  0.0977  0.1135
+## s.e.     NaN    NaN      NaN      NaN     NaN   0.0184  0.0222  0.0215
+## 
+## sigma^2 estimated as 71.56:  log likelihood=-7844.97
+## AIC=15707.94   AICc=15708.02   BIC=15759.24
+## 
+## Training set error measures:
+##                     ME     RMSE     MAE  MPE MAPE     MASE          ACF1
+## Training set 0.1536203 8.442183 5.17907 -Inf  Inf 0.545021 -0.0004040565</code></pre>
+<p>We obtain the R-squared</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">y_train &lt;-<span class="st"> </span><span class="kw">forecast</span>(PM10_model_arima_3m, <span class="dt">h =</span> <span class="dv">1</span>)<span class="op">$</span>fitted <span class="co"># We make a forecast one hour ahead and we extract the fitted values from the object forecast.</span>
+x_train &lt;-<span class="st"> </span>train_201610_<span class="dv">201612</span>
+
+rss &lt;-<span class="st"> </span><span class="kw">sum</span>((y_train <span class="op">-</span><span class="st"> </span>x_train) <span class="op">**</span><span class="st"> </span><span class="dv">2</span>)
+tss &lt;-<span class="st"> </span><span class="kw">sum</span>((x_train <span class="op">-</span><span class="st"> </span><span class="kw">mean</span>(x_train)) <span class="op">**</span><span class="st"> </span><span class="dv">2</span>)
+R_squared &lt;-<span class="st"> </span><span class="dv">1</span> <span class="op">-</span><span class="st"> </span>rss<span class="op">/</span>tss
+<span class="kw">paste</span>(<span class="kw">c</span>(<span class="st">&quot;R-squared:&quot;</span>, <span class="kw">round</span>(R_squared, <span class="dv">4</span>)))</code></pre></div>
+<pre><code>## [1] &quot;R-squared:&quot; &quot;0.5816&quot;</code></pre>
+<p>The R-squared has increased from 0.5327 to 0.5816. But both, RMSE (8.44) and MAE (5.17) (ARIMA summary output), are greater than the scores obtained with the Base Model (although the MAE is very similar). But we are comparing two different periods, the testing period (Base Model; 2017-01 - 2017-09) versus the training period (ARIMA model; 2016-10 - 2016-12).</p>
+<p>To make a fair comparison we will have to compare the same periods.</p>
+<p>For this we are going to apply the ARIMA model PM10_model_arima_3m on the testing data. Doing so we will be able to get the fitted values from this period and we will be able to obtain its error scores.</p>
+<p>We apply the model to the testing data</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">y_pred &lt;-<span class="st"> </span><span class="kw">forecast</span>(test_201701_<span class="dv">201709</span>, <span class="dt">model =</span> PM10_model_arima_3m, <span class="dt">h=</span><span class="dv">1</span>)<span class="op">$</span>fitted <span class="co"># We call the forecast function passing the testing data through the ARIMA model fitted with the training data and we extract the fitted values.</span>
+
+y_test &lt;-<span class="st"> </span>test_201701_<span class="dv">201709</span>
+
+sd_test &lt;-<span class="st"> </span><span class="kw">sd</span>(y_test) 
+
+RMSE &lt;-<span class="st"> </span><span class="kw">RMSE</span>(y_test, y_pred)
+
+MAE &lt;-<span class="st"> </span><span class="kw">MAE</span>(y_test, y_pred)
+
+rss &lt;-<span class="st"> </span><span class="kw">sum</span>((y_test <span class="op">-</span><span class="st"> </span>y_pred) <span class="op">**</span><span class="st"> </span><span class="dv">2</span>)
+tss &lt;-<span class="st"> </span><span class="kw">sum</span>((y_test <span class="op">-</span><span class="st"> </span><span class="kw">mean</span>(y_test)) <span class="op">**</span><span class="st"> </span><span class="dv">2</span>)
+R_squared &lt;-<span class="st"> </span><span class="dv">1</span> <span class="op">-</span><span class="st"> </span>rss<span class="op">/</span>tss
+<span class="kw">paste</span>(<span class="kw">c</span>(<span class="st">&quot;R-squared:&quot;</span>, <span class="kw">round</span>(R_squared, <span class="dv">4</span>), <span class="st">&quot;MAE:&quot;</span>, <span class="kw">round</span>(MAE, <span class="dv">2</span>), <span class="st">&quot;RMSE:&quot;</span>, <span class="kw">round</span>(RMSE, <span class="dv">2</span>), <span class="st">&quot;Standard Deviation (test data):&quot;</span>, <span class="kw">round</span>(sd_test, <span class="dv">2</span>)))</code></pre></div>
+<pre><code>## [1] &quot;R-squared:&quot;                      &quot;0.5975&quot;                         
+## [3] &quot;MAE:&quot;                            &quot;4.88&quot;                           
+## [5] &quot;RMSE:&quot;                           &quot;6.92&quot;                           
+## [7] &quot;Standard Deviation (test data):&quot; &quot;10.9&quot;</code></pre>
+<p>We confirm that we are obtaining a better R-squared: 0.5975 versus the 0.5327 obtained by the Base Model. The errors are sustantially better too. The ARIMA model obtains a MAE of 4.88 (Base Model: 5.15) and a RMSE of 6.92 (Base Model: 7.45).</p>
+<p>We plot in a graph the actual versus the predicted values</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">y_pred &lt;-<span class="st"> </span><span class="kw">as.data.frame</span>(y_pred) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">rename</span>(<span class="dt">y_pred =</span> x)
+y_test &lt;-<span class="st"> </span><span class="kw">as.data.frame</span>(y_test) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">rename</span>(<span class="dt">y_test =</span> PM10_<span class="dv">0</span>)
+
+
+df &lt;-<span class="st"> </span><span class="kw">bind_cols</span>(y_pred, y_test) 
+                
+y_pred_y_test_arima_3m_graph &lt;-<span class="st"> </span><span class="kw">ggplot</span>(<span class="dt">data =</span> df, <span class="kw">aes</span>(<span class="dt">x =</span> y_test, <span class="dt">y =</span> y_pred)) <span class="op">+</span>
+<span class="st">                        </span><span class="kw">geom_point</span>(<span class="dt">alpha =</span> <span class="fl">0.5</span>) <span class="op">+</span>
+<span class="st">                        </span><span class="kw">ylim</span>(<span class="dv">0</span>, <span class="dv">100</span>) <span class="op">+</span>
+<span class="st">                        </span><span class="kw">theme_minimal</span>()
+
+residual_distribution_arima_3m_graph &lt;-<span class="st"> </span><span class="kw">ggplot</span>(<span class="dt">data =</span> df, <span class="kw">aes</span>(<span class="dt">x =</span> y_pred, <span class="dt">y =</span> (y_test <span class="op">-</span><span class="st"> </span>y_pred))) <span class="op">+</span><span class="st"> </span>
+<span class="st">                  </span><span class="kw">geom_point</span>() <span class="op">+</span>
+<span class="st">                  </span><span class="kw">geom_hline</span>(<span class="dt">yintercept=</span><span class="dv">0</span>) <span class="op">+</span>
+<span class="st">                  </span><span class="kw">geom_point</span>(<span class="dt">alpha =</span> <span class="fl">0.5</span>) <span class="op">+</span>
+<span class="st">                        </span><span class="kw">theme_minimal</span>()
+
+residual_histogram_arima_3m_graph &lt;-<span class="st"> </span><span class="kw">ggplot</span>(<span class="dt">data =</span> df, <span class="kw">aes</span>(<span class="dt">x =</span> y_test <span class="op">-</span><span class="st"> </span>y_pred)) <span class="op">+</span>
+<span class="st">                        </span><span class="kw">geom_histogram</span>() <span class="op">+</span>
+<span class="st">                        </span><span class="kw">theme_minimal</span>()
+
+
+date_time &lt;-<span class="st"> </span>constitucion_data <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">select</span>(date_time_utc) <span class="op">%&gt;%</span>
+<span class="st">                       </span><span class="kw">filter</span>(date_time_utc <span class="op">&gt;</span><span class="st"> &#39;2017-01-01 00:00:00&#39;</span>,
+                              date_time_utc <span class="op">&lt;=</span><span class="st"> &#39;2017-10-01 00:00:00&#39;</span>)
+
+
+
+monthly_mae_3m &lt;-<span class="st"> </span><span class="kw">bind_cols</span>(date_time, y_pred, y_test) <span class="op">%&gt;%</span>
+<span class="st">                   </span><span class="kw">group_by</span>(<span class="kw">month</span>(date_time_utc)) <span class="op">%&gt;%</span>
+<span class="st">                   </span><span class="kw">mutate</span>(<span class="dt">mae =</span> <span class="kw">MAE</span>(y_pred, y_test)) <span class="op">%&gt;%</span>
+<span class="st">                   </span><span class="kw">select</span>(date_time_utc, mae)
+                   
+      
+monthly_mae_arima_3m_graph &lt;-<span class="st"> </span><span class="kw">ggplot</span>(<span class="dt">data =</span> monthly_mae_3m, 
+                    <span class="kw">aes</span>(<span class="dt">x =</span> <span class="kw">month</span>(date_time_utc), <span class="dt">y =</span> mae))<span class="op">+</span>
+<span class="st">                    </span><span class="kw">geom_line</span>() <span class="op">+</span>
+<span class="st">                    </span><span class="kw">theme_minimal</span>() <span class="op">+</span>
+<span class="st">                    </span><span class="kw">ylim</span>(<span class="dv">0</span>, <span class="dv">8</span>)  
+
+monthly_mae_arima_3m_graph</code></pre></div>
+<p><img src="_main_files/figure-html/unnamed-chunk-20-1.png" width="\textwidth" /></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">grid.arrange</span>(y_pred_y_test_arima_3m_graph, 
+             residual_distribution_arima_3m_graph, 
+             residual_histogram_arima_3m_graph,
+             monthly_mae_arima_3m_graph, 
+             <span class="dt">ncol =</span> <span class="dv">2</span>)</code></pre></div>
+<p><img src="_main_files/figure-html/unnamed-chunk-20-2.png" width="\textwidth" /></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">grid.arrange</span>(y_pred_y_test_base_model_graph <span class="op">+</span><span class="st"> </span><span class="kw">ggtitle</span>(<span class="st">&quot;Base model&quot;</span>),
+             y_pred_y_test_arima_3m_graph <span class="op">+</span><span class="st"> </span><span class="kw">ggtitle</span>(<span class="st">&quot;ARIMA 2016-10 - 2016-12&quot;</span>), 
+             <span class="dt">ncol=</span><span class="dv">2</span>)</code></pre></div>
+<p><img src="_main_files/figure-html/unnamed-chunk-21-1.png" width="\textwidth" /></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">grid.arrange</span>(residual_distribution_base_model_graph <span class="op">+</span><span class="st"> </span><span class="kw">ggtitle</span>(<span class="st">&quot;Base model&quot;</span>), 
+             residual_distribution_arima_3m_graph <span class="op">+</span><span class="st"> </span><span class="kw">ggtitle</span>(<span class="st">&quot;ARIMA 2016-10 - 2016-12&quot;</span>),
+             <span class="dt">ncol=</span><span class="dv">2</span>)</code></pre></div>
+<p><img src="_main_files/figure-html/unnamed-chunk-22-1.png" width="\textwidth" /></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">monthly_mae_3m_<span class="dv">2</span> &lt;-<span class="st"> </span>monthly_mae_3m <span class="op">%&gt;%</span>
+<span class="st">                    </span><span class="kw">select</span>(<span class="st">&#39;month(date_time_utc)&#39;</span>,
+                           mae) <span class="op">%&gt;%</span>
+<span class="st">                    </span><span class="kw">unique</span>()
+
+monthly_mae_base_model_<span class="dv">2</span> &lt;-<span class="st"> </span>monthly_mae_base_model <span class="op">%&gt;%</span>
+<span class="st">                    </span><span class="kw">select</span>(<span class="st">&#39;month(date_time_utc)&#39;</span>,
+                           mae) <span class="op">%&gt;%</span>
+<span class="st">                    </span><span class="kw">unique</span>()
+
+monthly_mae_comparison &lt;-<span class="st"> </span><span class="kw">left_join</span>(monthly_mae_base_model_<span class="dv">2</span>, 
+                                    monthly_mae_3m_<span class="dv">2</span>, 
+                                    <span class="dt">by =</span> <span class="st">&#39;month(date_time_utc)&#39;</span>) <span class="op">%&gt;%</span>
+<span class="st">                                    </span><span class="kw">rename</span>(<span class="dt">month =</span> <span class="st">&#39;month(date_time_utc)&#39;</span>, 
+                                           <span class="dt">mae_base_model =</span> mae.x,
+                                           <span class="dt">mae_arima_3m =</span> mae.y) 
+
+monthly_mae_comparison<span class="op">$</span>month &lt;-<span class="st"> </span><span class="kw">as.factor</span>(monthly_mae_comparison<span class="op">$</span>month)
+
+monthly_mae_comparison &lt;-<span class="st"> </span>monthly_mae_comparison <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">gather</span>(model, mae, <span class="dv">2</span><span class="op">:</span><span class="dv">3</span>)
+
+monthly_mae_base_model_vs_arima3m_graph &lt;-<span class="st"> </span><span class="kw">ggplot</span>(<span class="dt">data =</span> monthly_mae_comparison, 
+                    <span class="kw">aes</span>(<span class="dt">x =</span> month, <span class="dt">y =</span> mae, <span class="dt">col =</span> model, <span class="dt">group =</span> model)) <span class="op">+</span><span class="st"> </span><span class="kw">geom_line</span>() <span class="op">+</span>
+<span class="st">                    </span><span class="kw">theme_minimal</span>() <span class="op">+</span>
+<span class="st">                    </span><span class="kw">ylim</span>(<span class="dv">0</span>, <span class="dv">8</span>)
+
+monthly_mae_base_model_vs_arima3m_graph                           </code></pre></div>
+<p><img src="_main_files/figure-html/unnamed-chunk-23-1.png" width="\textwidth" /></p>
+</div>
+<div id="pm10_model_arima_3y-1" class="section level3">
+<h3><span class="header-section-number">9.2.2</span> PM10_model_arima_3y</h3>
+<p>We are going to see if we manage to improve the results of the ARIMA model using a longer period of training, the 2014-01-01 - 2016-12-31 period.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># PM10_model_arima_3y = auto.arima(train_201401_201612,seasonal=TRUE,trace=TRUE)</span>
+<span class="co"># saveRDS(PM10_model_arima_3y, &quot;data_rds/PM10_model_arima_3y.rds&quot;)</span>
+PM10_model_arima_3y &lt;-<span class="st"> </span><span class="kw">readRDS</span>(<span class="st">&quot;data_rds/PM10_model_arima_3y.rds&quot;</span>)
+<span class="kw">summary</span>(PM10_model_arima_3y)</code></pre></div>
+<pre><code>## Series: train_201401_201612 
+## ARIMA(2,1,3)(0,0,2)[24] 
+## 
+## Coefficients:
+##          ar1     ar2      ma1      ma2     ma3    sma1    sma2
+##       0.0991  0.5519  -0.5228  -0.6175  0.1642  0.0564  0.0392
+## s.e.     NaN     NaN      NaN      NaN     NaN  0.0063  0.0061
+## 
+## sigma^2 estimated as 87.28:  log likelihood=-96095.71
+## AIC=192207.4   AICc=192207.4   BIC=192272.8
+## 
+## Training set error measures:
+##                       ME     RMSE      MAE  MPE MAPE      MASE        ACF1
+## Training set 0.003353175 9.341125 5.774614 -Inf  Inf 0.5111664 0.002213004</code></pre>
+<p>The model selected by the auto.arima function is very similar to the three months of training model.</p>
+<p>Pending: explicar las diferencias.</p>
+<p>train_201610_201612: ARIMA(2,1,4)(0,0,2)[24] train_201401_201612: ARIMA(2,1,3)(0,0,2)[24]</p>
+<p>Coefficients “train_201610_201612”: ar1 ar2 ma1 ma2 ma3 ma4 sma1 sma2 0.1006 0.547 -0.5222 -0.6079 0.1543 -0.0107 0.0977 0.1135</p>
+<p>Coefficients “train_201401_201612”: ar1 ar2 ma1 ma2 ma3 sma1 sma2 0.0991 0.5519 -0.5228 -0.6175 0.1642 0.0564 0.0392</p>
+<p>We apply the model to the test data and we obtain the accuracy scores.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">y_pred &lt;-<span class="st"> </span><span class="kw">forecast</span>(test_201701_<span class="dv">201709</span>, <span class="dt">model =</span> PM10_model_arima_3y, <span class="dt">h=</span><span class="dv">1</span>)<span class="op">$</span>fitted <span class="co"># We call the forecast function passing the testing data through the ARIMA model fitted with the training data and we extract the fitted values.</span>
+
+y_test &lt;-<span class="st"> </span>test_201701_<span class="dv">201709</span>
+
+sd_test &lt;-<span class="st"> </span><span class="kw">sd</span>(y_test) 
+
+RMSE &lt;-<span class="st"> </span><span class="kw">RMSE</span>(y_test, y_pred)
+
+MAE &lt;-<span class="st"> </span><span class="kw">MAE</span>(y_test, y_pred)
+
+rss &lt;-<span class="st"> </span><span class="kw">sum</span>((y_test <span class="op">-</span><span class="st"> </span>y_pred) <span class="op">**</span><span class="st"> </span><span class="dv">2</span>)
+tss &lt;-<span class="st"> </span><span class="kw">sum</span>((y_test <span class="op">-</span><span class="st"> </span><span class="kw">mean</span>(y_test)) <span class="op">**</span><span class="st"> </span><span class="dv">2</span>)
+R_squared &lt;-<span class="st"> </span><span class="dv">1</span> <span class="op">-</span><span class="st"> </span>rss<span class="op">/</span>tss
+<span class="kw">paste</span>(<span class="kw">c</span>(<span class="st">&quot;R-squared:&quot;</span>, <span class="kw">round</span>(R_squared, <span class="dv">4</span>), <span class="st">&quot;MAE:&quot;</span>, <span class="kw">round</span>(MAE, <span class="dv">2</span>), <span class="st">&quot;RMSE:&quot;</span>, <span class="kw">round</span>(RMSE, <span class="dv">2</span>), <span class="st">&quot;Standard Deviation (test data):&quot;</span>, <span class="kw">round</span>(sd_test, <span class="dv">2</span>)))</code></pre></div>
+<pre><code>## [1] &quot;R-squared:&quot;                      &quot;0.6015&quot;                         
+## [3] &quot;MAE:&quot;                            &quot;4.84&quot;                           
+## [5] &quot;RMSE:&quot;                           &quot;6.88&quot;                           
+## [7] &quot;Standard Deviation (test data):&quot; &quot;10.9&quot;</code></pre>
+<p>The model improves a little its results, but not very much. We get a MAE of 4.84, just 0.04 less than the three months model. And the R-squared grows until 0.6015, an increment of 0.0040.</p>
+<p>We plot in a graph the actual versus the predicted values</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">df &lt;-<span class="st"> </span><span class="kw">bind_cols</span>(<span class="kw">as.data.frame</span>(y_pred), <span class="kw">as.data.frame</span>(y_test))
+                
+y_pred_y_test_arima_3y_graph &lt;-<span class="st"> </span><span class="kw">ggplot</span>(<span class="dt">data =</span> df, <span class="kw">aes</span>(<span class="dt">x =</span> y_test, <span class="dt">y =</span> y_pred)) <span class="op">+</span>
+<span class="st">                        </span><span class="kw">geom_point</span>(<span class="dt">alpha =</span> <span class="fl">0.5</span>) <span class="op">+</span>
+<span class="st">                        </span><span class="kw">ylim</span>(<span class="dv">0</span>, <span class="dv">100</span>) <span class="op">+</span>
+<span class="st">                        </span><span class="kw">theme_minimal</span>()</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">grid.arrange</span>(y_pred_y_test_base_model_graph <span class="op">+</span><span class="st"> </span><span class="kw">ggtitle</span>(<span class="st">&quot;Base model&quot;</span>),
+             y_pred_y_test_arima_3m_graph <span class="op">+</span><span class="st"> </span><span class="kw">ggtitle</span>(<span class="st">&quot;ARIMA 2016-10 - 2016-12&quot;</span>), 
+             y_pred_y_test_arima_3y_graph <span class="op">+</span><span class="st"> </span><span class="kw">ggtitle</span>(<span class="st">&quot;ARIMA 2014-01 - 2016-12&quot;</span>),
+             <span class="dt">ncol=</span><span class="dv">2</span>)</code></pre></div>
+<p><img src="_main_files/figure-html/unnamed-chunk-27-1.png" width="\textwidth" /></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">residual_distribution_arima_3y_graph &lt;-<span class="st"> </span><span class="kw">ggplot</span>(<span class="dt">data =</span> df, <span class="kw">aes</span>(<span class="dt">x =</span> y_pred, <span class="dt">y =</span> (y_test <span class="op">-</span><span class="st"> </span>y_pred))) <span class="op">+</span><span class="st"> </span>
+<span class="st">                  </span><span class="kw">geom_point</span>() <span class="op">+</span>
+<span class="st">                  </span><span class="kw">geom_hline</span>(<span class="dt">yintercept=</span><span class="dv">0</span>) <span class="op">+</span>
+<span class="st">                  </span><span class="kw">geom_point</span>(<span class="dt">alpha =</span> <span class="fl">0.5</span>) <span class="op">+</span>
+<span class="st">                        </span><span class="kw">theme_minimal</span>()</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">grid.arrange</span>(residual_distribution_base_model_graph <span class="op">+</span><span class="st"> </span><span class="kw">ggtitle</span>(<span class="st">&quot;Base model&quot;</span>),
+             residual_distribution_arima_3m_graph <span class="op">+</span><span class="st"> </span><span class="kw">ggtitle</span>(<span class="st">&quot;ARIMA 2016-10 - 2016-12&quot;</span>), 
+             residual_distribution_arima_3y_graph<span class="op">+</span><span class="st"> </span><span class="kw">ggtitle</span>(<span class="st">&quot;ARIMA 2014-01 - 2016-12&quot;</span>),
+             <span class="dt">ncol=</span><span class="dv">2</span>)</code></pre></div>
+<p><img src="_main_files/figure-html/unnamed-chunk-29-1.png" width="\textwidth" /></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">monthly_mae_3m_<span class="dv">2</span> &lt;-<span class="st"> </span>monthly_mae_3m <span class="op">%&gt;%</span>
+<span class="st">                    </span><span class="kw">select</span>(<span class="st">&#39;month(date_time_utc)&#39;</span>,
+                           mae) <span class="op">%&gt;%</span>
+<span class="st">                    </span><span class="kw">unique</span>()
+
+monthly_mae_base_model_<span class="dv">2</span> &lt;-<span class="st"> </span>monthly_mae_base_model <span class="op">%&gt;%</span>
+<span class="st">                    </span><span class="kw">select</span>(<span class="st">&#39;month(date_time_utc)&#39;</span>,
+                           mae) <span class="op">%&gt;%</span>
+<span class="st">                    </span><span class="kw">unique</span>()
+
+monthly_mae_comparison &lt;-<span class="st"> </span><span class="kw">left_join</span>(monthly_mae_base_model_<span class="dv">2</span>, 
+                                    monthly_mae_3m_<span class="dv">2</span>, 
+                                    <span class="dt">by =</span> <span class="st">&#39;month(date_time_utc)&#39;</span>) <span class="op">%&gt;%</span>
+<span class="st">                                    </span><span class="kw">rename</span>(<span class="dt">month =</span> <span class="st">&#39;month(date_time_utc)&#39;</span>, 
+                                           <span class="dt">mae_base_model =</span> mae.x,
+                                           <span class="dt">mae_arima_3m =</span> mae.y) 
+
+monthly_mae_comparison<span class="op">$</span>month &lt;-<span class="st"> </span><span class="kw">as.factor</span>(monthly_mae_comparison<span class="op">$</span>month)
+
+monthly_mae_comparison &lt;-<span class="st"> </span>monthly_mae_comparison <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">gather</span>(model, mae, <span class="dv">2</span><span class="op">:</span><span class="dv">3</span>)
+
+monthly_mae_base_model_vs_arima3m_graph &lt;-<span class="st"> </span><span class="kw">ggplot</span>(<span class="dt">data =</span> monthly_mae_comparison, 
+                    <span class="kw">aes</span>(<span class="dt">x =</span> month, <span class="dt">y =</span> mae, <span class="dt">col =</span> model, <span class="dt">group =</span> model)) <span class="op">+</span><span class="st"> </span><span class="kw">geom_line</span>() <span class="op">+</span>
+<span class="st">                    </span><span class="kw">theme_minimal</span>() <span class="op">+</span>
+<span class="st">                    </span><span class="kw">ylim</span>(<span class="dv">0</span>, <span class="dv">8</span>)
+
+monthly_mae_base_model_vs_arima3m_graph                           </code></pre></div>
+<p><img src="_main_files/figure-html/unnamed-chunk-30-1.png" width="\textwidth" /></p>
+<p>We plot the fitted values and the test data.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">autoplot</span>(y_test, <span class="dt">series=</span><span class="st">&quot;Test data&quot;</span>) <span class="op">+</span>
+<span class="st">  </span><span class="kw">autolayer</span>(y_pred,
+    <span class="dt">series=</span><span class="st">&quot;1-step fitted values&quot;</span>) <span class="op">+</span><span class="st"> </span>
+<span class="st">    </span><span class="kw">theme_minimal</span>() <span class="op">+</span>
+<span class="st">    </span><span class="kw">theme</span>(<span class="dt">legend.position=</span><span class="st">&quot;top&quot;</span>)</code></pre></div>
+<p><img src="_main_files/figure-html/unnamed-chunk-31-1.png" width="\textwidth" /></p>
+</div>
+<div id="pm10_model_arima_9y-1" class="section level3">
+<h3><span class="header-section-number">9.2.3</span> PM10_model_arima_9y</h3>
+<p>Finally, we are going to try to improve the result taking as training period 9 years of data: From 2009-01-01 to 2016-12-31.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># PM10_model_arima_9y = auto.arima(train_200901_201612,seasonal=TRUE,trace=TRUE) </span>
+<span class="co">#saveRDS(PM10_model_arima_9y, &quot;data_rds/PM10_model_arima_9y.rds&quot;)</span>
+<span class="co">#summary(PM10_model_arima_9y)</span></code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">PM10_model_arima_9y &lt;-<span class="st"> </span><span class="kw">readRDS</span>(<span class="st">&quot;data_rds/PM10_model_arima_9y.rds&quot;</span>)
+<span class="kw">summary</span>(PM10_model_arima_9y)</code></pre></div>
+<pre><code>## Series: train_200901_201612 
+## ARIMA(3,1,2)(0,0,2)[24] 
+## 
+## Coefficients:
+##          ar1     ar2     ar3      ma1      ma2    sma1    sma2
+##       0.0878  0.3272  0.1539  -0.4929  -0.4748  0.0572  0.0330
+## s.e.  0.0266  0.0161  0.0042   0.0269   0.0257  0.0039  0.0037
+## 
+## sigma^2 estimated as 126.3:  log likelihood=-269164.4
+## AIC=538344.8   AICc=538344.8   BIC=538418.1
+## 
+## Training set error measures:
+##                         ME     RMSE      MAE  MPE MAPE      MASE
+## Training set -4.331726e-05 11.23784 6.325201 -Inf  Inf 0.5096805
+##                       ACF1
+## Training set -0.0003654974</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">y_pred &lt;-<span class="st"> </span><span class="kw">forecast</span>(test_201701_<span class="dv">201709</span>, <span class="dt">model =</span> PM10_model_arima_9y, <span class="dt">h=</span><span class="dv">1</span>)<span class="op">$</span>fitted <span class="co"># We call the forecast function passing the testing data through the ARIMA model fitted with the training data and we extract the fitted values.</span>
+
+y_test &lt;-<span class="st"> </span>test_201701_<span class="dv">201709</span>
+
+sd_test &lt;-<span class="st"> </span><span class="kw">sd</span>(y_test) 
+
+RMSE &lt;-<span class="st"> </span><span class="kw">RMSE</span>(y_test, y_pred)
+
+MAE &lt;-<span class="st"> </span><span class="kw">MAE</span>(y_test, y_pred)
+
+rss &lt;-<span class="st"> </span><span class="kw">sum</span>((y_test <span class="op">-</span><span class="st"> </span>y_pred) <span class="op">**</span><span class="st"> </span><span class="dv">2</span>)
+tss &lt;-<span class="st"> </span><span class="kw">sum</span>((y_test <span class="op">-</span><span class="st"> </span><span class="kw">mean</span>(y_test)) <span class="op">**</span><span class="st"> </span><span class="dv">2</span>)
+R_squared &lt;-<span class="st"> </span><span class="dv">1</span> <span class="op">-</span><span class="st"> </span>rss<span class="op">/</span>tss
+<span class="kw">paste</span>(<span class="kw">c</span>(<span class="st">&quot;R-squared:&quot;</span>, <span class="kw">round</span>(R_squared, <span class="dv">4</span>), <span class="st">&quot;MAE:&quot;</span>, <span class="kw">round</span>(MAE, <span class="dv">2</span>), <span class="st">&quot;RMSE:&quot;</span>, <span class="kw">round</span>(RMSE, <span class="dv">2</span>), <span class="st">&quot;Standard Deviation (test data):&quot;</span>, <span class="kw">round</span>(sd_test, <span class="dv">2</span>)))</code></pre></div>
+<pre><code>## [1] &quot;R-squared:&quot;                      &quot;0.5966&quot;                         
+## [3] &quot;MAE:&quot;                            &quot;4.88&quot;                           
+## [5] &quot;RMSE:&quot;                           &quot;6.93&quot;                           
+## [7] &quot;Standard Deviation (test data):&quot; &quot;10.9&quot;</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">paste</span>(<span class="kw">c</span>(<span class="st">&quot;R-squared:&quot;</span>, <span class="kw">round</span>(R_squared, <span class="dv">4</span>), <span class="st">&quot;MAE:&quot;</span>, <span class="kw">round</span>(MAE, <span class="dv">2</span>), <span class="st">&quot;RMSE:&quot;</span>, <span class="kw">round</span>(RMSE, <span class="dv">2</span>), <span class="st">&quot;Standard Deviation (test data):&quot;</span>, <span class="kw">round</span>(sd_test, <span class="dv">2</span>)))</code></pre></div>
+<pre><code>## [1] &quot;R-squared:&quot;                      &quot;0.5966&quot;                         
+## [3] &quot;MAE:&quot;                            &quot;4.88&quot;                           
+## [5] &quot;RMSE:&quot;                           &quot;6.93&quot;                           
+## [7] &quot;Standard Deviation (test data):&quot; &quot;10.9&quot;</code></pre>
+<p>The model, with 6 more years of data, worsens its results. The MAE increases in 0.04 points and the R-squared decreases in 0.0049 points.</p>
+<p>We plot in a graph the actual versus the predicted values</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">df &lt;-<span class="st"> </span><span class="kw">bind_cols</span>(<span class="kw">as.data.frame</span>(y_pred), <span class="kw">as.data.frame</span>(y_test))
+                
+y_pred_y_test_arima_9y_graph &lt;-<span class="st"> </span><span class="kw">ggplot</span>(<span class="dt">data =</span> df, <span class="kw">aes</span>(<span class="dt">x =</span> y_test, <span class="dt">y =</span> y_pred)) <span class="op">+</span>
+<span class="st">                        </span><span class="kw">geom_point</span>(<span class="dt">alpha =</span> <span class="fl">0.5</span>) <span class="op">+</span>
+<span class="st">                        </span><span class="kw">ylim</span>(<span class="dv">0</span>, <span class="dv">100</span>) <span class="op">+</span>
+<span class="st">                        </span><span class="kw">theme_minimal</span>()</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">grid.arrange</span>(y_pred_y_test_base_model_graph <span class="op">+</span><span class="st"> </span><span class="kw">ggtitle</span>(<span class="st">&quot;Base model&quot;</span>),
+             y_pred_y_test_arima_3m_graph <span class="op">+</span><span class="st"> </span><span class="kw">ggtitle</span>(<span class="st">&quot;ARIMA 2016-10 - 2016-12&quot;</span>), 
+             y_pred_y_test_arima_3y_graph <span class="op">+</span><span class="st"> </span><span class="kw">ggtitle</span>(<span class="st">&quot;ARIMA 2014-01 - 2016-12&quot;</span>),
+             y_pred_y_test_arima_9y_graph <span class="op">+</span><span class="st"> </span><span class="kw">ggtitle</span>(<span class="st">&quot;ARIMA 2009-01 - 2016-12&quot;</span>),
+             <span class="dt">ncol=</span><span class="dv">2</span>)</code></pre></div>
+<p><img src="_main_files/figure-html/unnamed-chunk-35-1.png" width="\textwidth" /></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">residual_distribution_arima_9y_graph &lt;-<span class="st"> </span><span class="kw">ggplot</span>(<span class="dt">data =</span> df, <span class="kw">aes</span>(<span class="dt">x =</span> y_pred, <span class="dt">y =</span> (y_test <span class="op">-</span><span class="st"> </span>y_pred))) <span class="op">+</span><span class="st"> </span>
+<span class="st">                  </span><span class="kw">geom_point</span>() <span class="op">+</span>
+<span class="st">                  </span><span class="kw">geom_hline</span>(<span class="dt">yintercept=</span><span class="dv">0</span>) <span class="op">+</span>
+<span class="st">                  </span><span class="kw">geom_point</span>(<span class="dt">alpha =</span> <span class="fl">0.5</span>) <span class="op">+</span>
+<span class="st">                        </span><span class="kw">theme_minimal</span>()</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">grid.arrange</span>(residual_distribution_base_model_graph <span class="op">+</span><span class="st"> </span><span class="kw">ggtitle</span>(<span class="st">&quot;Base model&quot;</span>),
+             residual_distribution_arima_3m_graph <span class="op">+</span><span class="st"> </span><span class="kw">ggtitle</span>(<span class="st">&quot;ARIMA 2016-10 - 2016-12&quot;</span>), 
+             residual_distribution_arima_3y_graph<span class="op">+</span><span class="st"> </span><span class="kw">ggtitle</span>(<span class="st">&quot;ARIMA 2014-01 - 2016-12&quot;</span>),
+             residual_distribution_arima_9y_graph<span class="op">+</span><span class="st"> </span><span class="kw">ggtitle</span>(<span class="st">&quot;ARIMA 2009-01 - 2016-12&quot;</span>),
+             <span class="dt">ncol=</span><span class="dv">2</span>)</code></pre></div>
+<p><img src="_main_files/figure-html/unnamed-chunk-36-1.png" width="\textwidth" /></p>
+<p>Pending: comment the results</p>
+</div>
+<div id="pm10-h-6-1" class="section level3">
+<h3><span class="header-section-number">9.2.4</span> PM10 h = 6</h3>
+<p>So far, we made forecasts for one hour ahead and we estimated their precission. But what happens when we try to forecast more distant values?</p>
+<p>We use the model with better results. The PM10_model_arima_3y model (train: 2014-01-01 - 2016-12-31).</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">PM10_model_arima_3y &lt;-<span class="st"> </span><span class="kw">readRDS</span>(<span class="st">&quot;data_rds/PM10_model_arima_3y.rds&quot;</span>)
+<span class="co"># We create the object arima.test with the Arima function </span>
+arima.test &lt;-<span class="st"> </span><span class="kw">Arima</span>(test_201701_<span class="dv">201709</span>, <span class="dt">model=</span>PM10_model_arima_3y)</code></pre></div>
+<p>And with the fitted function, setting its parameter to 6, we fit and extract the fitted values corresponding to the forecast 6 hours ahead.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># PM10_h6 &lt;- fitted(arima.test, h = 6) # It takes a lot of time</span>
+
+<span class="co"># saveRDS(PM10_h6, &quot;data_rds/PM10_arima_model_3y_test_fitted_values_h6.rds&quot;) # We save the final object as a rds file</span></code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">fitted_values_h6 &lt;-<span class="st"> </span><span class="kw">readRDS</span>(<span class="st">&quot;data_rds/PM10_arima_model_3y_test_fitted_values_h6.rds&quot;</span>)</code></pre></div>
+<p>We assign to y_test and y_pred the test dataset and its predictions.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">y_test &lt;-<span class="st"> </span>test_201701_<span class="dv">201709</span>
+y_pred &lt;-<span class="st"> </span>fitted_values_h6</code></pre></div>
+<p>The first rows of y_pred are NAs. That is because we are making prediction 6 hours ahead.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">head</span>(y_pred, <span class="dv">10</span>)</code></pre></div>
+<pre><code>## Time Series:
+## Start = c(1, 1) 
+## End = c(1, 10) 
+## Frequency = 24 
+##              x
+##  [1,]       NA
+##  [2,]       NA
+##  [3,]       NA
+##  [4,]       NA
+##  [5,]       NA
+##  [6,]       NA
+##  [7,]       NA
+##  [8,] 31.67340
+##  [9,] 36.69984
+## [10,] 36.44485</code></pre>
+<p>So, we remove the NAs from the y_pred time series, and the equivalent rows from the y_test object.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">y_pred &lt;-<span class="st"> </span>y_pred <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">na.omit</span>()
+y_test &lt;-<span class="st"> </span>y_test <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">subset</span>(<span class="dt">start =</span> <span class="dv">8</span>)</code></pre></div>
+<p>And we obtain the scores to know the goodness of the model of 6 hours ahead</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">RMSE &lt;-<span class="st"> </span><span class="kw">RMSE</span>(y_test, y_pred)
+
+MAE &lt;-<span class="st"> </span><span class="kw">MAE</span>(y_test, y_pred)
+
+rss &lt;-<span class="st"> </span><span class="kw">sum</span>((y_test <span class="op">-</span><span class="st"> </span>y_pred) <span class="op">**</span><span class="st"> </span><span class="dv">2</span>)
+tss &lt;-<span class="st"> </span><span class="kw">sum</span>((y_test <span class="op">-</span><span class="st"> </span><span class="kw">mean</span>(y_test)) <span class="op">**</span><span class="st"> </span><span class="dv">2</span>)
+R_squared &lt;-<span class="st"> </span><span class="dv">1</span> <span class="op">-</span><span class="st"> </span>rss<span class="op">/</span>tss
+<span class="kw">paste</span>(<span class="kw">c</span>(<span class="st">&quot;R-squared:&quot;</span>, <span class="kw">round</span>(R_squared, <span class="dv">4</span>), <span class="st">&quot;MAE:&quot;</span>, <span class="kw">round</span>(MAE, <span class="dv">2</span>), <span class="st">&quot;RMSE:&quot;</span>, <span class="kw">round</span>(RMSE, <span class="dv">2</span>), <span class="st">&quot;Standard Deviation (test data):&quot;</span>, <span class="kw">round</span>(sd_test, <span class="dv">2</span>)))</code></pre></div>
+<pre><code>## [1] &quot;R-squared:&quot;                      &quot;0.2118&quot;                         
+## [3] &quot;MAE:&quot;                            &quot;7.12&quot;                           
+## [5] &quot;RMSE:&quot;                           &quot;9.68&quot;                           
+## [7] &quot;Standard Deviation (test data):&quot; &quot;10.9&quot;</code></pre>
+<p>R-squared: 0.2118. When we try to predict the levels of PM10 6 hours ahead this Arima model is only able to explain a 21% of the variability. And consequentely the errors grow too.</p>
+</div>
+<div id="pm10-h-12-1" class="section level3">
+<h3><span class="header-section-number">9.2.5</span> PM10 h = 12</h3>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># PM10_h12 &lt;- fitted(arima.test, h = 12) # It takes a lot of time</span>
+
+<span class="co"># saveRDS(PM10_h12, &quot;data_rds/PM10_arima_model_3y_test_fitted_values_h12.rds&quot;) # We save the final object as a rds file</span></code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">fitted_values_h12 &lt;-<span class="st"> </span><span class="kw">readRDS</span>(<span class="st">&quot;data_rds/PM10_arima_model_3y_test_fitted_values_h12.rds&quot;</span>)
+
+<span class="co"># We assign to y_test and y_pred the test dataset and its predictions.</span>
+
+y_test &lt;-<span class="st"> </span>test_201701_<span class="dv">201709</span>
+y_pred &lt;-<span class="st"> </span>fitted_values_h12
+
+<span class="co"># So, we remove the NAs from the y_pred time series, and the equivalent rows from the y_test object.</span>
+
+y_pred &lt;-<span class="st"> </span>y_pred <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">na.omit</span>()
+y_test &lt;-<span class="st"> </span>y_test <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">subset</span>(<span class="dt">start =</span> <span class="dv">14</span>)
+
+<span class="co"># And we obtain the scores to know the goodness of the model of 6 hours ahead</span>
+
+RMSE &lt;-<span class="st"> </span><span class="kw">RMSE</span>(y_test, y_pred)
+
+MAE &lt;-<span class="st"> </span><span class="kw">MAE</span>(y_test, y_pred)
+
+rss &lt;-<span class="st"> </span><span class="kw">sum</span>((y_test <span class="op">-</span><span class="st"> </span>y_pred) <span class="op">**</span><span class="st"> </span><span class="dv">2</span>)
+tss &lt;-<span class="st"> </span><span class="kw">sum</span>((y_test <span class="op">-</span><span class="st"> </span><span class="kw">mean</span>(y_test)) <span class="op">**</span><span class="st"> </span><span class="dv">2</span>)
+R_squared &lt;-<span class="st"> </span><span class="dv">1</span> <span class="op">-</span><span class="st"> </span>rss<span class="op">/</span>tss
+<span class="kw">paste</span>(<span class="kw">c</span>(<span class="st">&quot;R-squared:&quot;</span>, <span class="kw">round</span>(R_squared, <span class="dv">4</span>), <span class="st">&quot;MAE:&quot;</span>, <span class="kw">round</span>(MAE, <span class="dv">2</span>), <span class="st">&quot;RMSE:&quot;</span>, <span class="kw">round</span>(RMSE, <span class="dv">2</span>), <span class="st">&quot;Standard Deviation (test data):&quot;</span>, <span class="kw">round</span>(sd_test, <span class="dv">2</span>)))</code></pre></div>
+<pre><code>## [1] &quot;R-squared:&quot;                      &quot;0.1108&quot;                         
+## [3] &quot;MAE:&quot;                            &quot;7.64&quot;                           
+## [5] &quot;RMSE:&quot;                           &quot;10.28&quot;                          
+## [7] &quot;Standard Deviation (test data):&quot; &quot;10.9&quot;</code></pre>
+</div>
+<div id="pm10-h-24-1" class="section level3">
+<h3><span class="header-section-number">9.2.6</span> PM10 h = 24</h3>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># PM10_h24 &lt;- fitted(arima.test, h = 24) # It takes a lot of time</span>
+
+<span class="co"># saveRDS(PM10_h24, &quot;data_rds/PM10_arima_model_3y_test_fitted_values_h24.rds&quot;) # We save the final object as a rds file</span></code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">fitted_values_h24 &lt;-<span class="st"> </span><span class="kw">readRDS</span>(<span class="st">&quot;data_rds/PM10_arima_model_3y_test_fitted_values_h24.rds&quot;</span>)
+
+<span class="co"># We assign to y_test and y_pred the test dataset and its predictions.</span>
+
+y_test &lt;-<span class="st"> </span>test_201701_<span class="dv">201709</span>
+y_pred &lt;-<span class="st"> </span>fitted_values_h24
+
+<span class="co"># So, we remove the NAs from the y_pred time series, and the equivalent rows from the y_test object.</span>
+
+y_pred &lt;-<span class="st"> </span>y_pred <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">na.omit</span>()
+y_test &lt;-<span class="st"> </span>y_test <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">subset</span>(<span class="dt">start =</span> <span class="dv">26</span>)
+
+<span class="co"># And we obtain the scores to know the goodness of the model of 6 hours ahead</span>
+
+RMSE &lt;-<span class="st"> </span><span class="kw">RMSE</span>(y_test, y_pred)
+
+MAE &lt;-<span class="st"> </span><span class="kw">MAE</span>(y_test, y_pred)
+
+rss &lt;-<span class="st"> </span><span class="kw">sum</span>((y_test <span class="op">-</span><span class="st"> </span>y_pred) <span class="op">**</span><span class="st"> </span><span class="dv">2</span>)
+tss &lt;-<span class="st"> </span><span class="kw">sum</span>((y_test <span class="op">-</span><span class="st"> </span><span class="kw">mean</span>(y_test)) <span class="op">**</span><span class="st"> </span><span class="dv">2</span>)
+R_squared &lt;-<span class="st"> </span><span class="dv">1</span> <span class="op">-</span><span class="st"> </span>rss<span class="op">/</span>tss
+<span class="kw">paste</span>(<span class="kw">c</span>(<span class="st">&quot;R-squared:&quot;</span>, <span class="kw">round</span>(R_squared, <span class="dv">4</span>), <span class="st">&quot;MAE:&quot;</span>, <span class="kw">round</span>(MAE, <span class="dv">2</span>), <span class="st">&quot;RMSE:&quot;</span>, <span class="kw">round</span>(RMSE, <span class="dv">2</span>), <span class="st">&quot;Standard Deviation (test data):&quot;</span>, <span class="kw">round</span>(sd_test, <span class="dv">2</span>)))</code></pre></div>
+<pre><code>## [1] &quot;R-squared:&quot;                      &quot;0.0138&quot;                         
+## [3] &quot;MAE:&quot;                            &quot;8.12&quot;                           
+## [5] &quot;RMSE:&quot;                           &quot;10.83&quot;                          
+## [7] &quot;Standard Deviation (test data):&quot; &quot;10.9&quot;</code></pre>
+
+</div>
+</div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="forecasting-models-arima.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="forecasting-models-arima-2.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/lunr.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": false,
+"facebook": true,
+"twitter": true,
+"google": false,
+"linkedin": false,
+"weibo": false,
+"instapaper": false,
+"vk": false,
+"all": ["facebook", "google", "twitter", "linkedin", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": null,
+"text": null
+},
+"history": {
+"link": null,
+"text": null
+},
+"download": null,
+"toc": {
+"collapse": "subsection"
+}
+});
+});
+</script>
+
+</body>
+
+</html>

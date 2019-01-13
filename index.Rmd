@@ -8,7 +8,7 @@ output:
   #bookdown::pdf_book: default
 ---
 
-# Preface
+# Preface {-}
   
   My name is Sergio Berdiales and I am a Data Analyst with 10+ years of experience in Customer Experience and Quality areas. If you want to know more about me or contacting me you can visit my [Linkedin profile](https://www.linkedin.com/in/sergioberdiales/) or my [Twitter account](https://twitter.com/SergioBerdiales). 
   

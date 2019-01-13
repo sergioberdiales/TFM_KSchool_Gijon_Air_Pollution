@@ -123,14 +123,11 @@ validation_PM10_201710_201712 <- df6 %>% na.omit()
 ```
 
 
-We create and save all the y, X datasets (as csv and rds files)
+We create and save all the y, X datasets as rds files
 ```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
 
 y_train_PM10_201401_201612 <- train_PM10_201401_201612 %>% select(PM10_0)
 X_train_PM10_201401_201612 <- train_PM10_201401_201612 %>% select(-PM10_0)
-
-write_csv(X_train_PM10_201401_201612, "train_test/Prediction_Models_ML_0_AR/X_train_PM10_201401_201612.csv")
-write_csv(y_train_PM10_201401_201612, "train_test/Prediction_Models_ML_0_AR/y_train_PM10_201401_201612.csv")
 
 saveRDS(X_train_PM10_201401_201612, "train_test/Prediction_Models_ML_0_AR/X_train_PM10_201401_201612.rds")
 saveRDS(y_train_PM10_201401_201612, "train_test/Prediction_Models_ML_0_AR/y_train_PM10_201401_201612.rds")
@@ -139,8 +136,6 @@ saveRDS(y_train_PM10_201401_201612, "train_test/Prediction_Models_ML_0_AR/y_trai
 y_train_PM10_201610_201612 <- train_PM10_201610_201612 %>% select(PM10_0)
 X_train_PM10_201610_201612 <- train_PM10_201610_201612 %>% select(-PM10_0)
 
-write_csv(X_train_PM10_201610_201612, "train_test/Prediction_Models_ML_0_AR/X_train_PM10_201610_201612.csv")
-write_csv(y_train_PM10_201610_201612, "train_test/Prediction_Models_ML_0_AR/y_train_PM10_201610_201612.csv")
 
 saveRDS(X_train_PM10_201610_201612, "train_test/Prediction_Models_ML_0_AR/X_train_PM10_201610_201612.rds")
 saveRDS(y_train_PM10_201610_201612, "train_test/Prediction_Models_ML_0_AR/y_train_PM10_201610_201612.rds")
@@ -148,8 +143,6 @@ saveRDS(y_train_PM10_201610_201612, "train_test/Prediction_Models_ML_0_AR/y_trai
 y_train_PM10_200901_201612 <- train_PM10_200901_201612 %>% select(PM10_0)
 X_train_PM10_200901_201612 <- train_PM10_200901_201612 %>% select(-PM10_0)
 
-write_csv(X_train_PM10_200901_201612, "train_test/Prediction_Models_ML_0_AR/X_train_PM10_200901_201612.csv")
-write_csv(y_train_PM10_200901_201612, "train_test/Prediction_Models_ML_0_AR/y_train_PM10_200901_201612.csv")
 
 saveRDS(X_train_PM10_200901_201612, "train_test/Prediction_Models_ML_0_AR/X_train_PM10_200901_201612.rds")
 saveRDS(y_train_PM10_200901_201612, "train_test/Prediction_Models_ML_0_AR/y_train_PM10_200901_201612.rds")
@@ -158,9 +151,6 @@ saveRDS(y_train_PM10_200901_201612, "train_test/Prediction_Models_ML_0_AR/y_trai
 y_test_PM10_20170101_20170114 <- test_PM10_20170101_20170114 %>% select(PM10_0)
 X_test_PM10_20170101_20170114 <- test_PM10_20170101_20170114 %>% select(-PM10_0)
 
-write_csv(X_test_PM10_20170101_20170114, "train_test/Prediction_Models_ML_0_AR/X_test_PM10_20170101_20170114.csv")
-write_csv(y_test_PM10_20170101_20170114, "train_test/Prediction_Models_ML_0_AR/y_test_PM10_20170101_20170114.csv")
-
 
 saveRDS(X_test_PM10_20170101_20170114, "train_test/Prediction_Models_ML_0_AR/X_test_PM10_20170101_20170114.rds")
 saveRDS(y_test_PM10_20170101_20170114, "train_test/Prediction_Models_ML_0_AR/y_test_PM10_20170101_20170114.rds")
@@ -168,17 +158,12 @@ saveRDS(y_test_PM10_20170101_20170114, "train_test/Prediction_Models_ML_0_AR/y_t
 y_test_PM10_201701_201709 <- test_PM10_201701_201709 %>% select(PM10_0)
 X_test_PM10_201701_201709 <- test_PM10_201701_201709 %>% select(-PM10_0)
 
-write_csv(X_test_PM10_201701_201709, "train_test/Prediction_Models_ML_0_AR/X_test_PM10_201701_201709.csv")
-write_csv(y_test_PM10_201701_201709, "train_test/Prediction_Models_ML_0_AR/y_test_PM10_201701_201709.csv")
 
 saveRDS(X_test_PM10_201701_201709, "train_test/Prediction_Models_ML_0_AR/X_test_PM10_201701_201709.rds")
 saveRDS(y_test_PM10_201701_201709, "train_test/Prediction_Models_ML_0_AR/y_test_PM10_201701_201709.rds")
 
 y_validation_PM10_201710_201712 <- validation_PM10_201710_201712 %>% select(PM10_0)
 X_validation_PM10_201710_201712 <- validation_PM10_201710_201712 %>% select(-PM10_0)
-
-write_csv(X_validation_PM10_201710_201712, "train_test/Prediction_Models_ML_0_AR/X_validation_PM10_201710_201712.csv")
-write_csv(y_validation_PM10_201710_201712, "train_test/Prediction_Models_ML_0_AR/y_validation_PM10_201710_201712.csv")
 
 saveRDS(X_validation_PM10_201710_201712, "train_test/Prediction_Models_ML_0_AR/X_validation_PM10_201710_201712.rds")
 saveRDS(y_validation_PM10_201710_201712, "train_test/Prediction_Models_ML_0_AR/y_validation_PM10_201710_201712.rds")
@@ -292,8 +277,6 @@ We create and save all the y, X datasets (as csv and rds files)
 y_train_NO2_201401_201612 <- train_NO2_201401_201612 %>% select(NO2_0)
 X_train_NO2_201401_201612 <- train_NO2_201401_201612 %>% select(-NO2_0)
 
-write_csv(X_train_NO2_201401_201612, "train_test/Prediction_Models_ML_0_AR/X_train_NO2_201401_201612.csv")
-write_csv(y_train_NO2_201401_201612, "train_test/Prediction_Models_ML_0_AR/y_train_NO2_201401_201612.csv")
 
 saveRDS(X_train_NO2_201401_201612, "train_test/Prediction_Models_ML_0_AR/X_train_NO2_201401_201612.rds")
 saveRDS(y_train_NO2_201401_201612, "train_test/Prediction_Models_ML_0_AR/y_train_NO2_201401_201612.rds")
@@ -302,8 +285,6 @@ saveRDS(y_train_NO2_201401_201612, "train_test/Prediction_Models_ML_0_AR/y_train
 y_train_NO2_201610_201612 <- train_NO2_201610_201612 %>% select(NO2_0)
 X_train_NO2_201610_201612 <- train_NO2_201610_201612 %>% select(-NO2_0)
 
-write_csv(X_train_NO2_201610_201612, "train_test/Prediction_Models_ML_0_AR/X_train_NO2_201610_201612.csv")
-write_csv(y_train_NO2_201610_201612, "train_test/Prediction_Models_ML_0_AR/y_train_NO2_201610_201612.csv")
 
 saveRDS(X_train_NO2_201610_201612, "train_test/Prediction_Models_ML_0_AR/X_train_NO2_201610_201612.rds")
 saveRDS(y_train_NO2_201610_201612, "train_test/Prediction_Models_ML_0_AR/y_train_NO2_201610_201612.rds")
@@ -311,19 +292,13 @@ saveRDS(y_train_NO2_201610_201612, "train_test/Prediction_Models_ML_0_AR/y_train
 y_train_NO2_200901_201612 <- train_NO2_200901_201612 %>% select(NO2_0)
 X_train_NO2_200901_201612 <- train_NO2_200901_201612 %>% select(-NO2_0)
 
-write_csv(X_train_NO2_200901_201612, "train_test/Prediction_Models_ML_0_AR/X_train_NO2_200901_201612.csv")
-write_csv(y_train_NO2_200901_201612, "train_test/Prediction_Models_ML_0_AR/y_train_NO2_200901_201612.csv")
 
 saveRDS(X_train_NO2_200901_201612, "train_test/Prediction_Models_ML_0_AR/X_train_NO2_200901_201612.rds")
 saveRDS(y_train_NO2_200901_201612, "train_test/Prediction_Models_ML_0_AR/y_train_NO2_200901_201612.rds")
 
 
-
 y_test_NO2_20170101_20170114 <- test_NO2_20170101_20170114 %>% select(NO2_0)
 X_test_NO2_20170101_20170114 <- test_NO2_20170101_20170114 %>% select(-NO2_0)
-
-write_csv(X_test_NO2_20170101_20170114, "train_test/Prediction_Models_ML_0_AR/X_test_NO2_20170101_20170114.csv")
-write_csv(y_test_NO2_20170101_20170114, "train_test/Prediction_Models_ML_0_AR/y_test_NO2_20170101_20170114.csv")
 
 
 saveRDS(X_test_NO2_20170101_20170114, "train_test/Prediction_Models_ML_0_AR/X_test_NO2_20170101_20170114.rds")
@@ -332,8 +307,6 @@ saveRDS(y_test_NO2_20170101_20170114, "train_test/Prediction_Models_ML_0_AR/y_te
 y_test_NO2_201701_201709 <- test_NO2_201701_201709 %>% select(NO2_0)
 X_test_NO2_201701_201709 <- test_NO2_201701_201709 %>% select(-NO2_0)
 
-write_csv(X_test_NO2_201701_201709, "train_test/Prediction_Models_ML_0_AR/X_test_NO2_201701_201709.csv")
-write_csv(y_test_NO2_201701_201709, "train_test/Prediction_Models_ML_0_AR/y_test_NO2_201701_201709.csv")
 
 saveRDS(X_test_NO2_201701_201709, "train_test/Prediction_Models_ML_0_AR/X_test_NO2_201701_201709.rds")
 saveRDS(y_test_NO2_201701_201709, "train_test/Prediction_Models_ML_0_AR/y_test_NO2_201701_201709.rds")
@@ -341,11 +314,189 @@ saveRDS(y_test_NO2_201701_201709, "train_test/Prediction_Models_ML_0_AR/y_test_N
 y_validation_NO2_201710_201712 <- validation_NO2_201710_201712 %>% select(NO2_0)
 X_validation_NO2_201710_201712 <- validation_NO2_201710_201712 %>% select(-NO2_0)
 
-write_csv(X_validation_NO2_201710_201712, "train_test/Prediction_Models_ML_0_AR/X_validation_NO2_201710_201712.csv")
-write_csv(y_validation_NO2_201710_201712, "train_test/Prediction_Models_ML_0_AR/y_validation_NO2_201710_201712.csv")
 
 saveRDS(X_validation_NO2_201710_201712, "train_test/Prediction_Models_ML_0_AR/X_validation_NO2_201710_201712.rds")
 saveRDS(y_validation_NO2_201710_201712, "train_test/Prediction_Models_ML_0_AR/y_validation_NO2_201710_201712.rds")
+
+# We remove all objects from the workspace
+
+rm(list = ls())
+
+```
+
+### PM10 datasets 2
+Including more variables
+
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+
+# We load the constitucion_data dataset
+constitucion_data <- readRDS("data_rds/constitucion_data.rds") 
+
+
+# We extract the periods of data that we are going to use 
+
+train_PM10_201401_201612 <- constitucion_data %>% filter(date_time_utc >= '2014-01-01 00:00:00',
+                                       date_time_utc <= '2016-12-31 23:00:00') 
+
+# We generate a smaller training dataset with the last three months of 2016
+train_PM10_201610_201612 <- constitucion_data %>% filter(date_time_utc >= '2016-10-01 00:00:00',
+                                       date_time_utc <= '2016-12-31 23:00:00') 
+
+# We generate a bigger training dataset with seven years of data
+train_PM10_200901_201612 <- constitucion_data %>% filter(date_time_utc >= '2009-01-01 00:00:00',
+                                       date_time_utc <= '2016-12-31 23:00:00') 
+                                       
+
+test_PM10_201701_201709 <- constitucion_data %>% filter(date_time_utc >= '2017-01-01 00:00:00',
+                                       date_time_utc <= '2017-09-30 23:00:00') 
+
+# We generate a smaller testing dataset with the first two weeks of 2016. 
+test_PM10_20170101_20170114 <- constitucion_data %>% filter(date_time_utc >= '2017-01-01 00:00:00',
+                                       date_time_utc <= '2017-01-14 23:00:00') 
+
+validation_PM10_201710_201712 <- constitucion_data %>% filter(date_time_utc >= '2017-10-01 00:00:00',
+                                       date_time_utc <= '2017-12-31 23:00:00') 
+# We include all the datasets in a list
+datasets_list <- list(train_PM10_201401_201612, train_PM10_201610_201612, train_PM10_200901_201612, test_PM10_201701_201709, test_PM10_20170101_20170114, validation_PM10_201710_201712)
+
+# And we apply the same transformations to every dataframe in the list
+datasets_list <- datasets_list %>% 
+            map(~ select(., PM10, NO2, SO2, no_lab_days, hour, vv, wd, LL, week_day, month, TMP, HR, PRB, RS)) %>% # We select the PM10 variable and the no_lab_days
+            map(~ mutate(., PM10 = replace_na(PM10, mean(PM10, na.rm = TRUE)),
+                         NO2 = replace_na(NO2, mean(NO2, na.rm = TRUE)),
+                         SO2 = replace_na(SO2, mean(SO2, na.rm = TRUE)),
+                         vv = replace_na(vv, mean(vv, na.rm = TRUE)),
+                         LL = replace_na(LL, mean(LL, na.rm = TRUE)),
+                         TMP = replace_na(TMP, mean(TMP, na.rm = TRUE)),
+                         HR = replace_na(HR, mean(HR, na.rm = TRUE)),
+                         PRB = replace_na(PRB, mean(PRB, na.rm = TRUE)),
+                         RS = replace_na(RS, mean(RS, na.rm = TRUE)))) %>% # We replace the NAs by the mean.
+            map(~ rename(., PM10_0 = PM10,
+                         NO2_0 = NO2,
+                         SO2_0 = SO2,
+                         vv_0 = vv,
+                         wd_0 = wd,
+                         LL_0 = LL,
+                         TMP_0 = TMP,
+                         HR_0 = HR,
+                         PRB_0 = PRB,
+                         RS_0 = RS,)) # And we change the name of the variable to "PM10_0"
+
+```
+
+We add to the dataframes the lagged variables.
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+
+datasets_list <- datasets_list %>%
+                  map(~ mutate(., PM10_1 = lag(PM10_0, 1),
+                  PM10_2 = lag(PM10_0, 2),
+                  PM10_3 = lag(PM10_0, 3),
+                  PM10_4 = lag(PM10_0, 4),
+                  PM10_5 = lag(PM10_0, 5),
+                  PM10_6 = lag(PM10_0, 6),
+                  PM10_7 = lag(PM10_0, 7),
+                  PM10_8 = lag(PM10_0, 8),
+                  PM10_9 = lag(PM10_0, 9),
+                  PM10_10 = lag(PM10_0, 10),
+                  PM10_11 = lag(PM10_0, 11),
+                  PM10_12 = lag(PM10_0, 12),
+                  PM10_13 = lag(PM10_0, 13),
+                  PM10_14 = lag(PM10_0, 14),
+                  PM10_15 = lag(PM10_0, 15),
+                  PM10_16 = lag(PM10_0, 16),
+                  PM10_17 = lag(PM10_0, 17),
+                  PM10_18 = lag(PM10_0, 18),
+                  PM10_19 = lag(PM10_0, 19),
+                  PM10_20 = lag(PM10_0, 20),
+                  PM10_21 = lag(PM10_0, 21),
+                  PM10_22 = lag(PM10_0, 22),
+                  PM10_23 = lag(PM10_0, 23),
+                  PM10_24 = lag(PM10_0, 24),
+                  PM10_25 = lag(PM10_0, 25),
+                  PM10_26 = lag(PM10_0, 26),
+                  PM10_27 = lag(PM10_0, 27),
+                  PM10_48 = lag(PM10_0, 48),
+                  PM10_72 = lag(PM10_0, 72),
+                  PM10_96 = lag(PM10_0, 96),
+                  PM10_120 = lag(PM10_0, 120),
+                  PM10_144 = lag(PM10_0, 144),
+                  PM10_168 = lag(PM10_0, 168),
+                  NO2_1 = lag(NO2_0, 1),
+                  NO2_2 = lag(NO2_0, 2),
+                  SO2_1 = lag(SO2_0, 1),
+                  SO2_2 = lag(SO2_0, 2),
+                  vv_1 = lag(vv_0, 1),
+                  vv_2 = lag(vv_0, 2),
+                  wd_1 = lag(wd_0, 1),
+                  wd_2 = lag(wd_0, 2),
+                  LL_1 = lag(LL_0, 1),
+                  LL_2 = lag(LL_0, 2),
+                  TMP_1 = lag(TMP_0, 1),
+                  TMP_2 = lag(TMP_0, 2),
+                  HR_1 = lag(HR_0, 1),
+                  HR_2 = lag(HR_0, 2),
+                  PRB_1 = lag(PRB_0, 1),
+                  PRB_2 = lag(PRB_0, 2),
+                  RS_1 = lag(RS_0, 1),
+                  RS_2 = lag(RS_0, 2))) 
+
+
+# We unlist the dataframes and we rename them again.
+for (i in seq(datasets_list))
+  assign(paste0("df", i), datasets_list[[i]])
+
+train_PM10_201401_201612_var <- df1 %>% na.omit()
+train_PM10_201610_201612_var <- df2 %>% na.omit()
+train_PM10_200901_201612_var <- df3 %>% na.omit()
+test_PM10_201701_201709_var <- df4 %>% na.omit()
+test_PM10_20170101_20170114_var <- df5 %>% na.omit()
+validation_PM10_201710_201712_var <- df6 %>% na.omit()
+
+```
+
+We create and save all the y, X datasets (as csv and rds files)
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+
+y_train_PM10_201401_201612_var <- train_PM10_201401_201612_var %>% select(PM10_0)
+X_train_PM10_201401_201612_var <- train_PM10_201401_201612_var %>% select(-PM10_0, -NO2_0, -SO2_0, -vv_0, -wd_0, -LL_0, -TMP_0, -HR_0, -PRB_0, -RS_0)
+
+saveRDS(X_train_PM10_201401_201612_var, "train_test/Prediction_Models_ML_0_AR/X_train_PM10_201401_201612_var.rds")
+saveRDS(y_train_PM10_201401_201612_var, "train_test/Prediction_Models_ML_0_AR/y_train_PM10_201401_201612_var.rds")
+
+
+y_train_PM10_201610_201612_var <- train_PM10_201610_201612_var %>% select(PM10_0)
+X_train_PM10_201610_201612_var <- train_PM10_201610_201612_var %>% select(-PM10_0, -NO2_0, -SO2_0, -vv_0, -wd_0, -LL_0, -TMP_0, -HR_0, -PRB_0, -RS_0)
+
+
+saveRDS(X_train_PM10_201610_201612_var, "train_test/Prediction_Models_ML_0_AR/X_train_PM10_201610_201612_var.rds")
+saveRDS(y_train_PM10_201610_201612_var, "train_test/Prediction_Models_ML_0_AR/y_train_PM10_201610_201612_var.rds")
+
+y_train_PM10_200901_201612_var <- train_PM10_200901_201612_var %>% select(PM10_0)
+X_train_PM10_200901_201612_var <- train_PM10_200901_201612_var %>% select(-PM10_0, -NO2_0, -SO2_0, -vv_0, -wd_0, -LL_0, -TMP_0, -HR_0, -PRB_0, -RS_0)
+
+
+saveRDS(X_train_PM10_200901_201612_var, "train_test/Prediction_Models_ML_0_AR/X_train_PM10_200901_201612_var.rds")
+saveRDS(y_train_PM10_200901_201612_var, "train_test/Prediction_Models_ML_0_AR/y_train_PM10_200901_201612_var.rds")
+
+
+y_test_PM10_20170101_20170114_var <- test_PM10_20170101_20170114_var %>% select(PM10_0)
+X_test_PM10_20170101_20170114_var <- test_PM10_20170101_20170114_var %>% select(-PM10_0, -NO2_0, -SO2_0, -vv_0, -wd_0, -LL_0, -TMP_0, -HR_0, -PRB_0, -RS_0)
+
+
+saveRDS(X_test_PM10_20170101_20170114_var, "train_test/Prediction_Models_ML_0_AR/X_test_PM10_20170101_20170114_var.rds")
+saveRDS(y_test_PM10_20170101_20170114_var, "train_test/Prediction_Models_ML_0_AR/y_test_PM10_20170101_20170114_var.rds")
+
+y_test_PM10_201701_201709_var <- test_PM10_201701_201709_var %>% select(PM10_0)
+X_test_PM10_201701_201709_var <- test_PM10_201701_201709_var %>% select(-PM10_0, -NO2_0, -SO2_0, -vv_0, -wd_0, -LL_0, -TMP_0, -HR_0, -PRB_0, -RS_0)
+
+saveRDS(X_test_PM10_201701_201709_var, "train_test/Prediction_Models_ML_0_AR/X_test_PM10_201701_201709_var.rds")
+saveRDS(y_test_PM10_201701_201709_var, "train_test/Prediction_Models_ML_0_AR/y_test_PM10_201701_201709_var.rds")
+
+y_validation_PM10_201710_201712_var <- validation_PM10_201710_201712_var %>% select(PM10_0)
+X_validation_PM10_201710_201712_var <- validation_PM10_201710_201712_var %>% select(-PM10_0, -NO2_0, -SO2_0, -vv_0, -wd_0, -LL_0, -TMP_0, -HR_0, -PRB_0, -RS_0)
+
+saveRDS(X_validation_PM10_201710_201712_var, "train_test/Prediction_Models_ML_0_AR/X_validation_PM10_201710_201712_var.rds")
+saveRDS(y_validation_PM10_201710_201712_var, "train_test/Prediction_Models_ML_0_AR/y_validation_PM10_201710_201712_var.rds")
 
 # We remove all objects from the workspace
 
