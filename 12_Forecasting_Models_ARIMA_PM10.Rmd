@@ -9,7 +9,6 @@ Loading packages
 library(readr)
 library(dplyr)
 library(tidyr)
-library(openair) # http://davidcarslaw.github.io/openair/
 library(purrr)
 library(lubridate)
 library(ggplot2)
@@ -691,9 +690,6 @@ monthly_mae_base_model_vs_arima3m_3y_graph
 ```
 
 
-
-
-
 ### PM10_model_arima_9y
 
 Finally, we are going to try to improve the result taking as training period 9 years of data: From 2009-01-01 to 2016-12-31. 
@@ -727,14 +723,63 @@ tss <- sum((y_test - mean(y_test)) ** 2)
 R_squared <- 1 - rss/tss
 paste(c("R-squared:", round(R_squared, 4), "MAE:", round(MAE, 2), "RMSE:", round(RMSE, 2), "Standard Deviation (test data):", round(sd_test, 2)))
 
-paste(c("R-squared:", round(R_squared, 4), "MAE:", round(MAE, 2), "RMSE:", round(RMSE, 2), "Standard Deviation (test data):", round(sd_test, 2)))
 ```
 
 
-The model, with 6 more years of data,  worsens its results. The MAE increases in 0.04 points and the R-squared decreases in 0.0049 points.   
+The model, with 6 more years of data doesn't change too much. But it worsens slightly  its results. The MAE increases in 0.04 points and the R-squared decreases in 0.0049 points.
 
-We plot in a graph the actual versus the predicted values
-```{r y_test_y_pred_graph, warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+```{r  h1_grid_graphs, warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+
+y_pred <- as.data.frame(y_pred) %>% rename(y_pred = x)
+y_test <- as.data.frame(y_test) %>% rename(y_test = PM10_0)
+
+
+df <- bind_cols(y_pred, y_test) 
+                
+y_pred_y_test_arima_9y_graph <- ggplot(data = df, aes(x = y_test, y = y_pred)) +
+                        geom_point(alpha = 0.5) +
+                        ylim(0, 100) +
+                        theme_minimal()
+
+residual_distribution_arima_9y_graph <- ggplot(data = df, aes(x = y_pred, y = (y_test - y_pred))) + 
+                  geom_point() +
+                  geom_hline(yintercept=0) +
+                  geom_point(alpha = 0.5) +
+                        theme_minimal()
+
+residual_histogram_arima_9y_graph <- ggplot(data = df, aes(x = y_test - y_pred)) +
+                        geom_histogram() +
+                        theme_minimal()
+
+
+date_time <- constitucion_data %>% select(date_time_utc) %>%
+                       filter(date_time_utc > '2017-01-01 00:00:00',
+                              date_time_utc <= '2017-10-01 00:00:00')
+
+
+
+monthly_mae_9y <- bind_cols(date_time, y_pred, y_test) %>%
+                   group_by(month(date_time_utc)) %>%
+                   mutate(mae = MAE(y_pred, y_test)) %>%
+                   select(date_time_utc, mae)
+                   
+      
+monthly_mae_arima_9y_graph <- ggplot(data = monthly_mae_9y, 
+                    aes(x = month(date_time_utc), y = mae))+
+                    geom_line() +
+                    theme_minimal() +
+                    ylim(0, 8)  
+
+grid.arrange(y_pred_y_test_arima_9y_graph, 
+             residual_distribution_arima_9y_graph, 
+             residual_histogram_arima_9y_graph,
+             monthly_mae_arima_9y_graph, 
+             ncol = 2)
+
+```
+
+
+```{r h1_y_test_y_pred_graph, warning = FALSE, message= FALSE, out.width= '\\textwidth'}
 
 df <- bind_cols(as.data.frame(y_pred), as.data.frame(y_test))
                 
@@ -743,9 +788,6 @@ y_pred_y_test_arima_9y_graph <- ggplot(data = df, aes(x = y_test, y = y_pred)) +
                         ylim(0, 100) +
                         theme_minimal()
 
-```
-
-```{r , warning = FALSE, message= FALSE, out.width= '\\textwidth'}
 
 grid.arrange(y_pred_y_test_base_model_graph + ggtitle("Base model"),
              y_pred_y_test_arima_3m_graph + ggtitle("ARIMA 2016-10 - 2016-12"), 
@@ -755,7 +797,7 @@ grid.arrange(y_pred_y_test_base_model_graph + ggtitle("Base model"),
 ```
 
 
-```{r residuals_distribution_graph, warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+```{r h1_residuals_distribution_graph, warning = FALSE, message= FALSE, out.width= '\\textwidth'}
 
 
 residual_distribution_arima_9y_graph <- ggplot(data = df, aes(x = y_pred, y = (y_test - y_pred))) + 
@@ -765,10 +807,6 @@ residual_distribution_arima_9y_graph <- ggplot(data = df, aes(x = y_pred, y = (y
                         theme_minimal()
 
 
-```
-
-```{r , warning = FALSE, message= FALSE, out.width= '\\textwidth'}
-
 grid.arrange(residual_distribution_base_model_graph + ggtitle("Base model"),
              residual_distribution_arima_3m_graph + ggtitle("ARIMA 2016-10 - 2016-12"), 
              residual_distribution_arima_3y_graph+ ggtitle("ARIMA 2014-01 - 2016-12"),
@@ -776,7 +814,35 @@ grid.arrange(residual_distribution_base_model_graph + ggtitle("Base model"),
              ncol=2)
 ```
 
-Pending: comment the results
+```{r  warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+
+
+monthly_mae_9y_2 <- monthly_mae_9y %>%
+                    select('month(date_time_utc)',
+                            mae) %>%
+                    unique() %>%
+                    rename(month = 'month(date_time_utc)',
+                           model_arima_9y = mae) %>%
+                    ungroup() %>%
+                    mutate(month = as.factor(month))
+
+
+monthly_mae_comparison <- left_join(monthly_mae_comparison, 
+                                    monthly_mae_9y_2,
+                                    by = 'month')
+
+monthly_mae_comparison_long <- monthly_mae_comparison %>% gather(model, mae, 2:5)
+
+monthly_mae_base_model_vs_arima3m_3y_9y_graph <- ggplot(data = monthly_mae_comparison_long, 
+                    aes(x = month, y = mae, col = model, group = model)) + geom_line() +
+                    theme_minimal() +
+                    ylim(0, 8)
+
+monthly_mae_base_model_vs_arima3m_3y_9y_graph 
+ggsave("imgs/monthly_mae_base_model_vs_arima3m_3y_9y_graph.png")
+ggsave("imgs/monthly_mae_base_model_vs_arima3m_3y_9y_graph.jpg")
+```
+
 
 ### PM10 h = 6
 
@@ -830,6 +896,57 @@ paste(c("R-squared:", round(R_squared, 4), "MAE:", round(MAE, 2), "RMSE:", round
 ```
 
 R-squared: 0.2118. When we try to predict the levels of PM10 6 hours ahead this Arima model is only able to explain a 21% of the variability. And consequentely the errors grow too.
+```{r  h6_grid_graphs_2, warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+
+y_pred <- as.data.frame(y_pred) %>% rename(y_pred = x)
+y_test <- as.data.frame(y_test) %>% rename(y_test = x)
+
+
+df <- bind_cols(y_pred, y_test) 
+                
+y_pred_y_test_arima_h6_graph <- ggplot(data = df, aes(x = y_test, y = y_pred)) +
+                        geom_point(alpha = 0.5) +
+                        ylim(0, 100) +
+                        theme_minimal()
+
+residual_distribution_arima_h6_graph <- ggplot(data = df, aes(x = y_pred, y = (y_test - y_pred))) + 
+                  geom_point() +
+                  geom_hline(yintercept=0) +
+                  geom_point(alpha = 0.5) +
+                        theme_minimal()
+
+residual_histogram_arima_h6_graph <- ggplot(data = df, aes(x = y_test - y_pred)) +
+                        geom_histogram() +
+                        theme_minimal()
+
+
+date_time <- constitucion_data %>% select(date_time_utc) %>%
+                       filter(date_time_utc > '2017-01-01 00:00:00',
+                              date_time_utc <= '2017-10-01 00:00:00') %>%
+                              slice(8:n())
+      
+monthly_mae_h6 <- bind_cols(date_time, df)
+monthly_mae_h6$y_pred <- as.numeric(monthly_mae_h6$y_pred)
+monthly_mae_h6$y_test <- as.numeric(monthly_mae_h6$y_test)
+monthly_mae_h6 <-  monthly_mae_h6 %>%
+                    group_by(month(date_time_utc)) %>%
+                   mutate(mae = MAE(y_pred, y_test)) %>%
+                   select(date_time_utc, mae)
+  
+monthly_mae_arima_h6_graph <- ggplot(data = monthly_mae_h6, 
+                    aes(x = month(date_time_utc), y = mae))+
+                    geom_line() +
+                    theme_minimal() +
+                    ylim(0, 10)  
+
+grid.arrange(y_pred_y_test_arima_h6_graph, 
+             residual_distribution_arima_h6_graph, 
+             residual_histogram_arima_h6_graph, 
+             monthly_mae_arima_h6_graph,
+             ncol = 2)
+
+```
+
 
 ### PM10 h = 12
 
@@ -864,6 +981,60 @@ R_squared <- 1 - rss/tss
 paste(c("R-squared:", round(R_squared, 4), "MAE:", round(MAE, 2), "RMSE:", round(RMSE, 2), "Standard Deviation (test data):", round(sd_test, 2)))
 ```
 
+```{r h12_grid_graphs, warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+
+y_pred <- as.data.frame(y_pred) %>% rename(y_pred = x)
+y_test <- as.data.frame(y_test) %>% rename(y_test = x)
+
+
+df <- bind_cols(y_pred, y_test) 
+                
+y_pred_y_test_arima_h12_graph <- ggplot(data = df, aes(x = y_test, y = y_pred)) +
+                        geom_point(alpha = 0.5) +
+                        ylim(0, 100) +
+                        theme_minimal()
+
+residual_distribution_arima_h12_graph <- ggplot(data = df, aes(x = y_pred, y = (y_test - y_pred))) + 
+                  geom_point() +
+                  geom_hline(yintercept=0) +
+                  geom_point(alpha = 0.5) +
+                        theme_minimal()
+
+residual_histogram_arima_h12_graph <- ggplot(data = df, aes(x = y_test - y_pred)) +
+                        geom_histogram() +
+                        theme_minimal()
+
+
+date_time <- constitucion_data %>% select(date_time_utc) %>%
+                       filter(date_time_utc > '2017-01-01 00:00:00',
+                              date_time_utc <= '2017-10-01 00:00:00') %>%
+                              slice(14:n())
+
+
+monthly_mae_h12 <- bind_cols(date_time, y_pred, y_test)
+monthly_mae_h12$y_pred <- as.numeric(monthly_mae_h12$y_pred)
+monthly_mae_h12$y_test <- as.numeric(monthly_mae_h12$y_test)
+monthly_mae_h12 <-  monthly_mae_h12 %>%
+                    group_by(month(date_time_utc)) %>%
+                   mutate(mae = MAE(y_pred, y_test)) %>%
+                   select(date_time_utc, mae)
+                   
+      
+monthly_mae_arima_h12_graph <- ggplot(data = monthly_mae_h12, 
+                    aes(x = month(date_time_utc), y = mae))+
+                    geom_line() +
+                    theme_minimal() +
+                    ylim(0, 12)  
+
+grid.arrange(y_pred_y_test_arima_h12_graph, 
+             residual_distribution_arima_h12_graph, 
+             residual_histogram_arima_h12_graph,
+             monthly_mae_arima_h12_graph, 
+             ncol = 2)
+
+```
+
+
 ### PM10 h = 24
 
 ```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
@@ -897,9 +1068,68 @@ R_squared <- 1 - rss/tss
 paste(c("R-squared:", round(R_squared, 4), "MAE:", round(MAE, 2), "RMSE:", round(RMSE, 2), "Standard Deviation (test data):", round(sd_test, 2)))
 ```
 
+```{r  h24_grid_graphs, warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+
+y_pred <- as.data.frame(y_pred) %>% rename(y_pred = x)
+y_test <- as.data.frame(y_test) %>% rename(y_test = x)
 
 
+df <- bind_cols(y_pred, y_test) 
+                
+y_pred_y_test_arima_h24_graph <- ggplot(data = df, aes(x = y_test, y = y_pred)) +
+                        geom_point(alpha = 0.5) +
+                        ylim(0, 100) +
+                        theme_minimal()
 
+residual_distribution_arima_h24_graph <- ggplot(data = df, aes(x = y_pred, y = (y_test - y_pred))) + 
+                  geom_point() +
+                  geom_hline(yintercept=0) +
+                  geom_point(alpha = 0.5) +
+                        theme_minimal()
+
+residual_histogram_arima_h24_graph <- ggplot(data = df, aes(x = y_test - y_pred)) +
+                        geom_histogram() +
+                        theme_minimal()
+
+
+date_time <- constitucion_data %>% select(date_time_utc) %>%
+                       filter(date_time_utc > '2017-01-01 00:00:00',
+                              date_time_utc <= '2017-10-01 00:00:00') %>%
+                              slice(26:n())
+
+monthly_mae_h24 <- bind_cols(date_time, y_pred, y_test)
+monthly_mae_h24$y_pred <- as.numeric(monthly_mae_h24$y_pred)
+monthly_mae_h24$y_test <- as.numeric(monthly_mae_h24$y_test)
+monthly_mae_h24 <-  monthly_mae_h24 %>%
+                    group_by(month(date_time_utc)) %>%
+                   mutate(mae = MAE(y_pred, y_test)) %>%
+                   select(date_time_utc, mae)
+                   
+      
+monthly_mae_arima_h24_graph <- ggplot(data = monthly_mae_h24, 
+                    aes(x = month(date_time_utc), y = mae))+
+                    geom_line() +
+                    theme_minimal() +
+                    ylim(0, 15)  
+
+grid.arrange(y_pred_y_test_arima_h24_graph, 
+             residual_distribution_arima_h24_graph, 
+             residual_histogram_arima_h24_graph,
+             monthly_mae_arima_h24_graph, 
+             ncol = 2)
+
+```
+
+```{r  warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+PM10_ARIMA_results <- read_csv("data_final_csvs/PM10_ARIMA_results.csv")
+
+PM10_ARIMA_results_table <- kable(
+  PM10_ARIMA_results, booktabs = TRUE,
+  caption = 'ARIMA models results for the PM10 pollutant'
+)
+
+PM10_ARIMA_results_table
+```
 
 
 

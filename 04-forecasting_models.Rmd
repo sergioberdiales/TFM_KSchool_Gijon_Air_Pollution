@@ -1,21 +1,163 @@
-# Prediction Models
+# Forecasting Models
+
+
+```{r , warning= FALSE, message= FALSE, echo = FALSE}
+library(readr)
+library(dplyr)
+library(tidyr)
+library(purrr)
+library(lubridate)
+library(ggplot2)
+library(stringr)
+library(knitr)
+library(xts)
+library(zoo)
+library(gridExtra)
+library(astsa)
+library(rvest)
+library(fpp2)
+library(ranger)
+library(broom)
+library(RcppRoll)
+library(caret)
+```
 
 __"Prediction is very difficult, especially if it's about the future."__
  Nils Bohr, Nobel laureate in Physics
+  
+As I already explained in the Introduction, one of the objectives of this project is to develop forecasting models which permit us to predict with some hours in advance the pollution levels of Gijón city. 
+  
+Initially, I planned to create forecasting models for every monitoring station. But, as soon as I started to work on the models I realized this goal was not  very realistic. So, I adjusted the scope of my project to just one station, the Constitución station and only to two pollutants, PM10 and NO2. 
+  
+I chose the Constitución station because is the only station with weather data published. And we focused on these two pollutants because they are the pollutants with more impact in the public health. 
+  
+    
+__Methodology.__
 
-Making predictions with different approaches.
+We make a first approximation to the problem with the ARIMA methodology. And then, with the reference of these results we try to improve the forecasts with machine learning methods. 
 
-## ARIMA
+I used R for the ARIMA models and to prepare the training and testing datasets for the Python models.
+
+And I used Python, on the Google Colab platform, to create the machine learning methods. 
+
+All the R and Python scripts are saved in the [github repository project](https://github.com/sergioberdiales/TFM_KSchool_Gijon_Air_Pollution): 
+
+* 10_train_test_datasets_1_PM10
+* 10_train_test_datasets_1_NO2
+* 12_Forecasting_Models_ARIMA_PM10.rmd
+* 13_Forecasting_Models_ARIMA_NO2.rmd
+* 21_Prediction_Models_ML_0_AR.ipynb
+* 22_Forecasting_Models_ML_1_VAR.ipynb
+
+The R scripts are included in this document too, in the _R code_ section. The Python notebooks are not included in this document but I included the links to the original Google Colab notebooks in the _Python code_ section.
+
+## PM10 forecasts
+
+### ARIMA results {-}
 
 __"I have seen the future and it is very much like the present, only longer."__
 Kehlog Albran, The Profit
+  
+#### R-markdown file "12_Forecasting_Models_ARIMA_PM10.rmd" {-}
+  
+  As first step I created a very simple model to use as a base reference. This model takes as prediction the value from the previous hour, forecasting just one hour ahead. So, the formula for this base model would be: Xt = Xt-1. 
+  
+Then, I generated three different seasonal (frequency: 24 hours) ARIMA models with three different training periods. 
 
-## Machine Learning Methods
+And I applied these three models to the testing period data (2017-01-01 - 2017-09-30) in order to obtain their prediction accuracy scores for the one hour ahead forecast. 
+
+Finally, I obtained the prediction accuracy scores for the ARIMA with the three years training period for the 6 hours, 12 hours and 24 hours ahead forecasts. 
+  
+In the table below we can see the R-squared and the MAE obtained for each ARIMA model tested for the PM10 pollutant. 
+
+```{r  warning = FALSE, message= FALSE, echo = FALSE, out.width= '\\textwidth'}
+PM10_ARIMA_results <- read_csv("data_final_csvs/PM10_ARIMA_results.csv")
+
+PM10_ARIMA_results <- PM10_ARIMA_results %>%
+                      mutate(`Prediction horizon` = factor(`Prediction horizon`, levels = c("1 hour", "6 hours", "12 hours", "24 hours")))
+
+PM10_ARIMA_results_table <- kable(
+  PM10_ARIMA_results, booktabs = TRUE,
+  caption = 'ARIMA models results for the PM10 pollutant'
+)
+
+PM10_ARIMA_results_table
+```
+
+The base model (Xt = Xt-1) explains 53.3% of the variability of the data from the test period (R-squared: 0.5327) and it has a MAE (Mean Absolute Error) of 5.15. 
+
+And the ARIMA model with the best results is the one with the 3 years training period, which improves in almost 7 points the Base model R-squared, explaining 60.15% of the variation in the levels of PM10 (one hour ahead) and reduces the MAE to 4.84.  
+
+Either way, the differences between the three years training model and the other two are minimal. Three months of training data is explaining almost the same than three or nine years. 
+
+We can see this very clearly in the graph below, where we plot the monthly MAE of each model over the testing period.
+
+![MAE by testing period month.](imgs/monthly_mae_base_model_vs_arima3m_3y_9y_graph.png)
+
+__Forecasting 6, 12 and 24 hours ahead__
+
+The forecasting accuracy of any model decays as we try to forecast further in the future. 
+
+```{r  warning = FALSE, message= FALSE, echo = FALSE, out.width= '\\textwidth'}
+PM10_ARIMA_results_2 <- PM10_ARIMA_results %>% 
+                        filter(`Train period` == "201401-201612")
+
+
+PM10_ARIMA_results_table_2 <- kable(
+  PM10_ARIMA_results_2, booktabs = TRUE,
+  caption = 'ARIMA models results for the PM10 pollutant'
+)
+
+PM10_ARIMA_results_table_2
+```
+
+We plot the decrease of the R-Squared and the increase of the MAE when we extend the prediction horizon.
+
+```{r  warning = FALSE, message= FALSE, echo = FALSE, out.width= '\\textwidth'}
+#plot(PM10_ARIMA_results_2$`R-Squared`, PM10_ARIMA_results_2$`Prediction horizon`)
+#plot(PM10_ARIMA_results_2$MAE, PM10_ARIMA_results_2$`Prediction horizon`) 
+
+r2_h_variation_plot <- ggplot(data = PM10_ARIMA_results_2, aes(x = `Prediction horizon`, y = `R-Squared`)) + 
+  geom_point() +
+  geom_text(aes(label=`R-Squared`), vjust=-0.4) +
+  ylim(c(0, 0.7))
+
+mae_h_variation_plot <- ggplot(data = PM10_ARIMA_results_2, aes(x = `Prediction horizon`, y = `MAE`)) + 
+  geom_point() +
+  geom_text(aes(label=`MAE`), vjust=-0.4) +
+  ylim(c(0, 12))
+
+grid.arrange(r2_h_variation_plot, 
+             mae_h_variation_plot, 
+             ncol = 1) 
+       
+```
+
+
+### Machine Learning results {-}
 
 ![](https://imgs.xkcd.com/comics/machine_learning.png)  
 [xkcd comic](https://xkcd.com/1838/)
 
-## Neural Networks
+#### Auto-regressive models {-}
+
+##### Jupyter notebook file "21_Forecasting_Models_ML_PM10_AR.ipynb" {-}
+[Enlace al notebook "21_Forecasting_Models_ML_PM10_AR.ipynb" en Google Colab](https://colab.research.google.com/drive/1qlSLPiANjOcpngutSiq61GcCxRIe9eIT)
+
+In this notebook we try to emulate the ARIMA results with different auto-regressive machine learning methods. 
+
+So, we only include as input variables lagged values of the target variable. In this case lagged values of the PM10 variable. 
+
+I prepared the training and testing data previously with R. 
+
+#### Multi-variate models {-}
+
+##### Jupyter notebook file "22_Forecasting_Models_ML_PM10_MULTIVAR.ipynb" {-}
+[Enlace al notebook "22_Forecasting_Models_ML_PM10_MULTIVAR.ipynb" en Google Colab](https://colab.research.google.com/drive/1SLoNm0-rHZM6Mv2Aj2n_4_pz8VsjYN8h)
+
+
+  
+
 
 
 

@@ -35,7 +35,7 @@ If you want to see the final result you can go to the chapter 4 "Visualizations"
  * __2. Build forecasting models to predict pollution levels.__
  
  My second objective is to try to forecast hourly pollution levels with one to twenty four hours in advance.   
- Initially, my intention was to create models for every pollutant and every monitoring station. But, following the advice of one of the Master professors, I have focused my efforts on only one station (Constitución) and only two of the pollutants, the PM10 and the NO2. 
+ Initially, my intention was to create models for every pollutant and every monitoring station. But, finally I have focused my efforts on only one station (Constitución) and two of the pollutants, the PM10 and the NO2. 
 
 I choose the Constitución station because is the unique station which has published weather data too.   
 

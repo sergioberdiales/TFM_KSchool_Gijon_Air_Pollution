@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html >
+
+<head>
+
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>5 R-markdown file “12_Forecasting_Models_ARIMA_PM10” | Gijón Air Pollution - An exercise of visualization and forecasting</title>
+  <meta name="description" content="5 R-markdown file “12_Forecasting_Models_ARIMA_PM10” | Gijón Air Pollution - An exercise of visualization and forecasting">
+  <meta name="generator" content="bookdown  and GitBook 2.6.7">
+
+  <meta property="og:title" content="5 R-markdown file “12_Forecasting_Models_ARIMA_PM10” | Gijón Air Pollution - An exercise of visualization and forecasting" />
+  <meta property="og:type" content="book" />
+  
+  
+  
+  
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="5 R-markdown file “12_Forecasting_Models_ARIMA_PM10” | Gijón Air Pollution - An exercise of visualization and forecasting" />
+  
+  
+  
+
+<meta name="author" content="Sergio Berdiales">
+
+
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  
+  
+<link rel="prev" href="forecasting-models.html">
+<link rel="next" href="conclusions.html">
+<script src="libs/jquery-2.2.3/jquery.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i>Preface</a></li>
+<li class="chapter" data-level="1" data-path="intro.html"><a href="intro.html"><i class="fa fa-check"></i><b>1</b> Introduction</a><ul>
+<li class="chapter" data-level="1.1" data-path="intro.html"><a href="intro.html#why"><i class="fa fa-check"></i><b>1.1</b> Why</a></li>
+<li class="chapter" data-level="1.2" data-path="intro.html"><a href="intro.html#what"><i class="fa fa-check"></i><b>1.2</b> What</a></li>
+<li class="chapter" data-level="1.3" data-path="intro.html"><a href="intro.html#how"><i class="fa fa-check"></i><b>1.3</b> How</a></li>
+</ul></li>
+<li class="chapter" data-level="2" data-path="the-data.html"><a href="the-data.html"><i class="fa fa-check"></i><b>2</b> The Data</a></li>
+<li class="chapter" data-level="3" data-path="visualizations.html"><a href="visualizations.html"><i class="fa fa-check"></i><b>3</b> Visualizations</a></li>
+<li class="chapter" data-level="4" data-path="forecasting-models.html"><a href="forecasting-models.html"><i class="fa fa-check"></i><b>4</b> Forecasting Models</a><ul>
+<li class="chapter" data-level="4.1" data-path="forecasting-models.html"><a href="forecasting-models.html#arima-results"><i class="fa fa-check"></i><b>4.1</b> ARIMA results</a></li>
+</ul></li>
+<li class="chapter" data-level="5" data-path="r-markdown-file-12-forecasting-models-arima-pm10.html"><a href="r-markdown-file-12-forecasting-models-arima-pm10.html"><i class="fa fa-check"></i><b>5</b> R-markdown file “12_Forecasting_Models_ARIMA_PM10”</a><ul>
+<li class="chapter" data-level="5.1" data-path="r-markdown-file-12-forecasting-models-arima-pm10.html"><a href="r-markdown-file-12-forecasting-models-arima-pm10.html#machine-learning-results"><i class="fa fa-check"></i><b>5.1</b> Machine Learning results</a></li>
+<li class="chapter" data-level="5.2" data-path="r-markdown-file-12-forecasting-models-arima-pm10.html"><a href="r-markdown-file-12-forecasting-models-arima-pm10.html#neural-networks"><i class="fa fa-check"></i><b>5.2</b> Neural Networks</a></li>
+</ul></li>
+<li class="chapter" data-level="6" data-path="conclusions.html"><a href="conclusions.html"><i class="fa fa-check"></i><b>6</b> Conclusions</a></li>
+<li class="chapter" data-level="" data-path="references.html"><a href="references.html"><i class="fa fa-check"></i>References</a></li>
+<li><a href="r-scripts.html#r-scripts"><em>R scripts</em></a></li>
+<li class="chapter" data-level="7" data-path="gathering-and-cleaning-data.html"><a href="gathering-and-cleaning-data.html"><i class="fa fa-check"></i><b>7</b> Gathering and Cleaning Data</a><ul>
+<li class="chapter" data-level="7.1" data-path="gathering-and-cleaning-data.html"><a href="gathering-and-cleaning-data.html#data-gathering"><i class="fa fa-check"></i><b>7.1</b> Data gathering</a></li>
+<li class="chapter" data-level="7.2" data-path="gathering-and-cleaning-data.html"><a href="gathering-and-cleaning-data.html#data-cleaning"><i class="fa fa-check"></i><b>7.2</b> Data cleaning</a></li>
+<li class="chapter" data-level="7.3" data-path="gathering-and-cleaning-data.html"><a href="gathering-and-cleaning-data.html#adding-new-variables"><i class="fa fa-check"></i><b>7.3</b> Adding new variables</a><ul>
+<li class="chapter" data-level="7.3.1" data-path="gathering-and-cleaning-data.html"><a href="gathering-and-cleaning-data.html#time-variables"><i class="fa fa-check"></i><b>7.3.1</b> Time variables</a></li>
+<li class="chapter" data-level="7.3.2" data-path="gathering-and-cleaning-data.html"><a href="gathering-and-cleaning-data.html#laboral-dates"><i class="fa fa-check"></i><b>7.3.2</b> Laboral dates</a></li>
+<li class="chapter" data-level="7.3.3" data-path="gathering-and-cleaning-data.html"><a href="gathering-and-cleaning-data.html#wind-direction"><i class="fa fa-check"></i><b>7.3.3</b> Wind direction</a></li>
+<li class="chapter" data-level="7.3.4" data-path="gathering-and-cleaning-data.html"><a href="gathering-and-cleaning-data.html#tables-preparation-for-tableau-dashboards"><i class="fa fa-check"></i><b>7.3.4</b> Tables preparation for Tableau dashboards</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="8" data-path="data-exploration.html"><a href="data-exploration.html"><i class="fa fa-check"></i><b>8</b> Data Exploration</a><ul>
+<li class="chapter" data-level="8.1" data-path="data-exploration.html"><a href="data-exploration.html#pm10-constitucion-station"><i class="fa fa-check"></i><b>8.1</b> PM10 Constitucion Station</a></li>
+<li class="chapter" data-level="8.2" data-path="data-exploration.html"><a href="data-exploration.html#relationships-between-variables"><i class="fa fa-check"></i><b>8.2</b> Relationships between variables</a></li>
+<li class="chapter" data-level="8.3" data-path="data-exploration.html"><a href="data-exploration.html#no2-constitucion-station"><i class="fa fa-check"></i><b>8.3</b> NO2 Constitucion Station</a></li>
+</ul></li>
+<li class="chapter" data-level="9" data-path="forecasting-models-arima.html"><a href="forecasting-models-arima.html"><i class="fa fa-check"></i><b>9</b> Forecasting models. ARIMA</a><ul>
+<li class="chapter" data-level="9.0.1" data-path="forecasting-models-arima.html"><a href="forecasting-models-arima.html#data-loading"><i class="fa fa-check"></i><b>9.0.1</b> Data loading</a></li>
+<li class="chapter" data-level="9.0.2" data-path="forecasting-models-arima.html"><a href="forecasting-models-arima.html#pm10-forecasting-models"><i class="fa fa-check"></i><b>9.0.2</b> PM10 forecasting models</a></li>
+<li class="chapter" data-level="9.0.3" data-path="forecasting-models-arima.html"><a href="forecasting-models-arima.html#train-test-and-validation-data-pm10-models"><i class="fa fa-check"></i><b>9.0.3</b> Train, test and validation data (PM10 models)</a></li>
+<li class="chapter" data-level="9.0.4" data-path="forecasting-models-arima.html"><a href="forecasting-models-arima.html#data-exploration-1"><i class="fa fa-check"></i><b>9.0.4</b> Data Exploration</a></li>
+<li class="chapter" data-level="9.1" data-path="forecasting-models-arima.html"><a href="forecasting-models-arima.html#base-model."><i class="fa fa-check"></i><b>9.1</b> Base model.</a></li>
+<li class="chapter" data-level="9.2" data-path="forecasting-models-arima.html"><a href="forecasting-models-arima.html#pm10-arima-models"><i class="fa fa-check"></i><b>9.2</b> PM10 ARIMA models</a><ul>
+<li class="chapter" data-level="9.2.1" data-path="forecasting-models-arima.html"><a href="forecasting-models-arima.html#pm10_model_arima_3m"><i class="fa fa-check"></i><b>9.2.1</b> PM10_model_arima_3m</a></li>
+<li class="chapter" data-level="9.2.2" data-path="forecasting-models-arima.html"><a href="forecasting-models-arima.html#pm10_model_arima_3y"><i class="fa fa-check"></i><b>9.2.2</b> PM10_model_arima_3y</a></li>
+<li class="chapter" data-level="9.2.3" data-path="forecasting-models-arima.html"><a href="forecasting-models-arima.html#pm10_model_arima_9y"><i class="fa fa-check"></i><b>9.2.3</b> PM10_model_arima_9y</a></li>
+<li class="chapter" data-level="9.2.4" data-path="forecasting-models-arima.html"><a href="forecasting-models-arima.html#pm10-h-6"><i class="fa fa-check"></i><b>9.2.4</b> PM10 h = 6</a></li>
+<li class="chapter" data-level="9.2.5" data-path="forecasting-models-arima.html"><a href="forecasting-models-arima.html#pm10-h-12"><i class="fa fa-check"></i><b>9.2.5</b> PM10 h = 12</a></li>
+<li class="chapter" data-level="9.2.6" data-path="forecasting-models-arima.html"><a href="forecasting-models-arima.html#pm10-h-24"><i class="fa fa-check"></i><b>9.2.6</b> PM10 h = 24</a></li>
+</ul></li>
+</ul></li>
+<li><a href="python-scripts.html#python-scripts"><em>Python scripts</em></a></li>
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Gijón Air Pollution - An exercise of visualization and forecasting</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="r-markdown-file-12_forecasting_models_arima_pm10" class="section level1">
+<h1><span class="header-section-number">5</span> R-markdown file “12_Forecasting_Models_ARIMA_PM10”</h1>
+<p>As first step I created a very simple model to use as a base reference. This model takes as prediction the value from the previous hour, forecasting just one hour ahead. So, the formula for this base model would be: Xt = Xt-1.</p>
+<p>Then, I generated three different seasonal (frequency: 24 hours) ARIMA models with three different training periods.</p>
+<p>And I applied these three models to the testing period data (2017-01-01 - 2017-09-30) in order to obtain their prediction accuracy scores for the one hour ahead forecast.</p>
+<p>Finally, I obtained the prediction accuracy scores for the ARIMA with the three years training period for the 6 hours, 12 hours and 24 hours ahead forecasts.</p>
+<p>In the table below we can see the R-squared and the MAE obtained for each ARIMA model tested for the PM10 pollutant.</p>
+<table>
+<caption><span id="tab:unnamed-chunk-2">Table 5.1: </span>ARIMA models results for the PM10 pollutant</caption>
+<thead>
+<tr class="header">
+<th align="left">Model type</th>
+<th align="left">Target variable</th>
+<th align="left">Prediction horizon</th>
+<th align="left">Train period</th>
+<th align="left">Test period</th>
+<th align="right">R-Squared</th>
+<th align="right">MAE</th>
+<th align="left">Model detail</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Auto regressive (Base model)</td>
+<td align="left">PM10</td>
+<td align="left">1 hour</td>
+<td align="left">-</td>
+<td align="left">201701-201709</td>
+<td align="right">0.5327</td>
+<td align="right">5.15</td>
+<td align="left">PM10t = PM10(t-1)</td>
+</tr>
+<tr class="even">
+<td align="left">ARIMA</td>
+<td align="left">PM10</td>
+<td align="left">1 hour</td>
+<td align="left">201610-201612</td>
+<td align="left">201701-201709</td>
+<td align="right">0.5975</td>
+<td align="right">4.88</td>
+<td align="left">ARIMA(2,1,4)(0,0,2)[24]</td>
+</tr>
+<tr class="odd">
+<td align="left">ARIMA</td>
+<td align="left">PM10</td>
+<td align="left">1 hour</td>
+<td align="left">201401-201612</td>
+<td align="left">201701-201709</td>
+<td align="right">0.6015</td>
+<td align="right">4.84</td>
+<td align="left">ARIMA(2,1,3)(0,0,2)[24]</td>
+</tr>
+<tr class="even">
+<td align="left">ARIMA</td>
+<td align="left">PM10</td>
+<td align="left">1 hour</td>
+<td align="left">200901_201612</td>
+<td align="left">201701-201709</td>
+<td align="right">0.5966</td>
+<td align="right">4.88</td>
+<td align="left">ARIMA(3,1,2)(0,0,2)[24]</td>
+</tr>
+<tr class="odd">
+<td align="left">ARIMA</td>
+<td align="left">PM10</td>
+<td align="left">6 hours</td>
+<td align="left">201401-201612</td>
+<td align="left">201701-201709</td>
+<td align="right">0.2118</td>
+<td align="right">7.12</td>
+<td align="left">ARIMA(2,1,3)(0,0,2)[24]</td>
+</tr>
+<tr class="even">
+<td align="left">ARIMA</td>
+<td align="left">PM10</td>
+<td align="left">12 hours</td>
+<td align="left">201401-201612</td>
+<td align="left">201701-201709</td>
+<td align="right">0.1108</td>
+<td align="right">7.64</td>
+<td align="left">ARIMA(2,1,3)(0,0,2)[24]</td>
+</tr>
+<tr class="odd">
+<td align="left">ARIMA</td>
+<td align="left">PM10</td>
+<td align="left">24 hours</td>
+<td align="left">201401-201612</td>
+<td align="left">201701-201709</td>
+<td align="right">0.0138</td>
+<td align="right">10.90</td>
+<td align="left">ARIMA(2,1,3)(0,0,2)[24]</td>
+</tr>
+</tbody>
+</table>
+<div class="figure">
+<img src="imgs/monthly_mae_base_model_vs_arima3m_3y_9y_graph.png" alt="MAE by testing period month." />
+<p class="caption">MAE by testing period month.</p>
+</div>
+<div id="machine-learning-results" class="section level2">
+<h2><span class="header-section-number">5.1</span> Machine Learning results</h2>
+<p><img src="https://imgs.xkcd.com/comics/machine_learning.png" /><br />
+<a href="https://xkcd.com/1838/">xkcd comic</a></p>
+<p>Machine learning methods Linear Regression Random Forests XGBoosts Neural Networks</p>
+</div>
+<div id="neural-networks" class="section level2">
+<h2><span class="header-section-number">5.2</span> Neural Networks</h2>
+
+</div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="forecasting-models.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="conclusions.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/lunr.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": false,
+"facebook": true,
+"twitter": true,
+"google": false,
+"linkedin": false,
+"weibo": false,
+"instapaper": false,
+"vk": false,
+"all": ["facebook", "google", "twitter", "linkedin", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": null,
+"text": null
+},
+"history": {
+"link": null,
+"text": null
+},
+"download": null,
+"toc": {
+"collapse": "subsection"
+}
+});
+});
+</script>
+
+</body>
+
+</html>
