@@ -109,7 +109,9 @@
 <li class="chapter" data-level="8.2.6" data-path="forecasting-models-arima.html"><a href="forecasting-models-arima.html#pm10-h-24"><i class="fa fa-check"></i><b>8.2.6</b> PM10 h = 24</a></li>
 </ul></li>
 </ul></li>
-<li><a href="python-scripts.html#python-scripts"><em>Python scripts</em></a></li>
+<li><a href="python-scripts.html#python-scripts"><em>Python scripts</em></a><ul>
+<li class="chapter" data-level="8.2.7" data-path="python-scripts.html"><a href="python-scripts.html"><i class="fa fa-check"></i><b>8.2.7</b> PM10 MULTIVAR datasets</a></li>
+</ul></li>
 </ul>
 
       </nav>
@@ -164,10 +166,8 @@
 <thead>
 <tr class="header">
 <th align="left">Model type</th>
-<th align="left">Target variable</th>
 <th align="left">Prediction horizon</th>
 <th align="left">Train period</th>
-<th align="left">Test period</th>
 <th align="right">R-Squared</th>
 <th align="right">MAE</th>
 <th align="left">Model detail</th>
@@ -176,70 +176,56 @@
 <tbody>
 <tr class="odd">
 <td align="left">Auto regressive (Base model)</td>
-<td align="left">PM10</td>
 <td align="left">1 hour</td>
 <td align="left">-</td>
-<td align="left">201701-201709</td>
 <td align="right">0.5327</td>
 <td align="right">5.15</td>
 <td align="left">PM10t = PM10(t-1)</td>
 </tr>
 <tr class="even">
 <td align="left">ARIMA</td>
-<td align="left">PM10</td>
 <td align="left">1 hour</td>
 <td align="left">201610-201612</td>
-<td align="left">201701-201709</td>
 <td align="right">0.5975</td>
 <td align="right">4.88</td>
 <td align="left">ARIMA(2,1,4)(0,0,2)[24]</td>
 </tr>
 <tr class="odd">
 <td align="left">ARIMA</td>
-<td align="left">PM10</td>
 <td align="left">1 hour</td>
 <td align="left">201401-201612</td>
-<td align="left">201701-201709</td>
 <td align="right">0.6015</td>
 <td align="right">4.84</td>
 <td align="left">ARIMA(2,1,3)(0,0,2)[24]</td>
 </tr>
 <tr class="even">
 <td align="left">ARIMA</td>
-<td align="left">PM10</td>
 <td align="left">1 hour</td>
 <td align="left">200901_201612</td>
-<td align="left">201701-201709</td>
 <td align="right">0.5966</td>
 <td align="right">4.88</td>
 <td align="left">ARIMA(3,1,2)(0,0,2)[24]</td>
 </tr>
 <tr class="odd">
 <td align="left">ARIMA</td>
-<td align="left">PM10</td>
 <td align="left">6 hours</td>
 <td align="left">201401-201612</td>
-<td align="left">201701-201709</td>
 <td align="right">0.2118</td>
 <td align="right">7.12</td>
 <td align="left">ARIMA(2,1,3)(0,0,2)[24]</td>
 </tr>
 <tr class="even">
 <td align="left">ARIMA</td>
-<td align="left">PM10</td>
 <td align="left">12 hours</td>
 <td align="left">201401-201612</td>
-<td align="left">201701-201709</td>
 <td align="right">0.1108</td>
 <td align="right">7.64</td>
 <td align="left">ARIMA(2,1,3)(0,0,2)[24]</td>
 </tr>
 <tr class="odd">
 <td align="left">ARIMA</td>
-<td align="left">PM10</td>
 <td align="left">24 hours</td>
 <td align="left">201401-201612</td>
-<td align="left">201701-201709</td>
 <td align="right">0.0138</td>
 <td align="right">10.90</td>
 <td align="left">ARIMA(2,1,3)(0,0,2)[24]</td>
@@ -261,10 +247,8 @@
 <thead>
 <tr class="header">
 <th align="left">Model type</th>
-<th align="left">Target variable</th>
 <th align="left">Prediction horizon</th>
 <th align="left">Train period</th>
-<th align="left">Test period</th>
 <th align="right">R-Squared</th>
 <th align="right">MAE</th>
 <th align="left">Model detail</th>
@@ -273,40 +257,32 @@
 <tbody>
 <tr class="odd">
 <td align="left">ARIMA</td>
-<td align="left">PM10</td>
 <td align="left">1 hour</td>
 <td align="left">201401-201612</td>
-<td align="left">201701-201709</td>
 <td align="right">0.6015</td>
 <td align="right">4.84</td>
 <td align="left">ARIMA(2,1,3)(0,0,2)[24]</td>
 </tr>
 <tr class="even">
 <td align="left">ARIMA</td>
-<td align="left">PM10</td>
 <td align="left">6 hours</td>
 <td align="left">201401-201612</td>
-<td align="left">201701-201709</td>
 <td align="right">0.2118</td>
 <td align="right">7.12</td>
 <td align="left">ARIMA(2,1,3)(0,0,2)[24]</td>
 </tr>
 <tr class="odd">
 <td align="left">ARIMA</td>
-<td align="left">PM10</td>
 <td align="left">12 hours</td>
 <td align="left">201401-201612</td>
-<td align="left">201701-201709</td>
 <td align="right">0.1108</td>
 <td align="right">7.64</td>
 <td align="left">ARIMA(2,1,3)(0,0,2)[24]</td>
 </tr>
 <tr class="even">
 <td align="left">ARIMA</td>
-<td align="left">PM10</td>
 <td align="left">24 hours</td>
 <td align="left">201401-201612</td>
-<td align="left">201701-201709</td>
 <td align="right">0.0138</td>
 <td align="right">10.90</td>
 <td align="left">ARIMA(2,1,3)(0,0,2)[24]</td>
@@ -323,21 +299,226 @@
 <a href="https://xkcd.com/1838/">xkcd comic</a></p>
 <div id="auto-regressive-models" class="section level4 unnumbered">
 <h4>Auto-regressive models</h4>
-<div id="jupyter-notebook-file-21_forecasting_models_ml_pm10_ar.ipynb" class="section level5 unnumbered">
-<h5>Jupyter notebook file “21_Forecasting_Models_ML_PM10_AR.ipynb”</h5>
-<p><a href="https://colab.research.google.com/drive/1qlSLPiANjOcpngutSiq61GcCxRIe9eIT">Enlace al notebook “21_Forecasting_Models_ML_PM10_AR.ipynb” en Google Colab</a></p>
-<p>In this notebook we try to emulate the ARIMA results with different auto-regressive machine learning methods.</p>
-<p>So, we only include as input variables lagged values of the target variable. In this case lagged values of the PM10 variable.</p>
-<p>I prepared the training and testing data previously with R.</p>
-</div>
+<p><em>The code used for this section is in the Jupyter notebook file</em> “21_Forecasting_Models_ML_PM10_AR.ipynb” <a href="https://colab.research.google.com/drive/1qlSLPiANjOcpngutSiq61GcCxRIe9eIT">Google Colab Notebook link “21_Forecasting_Models_ML_PM10_AR.ipynb”</a></p>
+<p><em>The training, testing and validations dataset were prepared previously with R (Rmarkdown file “10_1_train_test_AR_datasets.rmd”).</em></p>
+<p>In this part we try to emulate the ARIMA results with different auto-regressive machine learning models. So, we are only including as input variables lagged values of the target variable. In this case lagged values of the PM10 pollutant.</p>
+<p>We used Linear Regression, Random Forests and XGBoost algorithms, achieving the best results with the XGBoost models.</p>
+<table>
+<caption><span id="tab:unnamed-chunk-5">Table 4.3: </span>ARIMA models results for the PM10 pollutant</caption>
+<thead>
+<tr class="header">
+<th align="left">Model type</th>
+<th align="right">Number of variables</th>
+<th align="left">Prediction horizon</th>
+<th align="left">Train period</th>
+<th align="right">R-Squared adjusted</th>
+<th align="right">MAE</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Linear regression</td>
+<td align="right">33</td>
+<td align="left">1 hour</td>
+<td align="left">201610-201612</td>
+<td align="right">0.5794</td>
+<td align="right">4.94</td>
+</tr>
+<tr class="even">
+<td align="left">Linear regression</td>
+<td align="right">33</td>
+<td align="left">1 hour</td>
+<td align="left">201401-201612</td>
+<td align="right">0.5944</td>
+<td align="right">4.82</td>
+</tr>
+<tr class="odd">
+<td align="left">Linear regression</td>
+<td align="right">33</td>
+<td align="left">1 hour</td>
+<td align="left">200901-201612</td>
+<td align="right">0.5880</td>
+<td align="right">4.87</td>
+</tr>
+<tr class="even">
+<td align="left">Linear regression</td>
+<td align="right">13</td>
+<td align="left">1 hour</td>
+<td align="left">201401-201612</td>
+<td align="right">0.5932</td>
+<td align="right">4.84</td>
+</tr>
+<tr class="odd">
+<td align="left">Random Forest Regressor</td>
+<td align="right">13</td>
+<td align="left">1 hour</td>
+<td align="left">201610-201612</td>
+<td align="right">0.5724</td>
+<td align="right">4.93</td>
+</tr>
+<tr class="even">
+<td align="left">Random Forest Regressor</td>
+<td align="right">13</td>
+<td align="left">1 hour</td>
+<td align="left">201401-201612</td>
+<td align="right">0.5873</td>
+<td align="right">4.90</td>
+</tr>
+<tr class="odd">
+<td align="left">Random Forest Regressor</td>
+<td align="right">13</td>
+<td align="left">1 hour</td>
+<td align="left">200901-201612</td>
+<td align="right">0.5741</td>
+<td align="right">5.00</td>
+</tr>
+<tr class="even">
+<td align="left">XGBoost</td>
+<td align="right">13</td>
+<td align="left">1 hour</td>
+<td align="left">201610-201612</td>
+<td align="right">0.5779</td>
+<td align="right">4.92</td>
+</tr>
+<tr class="odd">
+<td align="left">XGBoost</td>
+<td align="right">13</td>
+<td align="left">1 hour</td>
+<td align="left">201401-201612</td>
+<td align="right">0.5970</td>
+<td align="right">4.81</td>
+</tr>
+<tr class="even">
+<td align="left">XGBoost</td>
+<td align="right">13</td>
+<td align="left">1 hour</td>
+<td align="left">200901-201612</td>
+<td align="right">0.5905</td>
+<td align="right">4.86</td>
+</tr>
+<tr class="odd">
+<td align="left">XGBoost</td>
+<td align="right">13</td>
+<td align="left">6 hours</td>
+<td align="left">201401-201612</td>
+<td align="right">0.2400</td>
+<td align="right">6.93</td>
+</tr>
+<tr class="even">
+<td align="left">XGBoost</td>
+<td align="right">13</td>
+<td align="left">12 hours</td>
+<td align="left">201401-201612</td>
+<td align="right">0.1474</td>
+<td align="right">7.46</td>
+</tr>
+<tr class="odd">
+<td align="left">XGBoost</td>
+<td align="right">13</td>
+<td align="left">24 hours</td>
+<td align="left">201401-201612</td>
+<td align="right">0.0514</td>
+<td align="right">7.98</td>
+</tr>
+</tbody>
+</table>
+<p>And as with the ARIMA models we got the smallest MAE using the three years period for the training dataset (2014-01-01 - 2016-12-31).</p>
+<table>
+<caption><span id="tab:unnamed-chunk-6">Table 4.4: </span>Machine learning models results for the PM10 pollutant</caption>
+<thead>
+<tr class="header">
+<th align="left">Model type</th>
+<th align="right">Number of variables</th>
+<th align="left">Prediction horizon</th>
+<th align="left">Train period</th>
+<th align="right">R-Squared adjusted</th>
+<th align="right">MAE</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Linear regression</td>
+<td align="right">13</td>
+<td align="left">1 hour</td>
+<td align="left">201401-201612</td>
+<td align="right">0.5932</td>
+<td align="right">4.84</td>
+</tr>
+<tr class="even">
+<td align="left">Random Forest Regressor</td>
+<td align="right">13</td>
+<td align="left">1 hour</td>
+<td align="left">201401-201612</td>
+<td align="right">0.5873</td>
+<td align="right">4.90</td>
+</tr>
+<tr class="odd">
+<td align="left">XGBoost</td>
+<td align="right">13</td>
+<td align="left">1 hour</td>
+<td align="left">201401-201612</td>
+<td align="right">0.5970</td>
+<td align="right">4.81</td>
+</tr>
+</tbody>
+</table>
+<p>Nevertheless, the results are very similar to the ARIMA ones for the one hour forecasts.</p>
+<p>But as we increases the forecast horizon the XGBoost is obtaining better results than the ARIMA model. <img src="_main_files/figure-html/unnamed-chunk-8-1.png" width="\textwidth" /></p>
 </div>
 <div id="multi-variate-models" class="section level4 unnumbered">
 <h4>Multi-variate models</h4>
-<div id="jupyter-notebook-file-22_forecasting_models_ml_pm10_multivar.ipynb" class="section level5 unnumbered">
-<h5>Jupyter notebook file “22_Forecasting_Models_ML_PM10_MULTIVAR.ipynb”</h5>
-<p><a href="https://colab.research.google.com/drive/1SLoNm0-rHZM6Mv2Aj2n_4_pz8VsjYN8h">Enlace al notebook “22_Forecasting_Models_ML_PM10_MULTIVAR.ipynb” en Google Colab</a></p>
+<p><em>The code used for this section is in the Jupyter notebook file</em> “22_Forecasting_Models_ML_PM10_MULTIVAR.ipynb” <a href="https://colab.research.google.com/drive/1qlSLPiANjOcpngutSiq61GcCxRIe9eIT">Google Colab Notebook link “2_Forecasting_Models_ML_PM10_MULTIVAR.ipynb”</a></p>
+<p><em>The training, testing and validations dataset were prepared previously with R (Rmarkdown file “10_2_train_test_MULTIVAR_datasets.rmd”).</em></p>
+<p>And finally, we added other variables to try to improve our forecasting model. In this part we used exclusively the XGBoost algorithm, because so far it is the algorithm which showed the best performance. And because the same reason we will use the three years training period (2014-01-01).</p>
+<p>We used two different kinds of variables:</p>
+<ol style="list-style-type: decimal">
+<li><p>More lagged values of numerical variables, as weather measures or other pollutants levels.</p></li>
+<li><p>Categorical variables related to information about the target that we can anticipate, as the hour of the day or the type of the day (working days versus non-working days).</p></li>
+</ol>
+<table>
+<caption><span id="tab:unnamed-chunk-9">Table 4.5: </span>ARIMA models results for the PM10 pollutant</caption>
+<thead>
+<tr class="header">
+<th align="left">Model type</th>
+<th align="left">Prediction horizon</th>
+<th align="left">Train period</th>
+<th align="right">R-Squared adjusted</th>
+<th align="right">MAE</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">XGBoost MV</td>
+<td align="left">1 hour</td>
+<td align="left">201401-201612</td>
+<td align="right">0.6135</td>
+<td align="right">4.74</td>
+</tr>
+<tr class="even">
+<td align="left">XGBoost MV</td>
+<td align="left">6 hours</td>
+<td align="left">201401-201612</td>
+<td align="right">0.2614</td>
+<td align="right">6.76</td>
+</tr>
+<tr class="odd">
+<td align="left">XGBoost MV</td>
+<td align="left">12 hours</td>
+<td align="left">201401-201612</td>
+<td align="right">0.1556</td>
+<td align="right">7.38</td>
+</tr>
+<tr class="even">
+<td align="left">XGBoost MV</td>
+<td align="left">24 hours</td>
+<td align="left">201401-201612</td>
+<td align="right">0.0807</td>
+<td align="right">7.83</td>
+</tr>
+</tbody>
+</table>
+<p><img src="_main_files/figure-html/unnamed-chunk-10-1.png" width="\textwidth" /></p>
 
-</div>
 </div>
 </div>
 </div>

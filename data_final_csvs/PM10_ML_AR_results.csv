@@ -1,14 +1,14 @@
 ﻿Model type,Number of variables,Prediction horizon,Train period,R-Squared adjusted,MAE
-Linear regression,33,1,201610-201612,0.5794,4.94
-Linear regression,33,1,201401-201612,0.5944,4.82
-Linear regression,33,1,200901-201612,0.5880,4.87
-Linear regression,13,1,201401-201612,0.5932,4.84
-Random Forest Regressor,13,1,201610-201612,0.5724,4.93
-Random Forest Regressor,13,1,201401-201612,0.5873,4.90
-Random Forest Regressor,13,1,200901-201612,0.5741,5.00
-XGBoost,13,1,201610-201612,0.5779,4.92
-XGBoost,13,1,201401-201612,0.5970,4.81
-XGBoost,13,1,200901-201612,0.5932,4.82
-XGBoost,13,6,201401-201612,0.2166,7.08
-XGBoost,13,12,201401-201612,0.1334,7.52
-XGBoost,13,24,201401-201612,0.0415,8.03
+Linear regression,33,1 hour,201610-201612,0.5794,4.94
+Linear regression,33,1 hour,201401-201612,0.5944,4.82
+Linear regression,33,1 hour,200901-201612,0.5880,4.87
+Linear regression,13,1 hour,201401-201612,0.5932,4.84
+Random Forest Regressor,13,1 hour,201610-201612,0.5724,4.93
+Random Forest Regressor,13,1 hour,201401-201612,0.5873,4.90
+Random Forest Regressor,13,1 hour,200901-201612,0.5741,5.00
+XGBoost,13,1 hour,201610-201612,0.5779,4.92
+XGBoost,13,1 hour,201401-201612,0.5970,4.81
+XGBoost,13,1 hour,200901-201612,0.5905,4.86
+XGBoost,13,6 hours,201401-201612,0.2400,6.93
+XGBoost,13,12 hours,201401-201612,0.1474,7.46
+XGBoost,13,24 hours,201401-201612,0.0514,7.98

@@ -112,7 +112,6 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <li class="chapter" data-level="4.1" data-path="forecasting-models.html"><a href="forecasting-models.html#pm10-forecasts"><i class="fa fa-check"></i><b>4.1</b> PM10 forecasts</a><ul>
 <li class="chapter" data-level="" data-path="forecasting-models.html"><a href="forecasting-models.html#arima-results"><i class="fa fa-check"></i>ARIMA results</a></li>
 <li class="chapter" data-level="" data-path="forecasting-models.html"><a href="forecasting-models.html#machine-learning-results"><i class="fa fa-check"></i>Machine Learning results</a></li>
-<li class="chapter" data-level="" data-path="forecasting-models.html"><a href="forecasting-models.html#neural-networks"><i class="fa fa-check"></i>Neural Networks</a></li>
 </ul></li>
 </ul></li>
 <li class="chapter" data-level="5" data-path="conclusions.html"><a href="conclusions.html"><i class="fa fa-check"></i><b>5</b> Conclusions</a></li>
@@ -148,7 +147,9 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <li class="chapter" data-level="8.2.6" data-path="forecasting-models-arima.html"><a href="forecasting-models-arima.html#pm10-h-24"><i class="fa fa-check"></i><b>8.2.6</b> PM10 h = 24</a></li>
 </ul></li>
 </ul></li>
-<li><a href="python-scripts.html#python-scripts"><em>Python scripts</em></a></li>
+<li><a href="python-scripts.html#python-scripts"><em>Python scripts</em></a><ul>
+<li class="chapter" data-level="8.2.7" data-path="python-scripts.html"><a href="python-scripts.html"><i class="fa fa-check"></i><b>8.2.7</b> PM10 MULTIVAR datasets</a></li>
+</ul></li>
 </ul>
 
       </nav>
@@ -8879,12 +8880,12 @@ air_data_<span class="dv">2</span> &lt;-<span class="st"> </span>air_data_<span 
 <span class="st">                          </span><span class="kw">mutate</span>(<span class="dt">ma_co_8 =</span> <span class="kw">roll_mean</span>(CO, <span class="dv">8</span>, <span class="dt">fill=</span><span class="dv">0</span>))
 
 <span class="kw">hist</span>(co_data<span class="op">$</span>ma_co_<span class="dv">8</span>)</code></pre></div>
-<p><img src="_main_files/figure-html/unnamed-chunk-41-1.png" width="672" /></p>
+<p><img src="_main_files/figure-html/unnamed-chunk-47-1.png" width="672" /></p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">summary</span>(co_data<span class="op">$</span>ma_co_<span class="dv">8</span>)</code></pre></div>
 <pre><code>##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max.    NA&#39;s 
 ##    0.00    0.25    0.39    0.48    0.60   24.34  116415</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot</span>(co_data<span class="op">$</span>ma_co_<span class="dv">8</span>)</code></pre></div>
-<p><img src="_main_files/figure-html/unnamed-chunk-41-2.png" width="672" /></p>
+<p><img src="_main_files/figure-html/unnamed-chunk-47-2.png" width="672" /></p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># pending na treatment</span>
 
 <span class="kw">saveRDS</span>(co_data, <span class="dt">file =</span> <span class="st">&quot;data_rds/co_data.rds&quot;</span>)
@@ -8899,12 +8900,12 @@ air_data_<span class="dv">2</span> &lt;-<span class="st"> </span>air_data_<span 
 
 
 <span class="kw">hist</span>(o3_data<span class="op">$</span>ma_o3_<span class="dv">8</span>)</code></pre></div>
-<p><img src="_main_files/figure-html/unnamed-chunk-42-1.png" width="672" /></p>
+<p><img src="_main_files/figure-html/unnamed-chunk-48-1.png" width="672" /></p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">summary</span>(o3_data<span class="op">$</span>ma_o3_<span class="dv">8</span>)</code></pre></div>
 <pre><code>##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max.    NA&#39;s 
 ##    0.00   21.50   37.50   39.34   54.10  998.00   41435</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot</span>(o3_data<span class="op">$</span>ma_o3_<span class="dv">8</span>)</code></pre></div>
-<p><img src="_main_files/figure-html/unnamed-chunk-42-2.png" width="672" /></p>
+<p><img src="_main_files/figure-html/unnamed-chunk-48-2.png" width="672" /></p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># pending na treatment</span>
 
 <span class="kw">saveRDS</span>(o3_data, <span class="dt">file =</span> <span class="st">&quot;data_rds/o3_data.rds&quot;</span>)

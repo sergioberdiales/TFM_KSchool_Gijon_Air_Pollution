@@ -74,7 +74,8 @@ In the table below we can see the R-squared and the MAE obtained for each ARIMA 
 PM10_ARIMA_results <- read_csv("data_final_csvs/PM10_ARIMA_results.csv")
 
 PM10_ARIMA_results <- PM10_ARIMA_results %>%
-                      mutate(`Prediction horizon` = factor(`Prediction horizon`, levels = c("1 hour", "6 hours", "12 hours", "24 hours")))
+                      mutate(`Prediction horizon` = factor(`Prediction horizon`, levels = c("1 hour", "6 hours", "12 hours", "24 hours"))) %>%
+                      select(-`Target variable`, -`Test period`)
 
 PM10_ARIMA_results_table <- kable(
   PM10_ARIMA_results, booktabs = TRUE,
@@ -114,17 +115,17 @@ PM10_ARIMA_results_table_2
 We plot the decrease of the R-Squared and the increase of the MAE when we extend the prediction horizon.
 
 ```{r  warning = FALSE, message= FALSE, echo = FALSE, out.width= '\\textwidth'}
-#plot(PM10_ARIMA_results_2$`R-Squared`, PM10_ARIMA_results_2$`Prediction horizon`)
-#plot(PM10_ARIMA_results_2$MAE, PM10_ARIMA_results_2$`Prediction horizon`) 
 
 r2_h_variation_plot <- ggplot(data = PM10_ARIMA_results_2, aes(x = `Prediction horizon`, y = `R-Squared`)) + 
   geom_point() +
   geom_text(aes(label=`R-Squared`), vjust=-0.4) +
-  ylim(c(0, 0.7))
+  theme_minimal() +
+  ylim(c(0, 0.7)) 
 
 mae_h_variation_plot <- ggplot(data = PM10_ARIMA_results_2, aes(x = `Prediction horizon`, y = `MAE`)) + 
   geom_point() +
   geom_text(aes(label=`MAE`), vjust=-0.4) +
+  theme_minimal() +
   ylim(c(0, 12))
 
 grid.arrange(r2_h_variation_plot, 
@@ -141,23 +142,181 @@ grid.arrange(r2_h_variation_plot,
 
 #### Auto-regressive models {-}
 
-##### Jupyter notebook file "21_Forecasting_Models_ML_PM10_AR.ipynb" {-}
-[Enlace al notebook "21_Forecasting_Models_ML_PM10_AR.ipynb" en Google Colab](https://colab.research.google.com/drive/1qlSLPiANjOcpngutSiq61GcCxRIe9eIT)
+_The code used for this section is in the Jupyter notebook file_ "21_Forecasting_Models_ML_PM10_AR.ipynb"
+[Google Colab Notebook link "21_Forecasting_Models_ML_PM10_AR.ipynb"](https://colab.research.google.com/drive/1qlSLPiANjOcpngutSiq61GcCxRIe9eIT)
 
-In this notebook we try to emulate the ARIMA results with different auto-regressive machine learning methods. 
+_The training, testing and validations dataset were prepared previously with R (Rmarkdown file "10_1_train_test_AR_datasets.rmd")._
 
-So, we only include as input variables lagged values of the target variable. In this case lagged values of the PM10 variable. 
+In this part we try to emulate the ARIMA results with different auto-regressive machine learning models. 
+So, we are only including as input variables lagged values of the target variable. In this case lagged values of the PM10 pollutant.
 
-I prepared the training and testing data previously with R. 
+We used Linear Regression, Random Forests and XGBoost algorithms, achieving the best results with the XGBoost models. 
+
+```{r  warning = FALSE, message= FALSE, echo = FALSE, out.width= '\\textwidth'}
+PM10_ML_AR_results <- read_csv("data_final_csvs/PM10_ML_AR_results.csv")
+
+PM10_ML_AR_results <- PM10_ML_AR_results %>%
+                      mutate(`Prediction horizon` = factor(`Prediction horizon`, levels = c("1 hour", "6 hours", "12 hours", "24 hours")))
+
+PM10_ML_AR_results_table <- kable(
+  PM10_ML_AR_results, booktabs = TRUE,
+  caption = 'ARIMA models results for the PM10 pollutant'
+)
+
+PM10_ML_AR_results_table
+```
+
+And as with the ARIMA models we got the smallest MAE using the three years period for the training dataset (2014-01-01 - 2016-12-31).
+```{r  warning = FALSE, message= FALSE, echo = FALSE, out.width= '\\textwidth'}
+PM10_ML_AR_results_2 <- PM10_ML_AR_results %>% 
+                        filter(`Train period` == "201401-201612",
+                               `Prediction horizon` == "1 hour",
+                                `Number of variables` == "13")
+
+
+PM10_ML_AR_results_2_table <- kable(
+  PM10_ML_AR_results_2, booktabs = TRUE,
+  caption = 'Machine learning models results for the PM10 pollutant'
+)
+
+PM10_ML_AR_results_2_table
+
+```
+
+Nevertheless, the results are very similar to the ARIMA ones for the one hour forecasts.
+```{r  warning = FALSE, message= FALSE, echo = FALSE, eval = FALSE, out.width= '\\textwidth'}
+PM10_ARIMA_results_3 <- PM10_ARIMA_results_2 %>% 
+                         filter(`Prediction horizon` == "1 hour") %>%
+                          select(`Model type`, `R-Squared`, `MAE`)
+
+PM10_models_best_results <- PM10_ML_AR_results_2 %>% 
+                          select(`Model type`, `R-Squared adjusted`, `MAE`) %>%
+                          rename(`R-Squared` = `R-Squared adjusted`) %>%
+                          bind_rows(PM10_ARIMA_results_3) %>%
+                          mutate(`R-Squared` = round(`R-Squared`, 4))
+
+
+PM10_arima_ml_r2 <- ggplot(data = PM10_models_best_results, aes(x = `Model type`, y = `R-Squared`)) + 
+  geom_point() +
+  geom_text(aes(label=`R-Squared`), vjust=-0.4) +
+  theme_minimal() +
+  ylim(c(0, 0.7))
+
+
+
+PM10_arima_ml_mae <- ggplot(data = PM10_models_best_results, aes(x = `Model type`, y = `MAE`)) + 
+  geom_point() +
+  geom_text(aes(label=`MAE`), vjust=-0.4) +
+  theme_minimal() +
+  ylim(c(0, 11))
+
+grid.arrange(PM10_arima_ml_r2, 
+             PM10_arima_ml_mae, 
+             ncol = 1) 
+       
+```
+But as we increases the forecast horizon the XGBoost is obtaining better results than the ARIMA model.
+```{r  warning = FALSE, message= FALSE, echo = FALSE, out.width= '\\textwidth'}
+
+PM10_ARIMA_results_4 <- PM10_ARIMA_results_2 %>%
+                          select(`Model type`, `Prediction horizon`, `R-Squared`, `MAE`)
+
+PM10_ML_AR_results_3 <- PM10_ML_AR_results %>% 
+                        filter(`Train period` == "201401-201612",
+                                `Number of variables` == "13",
+                                `Model type` == "XGBoost")
+
+
+PM10_models_h1_h24 <- PM10_ML_AR_results_3 %>% 
+                          select(`Model type`, `Prediction horizon`,`R-Squared adjusted`, `MAE`) %>%
+                          rename(`R-Squared` = `R-Squared adjusted`) %>%
+                          bind_rows(PM10_ARIMA_results_4) %>%
+                          mutate(`R-Squared` = round(`R-Squared`, 4))
+
+
+
+r2_h_variation_xgboost_arima_plot <- ggplot(data = PM10_models_h1_h24, aes(x = `Prediction horizon`, y = `R-Squared`, group = `Model type`, col = `Model type`, label=`R-Squared`)) + 
+  geom_line() +
+  geom_text(data = PM10_models_h1_h24[PM10_models_h1_h24$`Model type` == "ARIMA",] , vjust=+0.55, size = 3, show_guide = FALSE) +
+  geom_text(data = PM10_models_h1_h24[PM10_models_h1_h24$`Model type` == "XGBoost",] , vjust=-0.55, size = 3, show_guide = FALSE) +
+  theme_minimal() +
+  ylim(c(0, 0.7))
+
+mae_h_variation_xgboost_arima_plot <- ggplot(data = PM10_models_h1_h24, aes(x = `Prediction horizon`, y = `MAE`, group = `Model type`, col = `Model type`, , label=`MAE`)) + 
+  geom_line() +
+  geom_text(data = PM10_models_h1_h24[PM10_models_h1_h24$`Model type` == "ARIMA",] , vjust=+0.55, size = 3, show_guide = FALSE) +
+  geom_text(data = PM10_models_h1_h24[PM10_models_h1_h24$`Model type` == "XGBoost",] , vjust=-0.55, size = 3, show_guide = FALSE) +
+  theme_minimal() +
+  ylim(c(0, 12))
+
+grid.arrange(r2_h_variation_xgboost_arima_plot, 
+             mae_h_variation_xgboost_arima_plot, 
+             ncol = 1) 
+       
+```
 
 #### Multi-variate models {-}
 
-##### Jupyter notebook file "22_Forecasting_Models_ML_PM10_MULTIVAR.ipynb" {-}
-[Enlace al notebook "22_Forecasting_Models_ML_PM10_MULTIVAR.ipynb" en Google Colab](https://colab.research.google.com/drive/1SLoNm0-rHZM6Mv2Aj2n_4_pz8VsjYN8h)
+_The code used for this section is in the Jupyter notebook file_ "22_Forecasting_Models_ML_PM10_MULTIVAR.ipynb"
+[Google Colab Notebook link "2_Forecasting_Models_ML_PM10_MULTIVAR.ipynb"](https://colab.research.google.com/drive/1qlSLPiANjOcpngutSiq61GcCxRIe9eIT)
+
+_The training, testing and validations dataset were prepared previously with R (Rmarkdown file "10_2_train_test_MULTIVAR_datasets.rmd")._
+
+And finally, we added other variables to try to improve our forecasting model. In this part we used exclusively the XGBoost algorithm, because so far it is the algorithm which showed the best performance. And because the same reason we will use the three years training period (2014-01-01). 
+
+We used two different kinds of variables:
+
+1. More lagged values of numerical variables, as weather measures or other pollutants levels.
+
+2. Categorical variables related to information about the target that we can anticipate, as the hour of the day or the type of the day (working days versus non-working days).
 
 
-  
+```{r  warning = FALSE, message= FALSE, echo = FALSE, out.width= '\\textwidth'}
+PM10_ML_MULTIVARIATE_results <- read_csv("data_final_csvs/PM10_ML_MULTIVARIATE_results.csv")
+
+PM10_ML_MULTIVARIATE_results <- PM10_ML_MULTIVARIATE_results %>%
+                      mutate(`Prediction horizon` = factor(`Prediction horizon`, levels = c("1 hour", "2 hours", "6 hours", "12 hours", "24 hours"))) %>% filter(`Prediction horizon` != "2 hours")
+
+PM10_ML_MULTIVARIATE_results_table <- kable(
+  PM10_ML_MULTIVARIATE_results, booktabs = TRUE,
+  caption = 'ARIMA models results for the PM10 pollutant'
+)
+
+PM10_ML_MULTIVARIATE_results_table
+```
+
+
+```{r  warning = FALSE, message= FALSE, echo = FALSE, out.width= '\\textwidth'}
+
+
+PM10_ML_MULTIVARIATE_results_2 <- PM10_ML_MULTIVARIATE_results %>% 
+                                  select(-`Train period`) %>%
+                                  rename(`R-Squared` = `R-Squared adjusted`)
+
+PM10_models_h1_h24_2 <- PM10_models_h1_h24  %>%
+                          bind_rows(PM10_ML_MULTIVARIATE_results_2) %>% 
+                          mutate(`Prediction horizon` = factor(`Prediction horizon`, levels = c("1 hour", "6 hours", "12 hours", "24 hours")))
 
 
 
+r2_h_variation_xgboost_arima_mv_plot <- ggplot(data = PM10_models_h1_h24_2, aes(x = `Prediction horizon`, y = `R-Squared`, group = `Model type`, col = `Model type`, label=`R-Squared`)) + 
+  geom_line() +
+  geom_text(data = PM10_models_h1_h24_2[PM10_models_h1_h24_2$`Model type` == "ARIMA",] , vjust=+0.55, size = 3, show_guide = FALSE) +
+  geom_text(data = PM10_models_h1_h24_2[PM10_models_h1_h24_2$`Model type` == "XGBoost",] , vjust=-0.5, size = 3, show_guide = FALSE) +
+  geom_text(data = PM10_models_h1_h24_2[PM10_models_h1_h24_2$`Model type` == "XGBoost MV",] , vjust=-1.2, size = 3, show_guide = FALSE) +
+  theme_minimal() +
+  ylim(c(0, 0.7))
 
+mae_h_variation_xgboost_arima_mv_plot <- ggplot(data = PM10_models_h1_h24_2, aes(x = `Prediction horizon`, y = `MAE`, group = `Model type`, col = `Model type`, , label=`MAE`)) + 
+  geom_line() +
+  geom_text(data = PM10_models_h1_h24_2[PM10_models_h1_h24_2$`Model type` == "ARIMA",] , vjust=-0.55, size = 3, show_guide = FALSE) +
+  geom_text(data = PM10_models_h1_h24_2[PM10_models_h1_h24_2$`Model type` == "XGBoost",] , vjust=+0.55, size = 3, show_guide = FALSE) +
+  geom_text(data = PM10_models_h1_h24_2[PM10_models_h1_h24_2$`Model type` == "XGBoost MV",] , vjust=+1.5, size = 3, show_guide = FALSE) +
+  theme_minimal() +
+  ylim(c(0, 12))
+
+grid.arrange(r2_h_variation_xgboost_arima_mv_plot, 
+             mae_h_variation_xgboost_arima_mv_plot, 
+             ncol = 1) 
+       
+```

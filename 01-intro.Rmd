@@ -51,7 +51,7 @@ The following is a list the software tools and services I used to develop this p
 * The Kaggle platform to publish the [final dataset](https://www.kaggle.com/goseri/air-quality-data-gijn-city-2000-2017) with all the data.   
 * R-Studio on a Windows laptop to manage all the R code and Google Collab notebooks to write the Python code.   
 * Tableau Desktop (student license) to create the dashboards and Tableau Public to publish the final stories.
-* Microsoft Excel (heresy!) to elaborate the csv file with the Gijón holiday dates and the table with the compilations of all the model scores.
+* Microsoft Excel to elaborate the csv file with the Gijón holiday dates and the table with the compilations of all the model scores.
 
 All the files and the code needed to replicate the entire work is saved in this [Github repository](https://github.com/sergioberdiales/TFM_KSchool_Gijon_Air_Pollution), with the exception of the final csv file with all the data used by the Tableau Public visualizations (it exceeds the Github file size limits). This file can be downloaded from [Kaggle](https://www.kaggle.com/goseri/air-quality-data-gijn-city-2000-2017).
 
