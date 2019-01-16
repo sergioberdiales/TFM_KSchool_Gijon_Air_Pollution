@@ -1,0 +1,6 @@
+﻿Model type,Number of variables,Prediction horizon,Train period,R-Squared adjusted,MAE
+XGBoost,16,1 hour,201401-201612,0.7606,5.88
+XGBoost,16,2 hours,201401-201612,0.5946,8.10
+XGBoost,16,6 hours,201401-201612,0.3932,10.48
+XGBoost,16,12 hours,201401-201612,0.3718,10.68
+XGBoost,16,24 hours,201401-201612,0.3213,11.08

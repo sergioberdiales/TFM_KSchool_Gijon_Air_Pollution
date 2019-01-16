@@ -113,6 +113,9 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <li class="chapter" data-level="" data-path="forecasting-models.html"><a href="forecasting-models.html#arima-results"><i class="fa fa-check"></i>ARIMA results</a></li>
 <li class="chapter" data-level="" data-path="forecasting-models.html"><a href="forecasting-models.html#machine-learning-results"><i class="fa fa-check"></i>Machine Learning results</a></li>
 </ul></li>
+<li class="chapter" data-level="4.2" data-path="forecasting-models.html"><a href="forecasting-models.html#no2-forecasts"><i class="fa fa-check"></i><b>4.2</b> NO2 forecasts</a><ul>
+<li class="chapter" data-level="" data-path="forecasting-models.html"><a href="forecasting-models.html#xgboost-results"><i class="fa fa-check"></i>XGBoost results</a></li>
+</ul></li>
 </ul></li>
 <li class="chapter" data-level="5" data-path="conclusions.html"><a href="conclusions.html"><i class="fa fa-check"></i><b>5</b> Conclusions</a></li>
 <li class="chapter" data-level="" data-path="references.html"><a href="references.html"><i class="fa fa-check"></i>References</a></li>
@@ -169,17 +172,18 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
             <section class="normal" id="section-">
 <div id="visualizations" class="section level1">
 <h1><span class="header-section-number">3</span> Visualizations</h1>
-<p>To cover the first of this project goals, “<em>to construct a web dashboard to visualize the evolution of the main air pollution indicators of Gijon city</em>” I chose as main tool the <a href="https://www.tableau.com/">Tableau</a> software.</p>
+<p>In order to cover the first of the goals in this project, “<em>to construct a web dashboard to visualize the evolution of the main air pollution indicators in the city of Gijón</em>” I chose <a href="https://www.tableau.com/">Tableau</a> software as the main tool.</p>
 <p>I created a Tableau story for each pollutant with Tableau Desktop (student license). And I published them on my <a href="https://public.tableau.com/profile/sergioberdiales#!/">Tableau Public personal site</a>.</p>
 <p>Each story shows a brief description of each pollutant, the evolution of its levels during the last two decades, the non-compliance with the EU standards or the WHO advice and several visualizations to show its seasonal components.</p>
-<p>All the stories are saved in the same Tableau workbook. So, to access to each pollutant dashboard you only have to click on the correspondent tab.</p>
-<p><img src="imgs/tableau_0.png" /> <img src="imgs/tableau_1.png" /> The datasets used on these visualizations were prepared with R code. You can consult this code in the section ***** of this document or in the Github repository of this project *****.</p>
+<p>All the stories are saved in the same Tableau workbook. Therefore, in order to access each pollutant dashboard you only have to click on the corresponding tab.</p>
+<p><img src="imgs/tableau_0.png" /> <img src="imgs/tableau_1.png" /></p>
+<p>The datasets used on these visualizations were prepared with R code. You can consult this code in the section “6 Gathering and Cleaning Data” of this document or in the rmd file “10_Gathering_and_Cleaning_Data” saved in the project <a href="https://github.com/sergioberdiales/TFM_KSchool_Gijon_Air_Pollution">Github repository</a>.</p>
 <p><strong>Tableau Public stories</strong>:</p>
 <p>If you want to consult the published stories on the Tableau site you only have to click on the link below:</p>
 <ul>
 <li><a href="https://public.tableau.com/views/ContaminacinaireGijn/PM10?:embed=y&amp;:display_count=yes">Gijón Air Pollution</a></li>
 </ul>
-<p>The data visualization is a basic but powerful tool for any data science project. So, beyond the Tableau dashboards, I used the graphical visualizations of data for very different purposes. From basic data exploration - looking for quality data problems -, to look for data trends and seasonality or to check graphically the accuracy of a model.</p>
+<p>The data visualization is a basic but powerful tool for any data science project. So, beyond the Tableau dashboards, I used the graphic visualizations of data for very different purposes ranging from basic data exploration -looking for quality data problems-, to looking for data trends and seasonality or graphically checking the accuracy of a model.</p>
 <p>Some of these visualizations are included in this document but most of them are embedded in the R and Python code.</p>
 
 </div>

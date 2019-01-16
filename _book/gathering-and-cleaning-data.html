@@ -113,6 +113,9 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <li class="chapter" data-level="" data-path="forecasting-models.html"><a href="forecasting-models.html#arima-results"><i class="fa fa-check"></i>ARIMA results</a></li>
 <li class="chapter" data-level="" data-path="forecasting-models.html"><a href="forecasting-models.html#machine-learning-results"><i class="fa fa-check"></i>Machine Learning results</a></li>
 </ul></li>
+<li class="chapter" data-level="4.2" data-path="forecasting-models.html"><a href="forecasting-models.html#no2-forecasts"><i class="fa fa-check"></i><b>4.2</b> NO2 forecasts</a><ul>
+<li class="chapter" data-level="" data-path="forecasting-models.html"><a href="forecasting-models.html#xgboost-results"><i class="fa fa-check"></i>XGBoost results</a></li>
+</ul></li>
 </ul></li>
 <li class="chapter" data-level="5" data-path="conclusions.html"><a href="conclusions.html"><i class="fa fa-check"></i><b>5</b> Conclusions</a></li>
 <li class="chapter" data-level="" data-path="references.html"><a href="references.html"><i class="fa fa-check"></i>References</a></li>
@@ -8880,12 +8883,12 @@ air_data_<span class="dv">2</span> &lt;-<span class="st"> </span>air_data_<span 
 <span class="st">                          </span><span class="kw">mutate</span>(<span class="dt">ma_co_8 =</span> <span class="kw">roll_mean</span>(CO, <span class="dv">8</span>, <span class="dt">fill=</span><span class="dv">0</span>))
 
 <span class="kw">hist</span>(co_data<span class="op">$</span>ma_co_<span class="dv">8</span>)</code></pre></div>
-<p><img src="_main_files/figure-html/unnamed-chunk-47-1.png" width="672" /></p>
+<p><img src="_main_files/figure-html/unnamed-chunk-53-1.png" width="672" /></p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">summary</span>(co_data<span class="op">$</span>ma_co_<span class="dv">8</span>)</code></pre></div>
 <pre><code>##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max.    NA&#39;s 
 ##    0.00    0.25    0.39    0.48    0.60   24.34  116415</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot</span>(co_data<span class="op">$</span>ma_co_<span class="dv">8</span>)</code></pre></div>
-<p><img src="_main_files/figure-html/unnamed-chunk-47-2.png" width="672" /></p>
+<p><img src="_main_files/figure-html/unnamed-chunk-53-2.png" width="672" /></p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># pending na treatment</span>
 
 <span class="kw">saveRDS</span>(co_data, <span class="dt">file =</span> <span class="st">&quot;data_rds/co_data.rds&quot;</span>)
@@ -8900,12 +8903,12 @@ air_data_<span class="dv">2</span> &lt;-<span class="st"> </span>air_data_<span 
 
 
 <span class="kw">hist</span>(o3_data<span class="op">$</span>ma_o3_<span class="dv">8</span>)</code></pre></div>
-<p><img src="_main_files/figure-html/unnamed-chunk-48-1.png" width="672" /></p>
+<p><img src="_main_files/figure-html/unnamed-chunk-54-1.png" width="672" /></p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">summary</span>(o3_data<span class="op">$</span>ma_o3_<span class="dv">8</span>)</code></pre></div>
 <pre><code>##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max.    NA&#39;s 
 ##    0.00   21.50   37.50   39.34   54.10  998.00   41435</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot</span>(o3_data<span class="op">$</span>ma_o3_<span class="dv">8</span>)</code></pre></div>
-<p><img src="_main_files/figure-html/unnamed-chunk-48-2.png" width="672" /></p>
+<p><img src="_main_files/figure-html/unnamed-chunk-54-2.png" width="672" /></p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># pending na treatment</span>
 
 <span class="kw">saveRDS</span>(o3_data, <span class="dt">file =</span> <span class="st">&quot;data_rds/o3_data.rds&quot;</span>)

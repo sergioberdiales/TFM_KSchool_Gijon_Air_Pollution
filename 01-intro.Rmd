@@ -3,41 +3,38 @@
 
 ## Why
 
-Why did I choose this topic, the Air Pollution at the city of Gijón, for my Master of Data Science final project? 
+Why did I choose "Air Pollution in the city of Gijón" as my final project for my Master's in Data Science?
 
-I was born in Gijón. And I was working 12 years in Madrid. Both cities suffer from air quality low levels. And in recent years the air pollution has become a great source of public concern. 
+I was born in Gijón and I was working in Madrid for 12 years. Both cities suffer from  low levels of air quality. And in recent years air pollution has become a great source of public concern. 
 
-So, the topic came up to me in a very natural way. Then, I saw that the city town of Gijón had an open data web. And where it had published 18 years of hourly data from its six air quality monitoring stations. That  was definitive. 
+Therefore, the idea came up in a very natural way. I then saw that the Town Hall of Gijón had an open data website where it had published 18 years of hourly data from its six air quality monitoring stations. That seemed like a sign.
  
-I had a topic. And I had the data.
+I had a topic. And, now, I had the data.
 
 ## What
 
 The main objectives of this Data Science project are:  
   
- * __1. Construct and publish a web dashboard to visualize the evolution of the main air pollution indicators of Gijon city.__   
+ * __1. To construct and publish a web dashboard so as to visualize the evolution of the main air pollution indicators in the city of Gijón.__   
   
-It could seem something trivial and with litte utility. But the fact is that, after searching the web, I didn't find any service where these kind of evolutions can be consulted easily. 
+It might seem trivial and hardly useful but the fact is that, after searching the web, I didn't find any service where these kind of evolutions could be easily consulted. 
   
-This lack of public information can be contributing to generate a very pessimistic vision of the air quality of the city of Gijón. 
+This lack of public information could be contributing to generating a very pessimistic vision of the air quality in the city of Gijón. 
 
-It is true that Gijón presents air quality levels on some pollutants below the recommendations of the WHO. But, the fact is that the Gijón air quality has improved in a drastic way during the last two decades.
+It is true that Gijón presents air quality levels on some pollutants which are below the recommendations of the WHO. But, the fact is that the air quality in Gijón has improved drastically during the last two decades.
 
-"include graphic of main pollutants levels evolution"
+I am probably being too optimistic, but I would like to think that through this work I'm helping to improve public understanding on the matter.  
 
-Probably I am being too optimistic, but I would like to think that through this work I'm helping to improve the public understanding on the matter.  
-
-In order to accomplish this objective I finally choose as main tool the Tableau software and its free service of visualizations web publishing Tableau Public.
+In order to accomplish this objective I finally choose Tableau software and its free visualization service web publishing Tableau Public as my main tools.
 
 If you want to see the final result you can go to the chapter 4 "Visualizations". 
 
  
- * __2. Build forecasting models to predict pollution levels.__
+ * __2. To build forecasting models in order to predict pollution levels.__
  
- My second objective is to try to forecast hourly pollution levels with one to twenty four hours in advance.   
- Initially, my intention was to create models for every pollutant and every monitoring station. But, finally I have focused my efforts on only one station (Constitución) and two of the pollutants, the PM10 and the NO2. 
-
-I choose the Constitución station because is the unique station which has published weather data too.   
+ My second objective is to try to forecast hourly pollution levels one to twenty four hours in advance.   
+ 
+ Initially, my intention was to create models for every pollutant and every monitoring station. But, finally, I have focused my efforts on only one station (Constitución) and two of the pollutants, PM10 and NO2.   
 
 
 ## How
@@ -46,16 +43,16 @@ The following is a list the software tools and services I used to develop this p
 
 * R for importing, cleaning, exploring and preparing the data for the prediction models.  
 * Python for making the models (except the ARIMA models, made with R and the fantastic Forecast package).  
-* Rmarkdown to write this document and the Bookdown package to build the html book. And I took advantage too from the publishing free service of Bookdown.org  to publish the final document.  
+* Rmarkdown to write this document and the Bookdown package to build the html book. And I took advantage too from the publishing free service at Bookdown.org  to publish the final document too..  
 * Git and Github for control version of my work.   
 * The Kaggle platform to publish the [final dataset](https://www.kaggle.com/goseri/air-quality-data-gijn-city-2000-2017) with all the data.   
-* R-Studio on a Windows laptop to manage all the R code and Google Collab notebooks to write the Python code.   
+* R-Studio on a Windows laptop (with Windows subsystem for Linux) to manage all the R code and Google Collab notebooks to write the Python code.   
 * Tableau Desktop (student license) to create the dashboards and Tableau Public to publish the final stories.
 * Microsoft Excel to elaborate the csv file with the Gijón holiday dates and the table with the compilations of all the model scores.
 
 All the files and the code needed to replicate the entire work is saved in this [Github repository](https://github.com/sergioberdiales/TFM_KSchool_Gijon_Air_Pollution), with the exception of the final csv file with all the data used by the Tableau Public visualizations (it exceeds the Github file size limits). This file can be downloaded from [Kaggle](https://www.kaggle.com/goseri/air-quality-data-gijn-city-2000-2017).
 
-To reproduce the project all you need to do is to execute the following scripts in order. The rmarkdown files are executable locally, but the Python notebooks were created and executed in Google Colab. So, to assure their correct running my advice is to use the same platform:
+To reproduce the project all you need to do is to execute the following scripts in order. The rmarkdown files are locally executable, but the Python notebooks were created and executed in Google Colab. So, to assure their correct running my advice is to use the same platform:
 
 ...
 ...
@@ -64,5 +61,5 @@ To reproduce the project all you need to do is to execute the following scripts 
 ...
 ...
 
-And to render this html book you would have to install the Bookdown package on R and follow [these instructions](https://bookdown.org/yihui/bookdown/usage.html). 
+And in order to render this html book you would have to install the Bookdown package on R and follow [these instructions](https://bookdown.org/yihui/bookdown/usage.html). 
 

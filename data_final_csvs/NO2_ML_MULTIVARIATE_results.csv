@@ -1,0 +1,6 @@
+﻿Model type,Prediction horizon,Train period,R-Squared adjusted,MAE
+XGBoost MV,1 hour,201401-201612,0.7636,5.72
+XGBoost MV,2 hours,201401-201612,0.6064,7.87
+XGBoost MV,6 hours,201401-201612,0.4174,10.16
+XGBoost MV,12 hours,201401-201612,0.4074,10.24
+XGBoost MV,24 hours,201401-201612,0.3813,10.42

@@ -320,3 +320,144 @@ grid.arrange(r2_h_variation_xgboost_arima_mv_plot,
              ncol = 1) 
        
 ```
+
+## NO2 forecasts
+
+### XGBoost results {-}
+
+#### Auto-regressive models {-}
+
+_The code used for this section is in the Jupyter notebook file_ "23_Forecasting_Models_ML_NO2_MULTIVAR.ipynb"
+[Google Colab Notebook link "21_Forecasting_Models_ML_PM10_AR.ipynb"](https://colab.research.google.com/drive/1qlSLPiANjOcpngutSiq61GcCxRIe9eIT)
+
+_The training, testing and validations dataset were prepared previously with R (Rmarkdown file "10_2_train_test_MULTIVAR_datasets.rmd")._
+
+```{r  warning = FALSE, message= FALSE, echo = FALSE, out.width= '\\textwidth'}
+NO2_ML_AR_results <- read_csv("data_final_csvs/NO2_ML_AR_results.csv")
+
+NO2_ML_AR_results <- NO2_ML_AR_results %>%
+                      mutate(`Prediction horizon` = factor(`Prediction horizon`, levels = c("1 hour", "2 hours", "6 hours", "12 hours", "24 hours"))) %>% filter(`Prediction horizon` != "2 hours")
+
+NO2_ML_AR_results_table <- kable(
+  NO2_ML_AR_results, booktabs = TRUE,
+  caption = 'XGBoost auto regressive models results for the NO2 pollutant'
+)
+
+NO2_ML_AR_results_table
+```
+
+
+
+```{r  warning = FALSE, message= FALSE, echo = FALSE, out.width= '\\textwidth'}
+NO2_ML_MULTIVARIATE_results <- read_csv("data_final_csvs/NO2_ML_MULTIVARIATE_results.csv")
+
+NO2_ML_MULTIVARIATE_results <- NO2_ML_MULTIVARIATE_results %>%
+                      mutate(`Prediction horizon` = factor(`Prediction horizon`, levels = c("1 hour", "2 hours", "6 hours", "12 hours", "24 hours"))) %>% filter(`Prediction horizon` != "2 hours")
+
+NO2_ML_MULTIVARIATE_results_table <- kable(
+  NO2_ML_MULTIVARIATE_results, booktabs = TRUE,
+  caption = 'XGBoost multivariate models results for the NO2 pollutant'
+)
+
+NO2_ML_MULTIVARIATE_results_table
+```
+
+
+```{r  warning = FALSE, message= FALSE, echo = FALSE, out.width= '\\textwidth'}
+
+
+NO2_ML_results <- NO2_ML_MULTIVARIATE_results %>% 
+                  bind_rows(NO2_ML_AR_results) %>% 
+                  select(-`Number of variables`)
+
+
+
+r2_h_variation_NO2_plot <- ggplot(data = NO2_ML_results, aes(x = `Prediction horizon`, y = `R-Squared adjusted`, group = `Model type`, col = `Model type`, label=`R-Squared adjusted`)) + 
+  geom_line() +
+  geom_text(data = NO2_ML_results[NO2_ML_results$`Model type` == "XGBoost",] , vjust=+1, size = 3, show_guide = FALSE) +
+  geom_text(data = NO2_ML_results[NO2_ML_results$`Model type` == "XGBoost MV",] , vjust=-1, size = 3, show_guide = FALSE) +
+  theme_minimal() +
+  ylim(c(0, 1))
+
+mae_h_variation_NO2_plot <- ggplot(data = NO2_ML_results, aes(x = `Prediction horizon`, y = `MAE`, group = `Model type`, col = `Model type`, , label=`MAE`)) + 
+  geom_line() +
+  geom_text(data = NO2_ML_results[NO2_ML_results$`Model type` == "XGBoost",] , vjust=-1, size = 3, show_guide = FALSE) +
+  geom_text(data = NO2_ML_results[NO2_ML_results$`Model type` == "XGBoost MV",] , vjust=+1.5, size = 3, show_guide = FALSE) +
+  theme_minimal() +
+  ylim(c(0, 12))
+
+grid.arrange(r2_h_variation_NO2_plot, 
+             mae_h_variation_NO2_plot, 
+             ncol = 1) 
+       
+```
+
+```{r  warning = FALSE, message= FALSE, echo = FALSE, out.width= '\\textwidth'}
+
+
+NO2_mv_results_r2 <- NO2_ML_MULTIVARIATE_results %>%
+                    mutate(Pollutant = "NO2") %>%
+                    select(Pollutant, `Prediction horizon`, `R-Squared adjusted`)
+                
+
+PM10_ML_results_r2 <- PM10_ML_MULTIVARIATE_results  %>%
+                       mutate(Pollutant = "PM10") %>%
+                      select(Pollutant, `Prediction horizon`, `R-Squared adjusted`)
+                        
+
+PM10_NO2_results_h1_h24_r2 <- NO2_mv_results_r2  %>%
+                          bind_rows(PM10_ML_results_r2) 
+                         #mutate(`Prediction horizon` = factor(`Prediction horizon`, levels = c("1 hour", "6 hours", "12 hours", "24 hours")))
+
+
+
+r2_h_comparison_PM10_NO2_plot <- ggplot(data = PM10_NO2_results_h1_h24_r2, aes(x = `Prediction horizon`, y = `R-Squared adjusted`, group = `Pollutant`, col = `Pollutant`, label=`R-Squared adjusted`)) + 
+  geom_line() +
+  geom_text(data = PM10_NO2_results_h1_h24_r2[PM10_NO2_results_h1_h24_r2$`Pollutant` == "NO2",] , vjust=-1, size = 4, show_guide = FALSE) +
+  geom_text(data = PM10_NO2_results_h1_h24_r2[PM10_NO2_results_h1_h24_r2$`Pollutant` == "PM10",] , vjust=-1, size = 4, show_guide = FALSE) +
+  theme_minimal() +
+  ylim(c(0, 1))
+
+
+r2_h_comparison_PM10_NO2_plot
+       
+```
+
+Why these differences?
+
+```{r  warning = FALSE, message= FALSE, echo = FALSE, out.width= '\\textwidth'}
+
+air_data_2 <- readRDS("data_rds/air_data_2.rds")
+
+NO2_data <- air_data_2 %>% filter(station == "1", 
+                                  year(date_time_utc) == "2017",
+                                  month(date_time_utc) == "1") %>%
+                                  select(date_time_utc, NO2)
+
+NO2_hourly <- ggplot(NO2_data, aes(x = hour(date_time_utc), y = NO2)) + 
+  geom_line() + 
+  facet_grid(week(date_time_utc)~wday(date_time_utc, label = TRUE, week_start = getOption("lubridate.week.start", 1)),scales="free_y") +
+   theme(axis.text = element_text(size = 6)) +
+  theme_minimal() 
+
+                                  
+PM10_data <- air_data_2 %>% filter(station == "1", 
+                                  year(date_time_utc) == "2017",
+                                  month(date_time_utc) == "1") %>%
+                                  select(date_time_utc, PM10)
+
+PM10_hourly <- ggplot(PM10_data, aes(x = hour(date_time_utc), y = PM10)) + 
+  geom_line() + 
+  facet_grid(week(date_time_utc)~wday(date_time_utc, label = TRUE, week_start = getOption("lubridate.week.start", 1)),scales="free_y") +
+   theme(axis.text = element_text(size = 6))   +
+  theme_minimal()                           
+
+PM10_hourly 
+             
+
+```
+
+
+```{r  warning = FALSE, message= FALSE, echo = FALSE, out.width= '\\textwidth'}
+NO2_hourly
+```
