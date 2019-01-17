@@ -47,46 +47,8 @@
 
 
 
-<script src="libs/kePrint-0.0.1/kePrint.js"></script>
 
 
-<style type="text/css">
-div.sourceCode { overflow-x: auto; }
-table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
-  margin: 0; padding: 0; vertical-align: baseline; border: none; }
-table.sourceCode { width: 100%; line-height: 100%; }
-td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
-td.sourceCode { padding-left: 5px; }
-code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
-code > span.dt { color: #902000; } /* DataType */
-code > span.dv { color: #40a070; } /* DecVal */
-code > span.bn { color: #40a070; } /* BaseN */
-code > span.fl { color: #40a070; } /* Float */
-code > span.ch { color: #4070a0; } /* Char */
-code > span.st { color: #4070a0; } /* String */
-code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
-code > span.ot { color: #007020; } /* Other */
-code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
-code > span.fu { color: #06287e; } /* Function */
-code > span.er { color: #ff0000; font-weight: bold; } /* Error */
-code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
-code > span.cn { color: #880000; } /* Constant */
-code > span.sc { color: #4070a0; } /* SpecialChar */
-code > span.vs { color: #4070a0; } /* VerbatimString */
-code > span.ss { color: #bb6688; } /* SpecialString */
-code > span.im { } /* Import */
-code > span.va { color: #19177c; } /* Variable */
-code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
-code > span.op { color: #666666; } /* Operator */
-code > span.bu { } /* BuiltIn */
-code > span.ex { } /* Extension */
-code > span.pp { color: #bc7a00; } /* Preprocessor */
-code > span.at { color: #7d9029; } /* Attribute */
-code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
-code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
-code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
-code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
-</style>
 
 </head>
 
@@ -168,23 +130,23 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <div id="forecasting-models" class="section level1">
 <h1><span class="header-section-number">4</span> Forecasting Models</h1>
 <p><strong>“Prediction is very difficult, especially if it’s about the future.”</strong> Nils Bohr, Nobel laureate in Physics</p>
-<p>As I already explained in the Introduction, one of the objectives of this project is to develop forecasting models which permit us to predict with some hours in advance the pollution levels of Gijón city.</p>
-<p>Initially, I planned to create forecasting models for every monitoring station. But, as soon as I started to work on the models I realized this goal was not very realistic. So, I adjusted the scope of my project to just one station, the Constitución station and only to two pollutants, PM10 and NO2.</p>
-<p>I chose the Constitución station because is the only station with weather data published. And we focused on these two pollutants because they are the pollutants with more impact in the public health.</p>
+<p>As I already explained in the Introduction, one of the objectives of this project is to develop forecasting models which allow us to predict the pollution levels in the city of Gijón some hours in advance.</p>
+<p>Initially, I planned to create forecasting models for every monitoring station. But, as soon as I started work on the models I realized this goal was not very realistic. Therefore, I adjusted the scope of my project to just one station, the Constitución station and to only two pollutants, PM10 and NO2.</p>
+<p>I chose the Constitución station because it is the only station with published weather data and we focused on these two pollutants because they are the pollutants with the biggest impact on public health.</p>
 <p><strong>Methodology.</strong></p>
-<p>We make a first approximation to the problem with the ARIMA methodology. And then, with the reference of these results we try to improve the forecasts with machine learning methods.</p>
+<p>We make a first approach to the problem with the ARIMA methodology. Then, with the reference of these results we try to improve the forecasts with machine learning methods.</p>
 <p>I used R for the ARIMA models and to prepare the training and testing datasets for the Python models.</p>
 <p>And I used Python, on the Google Colab platform, to create the machine learning methods.</p>
 <p>All the R and Python scripts are saved in the <a href="https://github.com/sergioberdiales/TFM_KSchool_Gijon_Air_Pollution">github repository project</a>:</p>
 <ul>
-<li>_10_1_train_test_PM10_AR_datasets</li>
-<li>_10_2_train_test_PM10_NO2_MULTIVAR_datasets</li>
+<li>_10_1_train_test_PM10_AR_datasets.rmd</li>
+<li>_10_2_train_test_PM10_NO2_MULTIVAR_datasets.rmd</li>
 <li>12_Forecasting_Models_ARIMA_PM10.rmd</li>
 <li>21_Forecasting_Models_ML_PM10_AR.ipynb</li>
 <li>22_Forecasting_Models_ML_PM10_MULTIVAR.ipynb</li>
 <li>23_Forecasting_Models_ML_NO2_MULTIVAR.ipynb</li>
 </ul>
-<p>The R scripts are included in this document too, in the <em>R code</em> section. The Python notebooks are not included in this document but the links to the original Google Colab notebooks are in the <em>Python code</em> section.</p>
+<p>The R scripts are included in this document too, in the <em>R scripts</em> section. The Python notebooks are not included in this document but the links to the original Google Colab notebooks are in the <em>Python scripts</em> section.</p>
 <div id="pm10-forecasts" class="section level2">
 <h2><span class="header-section-number">4.1</span> PM10 forecasts</h2>
 <div id="arima-results" class="section level3 unnumbered">
@@ -192,8 +154,8 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <p><strong>“I have seen the future and it is very much like the present, only longer.”</strong> Kehlog Albran, The Profit</p>
 <div id="r-markdown-file-12_forecasting_models_arima_pm10.rmd" class="section level4 unnumbered">
 <h4>R-markdown file “12_Forecasting_Models_ARIMA_PM10.rmd”</h4>
-<p><em>The code used for this section is in the rmarkdown file</em> “12_Forecasting_Models_ARIMA_PM10.rmd” <em>You can consult it too in the section 8 “Forecasting models. ARIMA” of this document.</em></p>
-<p>As first step I created a very simple model to use as a base reference. This model takes as prediction the value from the previous hour, forecasting just one hour ahead. So, the formula for this base model would be: Xt = Xt-1.</p>
+<p><em>The code used for this section is in the rmarkdown file</em> “12_Forecasting_Models_ARIMA_PM10.rmd” <em>You can consult it in the section 8 “Forecasting models. ARIMA” of this document.</em></p>
+<p>As a first step I created a very simple model to use as a base reference. This model takes the value from the previous hour as a prediction, forecasting just one hour ahead. Thus, the formula for this base model would be: Xt = Xt-1.</p>
 <p>Then, I generated three different seasonal (frequency: 24 hours) ARIMA models with three different training periods (the ARIMA model parameters were selected automatically by the auto.arima function from the ‘forecast’ R package).</p>
 <p>And I applied these three models to the testing period data (2017-01-01 - 2017-09-30) in order to obtain their prediction accuracy scores for the one hour ahead forecast.</p>
 <p>Finally, I obtained the prediction accuracy scores for the ARIMA with the three years training period for the 6 hours, 12 hours and 24 hours ahead forecasts.</p>
@@ -269,10 +231,11 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 </tr>
 </tbody>
 </table>
-<p>We are going to use the MAE (Mean Absolute Error) in order to compare the different models. We choose the MAE over the RMSE (Root Mean Square Error) because it is easier to interpret and at the same time it is more robust (less sensitive to outliers).</p>
+<p><em>All the MAE and R-Squared showed in all the tables and the graphs are from applying the model to the testing period 2017-01-01 - 2017-09-30.</em></p>
+<p>We are going to use the MAE (Mean Absolute Error) in order to compare the different models. We chose the MAE over the RMSE (Root Mean Square Error) because it is easier to interpret while also being more robust (less sensitive to outliers).</p>
 <p>The base model (Xt = Xt-1) explains 53.3% of the variability of the data from the test period (R-squared: 0.5327) and it has a MAE (Mean Absolute Error) of 5.15.</p>
-<p>And the ARIMA model with the best results is the one with the 3 years training period, which improves in almost 7 points the Base model R-squared, explaining 60.15% of the variation in the levels of PM10 (one hour ahead) and reduces the MAE to 4.84.</p>
-<p>Either way, the differences between the three years training model and the other two are minimal. Three months of training data is explaining almost the same than three or nine years.</p>
+<p>And the ARIMA model with the best results is the one with the 3 years training period, which improves the Base model R-squaredin by almost 7 points , explaining 60.15% of the variation in the levels of PM10 (one hour ahead) and reduces the MAE to 4.84.</p>
+<p>Either way, the differences between the three years training model and the other two are minimal. Three months of training data explains almost the same than three or nine years.</p>
 <p>We can see this very clearly in the graph below, where we plot the monthly MAE of each model over the testing period.</p>
 <div class="figure">
 <img src="imgs/monthly_mae_base_model_vs_arima3m_3y_9y_graph.png" alt="MAE monthly evolution (Testing data. Period 2017-01-01 - 2017-09-30)." />
@@ -327,9 +290,9 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 </tr>
 </tbody>
 </table>
-<p>We plot the data on a graph in order to observe the differences easier.</p>
+<p>We plot the data on a graph in order to observe the differences more easily.</p>
 <p><img src="_main_files/figure-html/unnamed-chunk-4-1.png" width="\textwidth" /></p>
-<p>As we see in the graph the explanatory power of the model decays very quickly as we try to forecast further in the future. In fact, the 24 hours prediction is almost explaining anything about the variation of the PM10 levels (although we could probably improve the 24 hours forecasting results modifying the seasonal elements of the ARIMA model ‘P, D, Q’).</p>
+<p>As we see in the graph the explanatory power of the model decays very quickly as we try to forecast further into the future. In fact, the 24 hours prediction hardly explains anything about the variation of the PM10 levels (although we could probably improve the 24 hours forecasting results by modifying the seasonal elements of the ARIMA model ‘P, D, Q’).</p>
 </div>
 </div>
 <div id="machine-learning-results" class="section level3 unnumbered">
@@ -351,7 +314,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 Rmarkdown file “10_2_train_test_PM10_NO2_MULTIVAR_datasets</p>
 <div id="auto-regressive-models" class="section level4 unnumbered">
 <h4>Auto-regressive models</h4>
-<p>In this part we try to emulate the ARIMA results with different auto-regressive machine learning models. So, we are only including as input variables lagged values of the target variable. In this case lagged values of the PM10 pollutant.</p>
+<p>In this part we try to emulate the ARIMA results with different auto-regressive machine learning models. So, we are only including lagged values of the target variable as input variables. In this case lagged values of the PM10 pollutant.</p>
 <p>We used Linear Regression, Random Forests and XGBoost algorithms, achieving the best results with the XGBoost models.</p>
 <p>(We selected the lagged variables through a Linear Regression model, that is why it appears in the table 4 rows of results, 3 with the 33 initial variables and one with the final 13 variables selected.)</p>
 <table>
@@ -514,15 +477,15 @@ Rmarkdown file “10_2_train_test_PM10_NO2_MULTIVAR_datasets</p>
 </tbody>
 </table>
 <p>Nevertheless, the results are very similar to the ARIMA ones for the one hour forecasts.</p>
-<p>But as we increases the forecast horizon the XGBoost is obtaining better results than the ARIMA model. <img src="_main_files/figure-html/unnamed-chunk-8-1.png" width="\textwidth" /></p>
+<p>But as we increase the forecast horizon the XGBoost obtains better results than the ARIMA model. <img src="_main_files/figure-html/unnamed-chunk-8-1.png" width="\textwidth" /></p>
 </div>
 <div id="multi-variate-models" class="section level4 unnumbered">
 <h4>Multi-variate models</h4>
-<p>And finally, we added other variables to try to improve our forecasting model. In this part we used exclusively the XGBoost algorithm, because so far it is the algorithm which showed the best performance. And because the same reason we will use the three years training period (2014-01-01).</p>
+<p>And finally, we added other variables to try to improve our forecasting model. In this part we used the XGBoost algorithm exclusively, because so far it is the algorithm which showed the best performance. And for the same reason we will use the three years training period (2014-01-01).</p>
 <p>We used two different kinds of variables:</p>
 <ol style="list-style-type: decimal">
-<li><p>More lagged values of numerical variables, as weather measures or other pollutants levels.</p></li>
-<li><p>Categorical variables related to information about the target that we can anticipate, as the hour of the day or the type of the day (working days versus non-working days).</p></li>
+<li><p>More lagged values of numerical variables, such as weather measurements or other pollutants levels.</p></li>
+<li><p>Categorical variables related to information about the target that we can anticipate, such as the hour of the day or the type of day (working days versus non-working days).</p></li>
 </ol>
 <p>We can see the results in the table below.</p>
 <table>
@@ -567,16 +530,16 @@ Rmarkdown file “10_2_train_test_PM10_NO2_MULTIVAR_datasets</p>
 </tr>
 </tbody>
 </table>
-<p>We compare graphically the results of all the models. The XGBoost multivariate models increase lightly the results of the XGBoost auto regressive ones, particularly at the prediction horizon of 24 hours. But in the end the explanatory power and the errors of the models are very similar.</p>
+<p>We compare the results of all the models graphically. The XGBoost multivariate models slightly increase the results of the XGBoost auto regressive ones, particularly at the prediction horizon of 24 hours. But in the end, the explanatory power and the errors of the models are very similar.</p>
 <p><img src="_main_files/figure-html/unnamed-chunk-10-1.png" width="\textwidth" /></p>
 <p>Maybe the contribution from the added variables in the multivariate models are so limited because a big part of this information is already included in the lagged values of the PM10 variable.</p>
-<p>In order to improve the model, apart from a better feature ingeneering of the current variables or the inclusion of new lagged variables (for example: lagged values from other monitoring stations) we think it would have a great effect on these pollution predictions the inclusion of weather forecasts. So we would be including future conditions that would help to anticipate better the PM10 levels (the wind and the rain have a great influence in the accumulation of air pollutants).</p>
+<p>In order to improve the model, apart from a better feature engineering of the current variables or the inclusion of new lagged variables (for example: lagged values from other monitoring stations) we think the inclusion of weather forecasts would have a great effect on these pollution predictions. We would, thus, be including future conditions that would help to better anticipate PM10 levels (the wind and the rain have a great influence in the accumulation of air pollutants).</p>
 </div>
 </div>
 </div>
 <div id="no2-forecasts" class="section level2">
 <h2><span class="header-section-number">4.2</span> NO2 forecasts</h2>
-<p>For the NO2 forecasts we skip the ARIMA, Linear Regression and Random Forest models to use directly the XGBoost algorithm, which is the one with better results so far. These are the auto regressive XGBoost models results (Testing data scores. Period: 2017-01-01 - 2017-09-30):</p>
+<p>For the NO2 forecasts we skip the ARIMA, Linear Regression and Random Forest models to use the XGBoost algorithm directly, which is the one with better results so far. These are the auto regressive XGBoost models results (Testing data scores. Period: 2017-01-01 - 2017-09-30):</p>
 <table>
 <caption><span id="tab:unnamed-chunk-11">Table 4.6: </span>XGBoost auto regressive models results for the NO2 pollutant</caption>
 <thead>
@@ -669,13 +632,13 @@ Rmarkdown file “10_2_train_test_PM10_NO2_MULTIVAR_datasets</p>
 </table>
 <p>The differences between the auto regressive and multivariate coincide largely with what we have seen with the PM10 models. The differences are very limited and grow slightly as we increase the prediction horizon.</p>
 <p><img src="_main_files/figure-html/unnamed-chunk-13-1.png" width="\textwidth" /></p>
-<p>But the most important difference with the previous PM10 models is that the NO2 models make much more precise forecasts in general. And this difference in precission grows as we increase the prediction horizon. We can see very well this effect in the next graph.</p>
+<p>But the most important difference with the previous PM10 models is that the NO2 models make much more precise forecasts in general. And this difference in precission grows as we increase the prediction horizon. We can see this effect very clearly in the next graph.</p>
 <p><img src="_main_files/figure-html/unnamed-chunk-14-1.png" width="\textwidth" /></p>
-<p>Why these differences? Apart from the possible differences derived from a better or worse variable selection, featuring engeneering, etc. we think the key to explain these differences relies on the own behaviour of each variable.</p>
-<p>Down below we can see the hourly levels of each pollutant during January 2017. We can see easily how the hourly patterns of the PM10 levels (first grid of graphs)are much more erratic than the NO2 (second grid), which has a very recognisible pattern.</p>
-<p>The Constitución monitoring station is an urban station, very close to one of the traffic areas more transited of the city of Gijón. So the major part of the NO2 measured of this station comes from the transformation of NO emitted by cars engines. The traffic has a very regular pattern, so it is natural than the NO2 measured by this stations follows very clear patterns. Meanwhile, the PM10 levels, although they partly depend on the traffic too, has more variate sources and precursors, as the industry plants situated to the west of the city.</p>
-<p>In short, we are achieving better NO2 forecasts because it is a pollutant much easier to forecast than the PM10.</p>
+<p>Why these differences? Apart from the possible differences derived from a better or worse variable selection, featuring engineering, etc. we think the key to explain these differences lies on the own behaviour of each variable.</p>
+<p>Down below we can see the hourly levels of each pollutant during January 2017. We can clearly see how the hourly patterns of the PM10 levels (first grid of graphs)are much more erratic than the NO2 (second grid), which has a very recognisible pattern.</p>
 <p><img src="_main_files/figure-html/unnamed-chunk-15-1.png" width="\textwidth" /></p>
+<p>The Constitución monitoring station is an urban station, very close to one of the busiest traffic areas in the city of Gijón. Therefore, the most of the NO2 measured at this station comes from the transformation of NO emitted by cars engines. The traffic has a very regular pattern, so it is natural than the NO2 measured by this station follows very clear patterns. Meanwhile, the PM10 levels, although they partly depend on the traffic too, has more variate sources and precursors, such as the industrial plants situated to the west of the city.</p>
+<p>In short, we are achieving better NO2 forecasts because it is a pollutant which is much easier to forecast than the PM10.</p>
 <p><img src="_main_files/figure-html/unnamed-chunk-16-1.png" width="\textwidth" /></p>
 
 </div>
