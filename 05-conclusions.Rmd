@@ -1,0 +1,40 @@
+# Conclusions
+
+When I started this project I had two main objectives:
+
+_1. To construct and publish a web dashboard so as to visualize the evolution of the main air pollution indicators in the city of Gijón._  
+_2. To build forecasting models in order to predict pollution levels._
+
+  I think that the __first goal__ of the project could be considered achieved. Beyond the possible improvements of the current Tableau visualizations, I think that anyone who visits my [Tableau web dashboards](https://public.tableau.com/views/ContaminacinaireGijn/PM10?:embed=y&:display_count=yes) can easily get to know the basics on the evolution of the air quality in the city of Gijón, namely: 
+  
+  * What are the main pollutants measured by the monitoring stations.
+  * The evolution from the year 2000 to 2017 of the levels of the main pollutants. 
+  * The compliance or not with the European Union pollutants limits or the guiding levels of the WHO. 
+  * The basic differences on the levels of pollutants among the 6 monitoring stations. 
+  * The different patterns and seasonality of the pollutants levels and their variation among the stations. 
+    
+  Besides all of this, the final dataset itself can be consulted too in the own Tableau workbook and in [Kaggle](https://www.kaggle.com/goseri/air-quality-data-gijn-city-2000-2017), where I uploaded it. 
+    
+  As regards the __second goal__, I can't say it has been attained. My objective was to construct a forecasting model which allows to predict hourly levels of pollutants from one hour to twenty four hours in advance. But the results I reached are far away from the precission required to give useful forecasts.
+  
+  Nevertheless, I think it is a very good starting point in order to construct something more complex and precise. 
+  
+  Regarding the results of the forecasting models we can mention the following conclusions:
+  
+  * The results of the ARIMA models are only slightly worse than the achieved with the auto regressive Machine Learning models applied. But the differences increase as we try to forecast further in the future. 
+  * The best performance of all the algorithms tried was achieved in all cases by the XGBoost algorithm. 
+  * The multivariate models exceeds the results of the pure auto regressive models, but the differences are not very high. Maybe the contribution of the new variables is not so large as I expected because a great proportion of the information is already included in the lagged values of the target variable.
+  * We could see how the NO2 and the PM10 forecasting problems are very different tasks, at least on levels of complexity. The hourly levels of PM10 pollutant are much harder to forecast than the NO2 ones. 
+  
+  Next steps: 
+  
+  This is a work in progress. And my intention is to keep on working on this project with the objective of increasing the precission of my forecasts. And once I get good quality forecasts to put them in production (Example: via a Twitter bot). For this goal I have to do several things, as:
+  
+ 
+  * Test the inclusion in the models of new variables (Example: lagged values of variables from other near monitoring stations).
+  * Better featuring engineering. Try to transform current variables to improve their contribution in the models (Example: new variable which gives the number of days in a row without rain). 
+  * To add weather forecasts to the models.
+  * To use different algorithms / methods (Example: use curves clustering for time series analysis with deep learning algorithms).  
+  * To improve the quality of my R and Python code and remove repetition via functional programming.
+    
+    
