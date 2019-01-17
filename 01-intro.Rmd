@@ -54,12 +54,15 @@ All the files and the code needed to replicate the entire work is saved in this 
 
 To reproduce the project all you need to do is to execute the following scripts in order. The rmarkdown files are locally executable, but the Python notebooks were created and executed in Google Colab. So, to assure their correct running my advice is to use the same platform:
 
-...
-...
-...
-...
-...
-...
+* 10_Gathering_and_Cleaning_Data.rmd
+* 11_Data_Exploration.rmd
+* _10_1_train_test_PM10_AR_datasets.rmd
+* _10_2_train_test_PM10_NO2_MULTIVAR_datasets.rmd
+* 12_Forecasting_Models_ARIMA_PM10.rmd
+* 21_Forecasting_Models_ML_PM10_AR.ipynb
+* 22_Forecasting_Models_ML_PM10_MULTIVAR.ipynb
+* 23_Forecasting_Models_ML_NO2_MULTIVAR.ipynb  
+_(ipynb notebooks to be executed on Google Colab. The links to this notebooks are avalaible in the section 4 of this document "Forecasting models")_
 
 And in order to render this html book you would have to install the Bookdown package on R and follow [these instructions](https://bookdown.org/yihui/bookdown/usage.html). 
 
