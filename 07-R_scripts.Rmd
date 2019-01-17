@@ -1,3 +1,8 @@
 `r if (knitr:::is_html_output()) '
 # _R scripts_ {-}
 '`
+I appended in the next three chapters the following R scripts: 
+
+* 10_Gathering_and_Cleaning_Data.rmd
+* 11_Data_Exploration.rmd
+* 12_Forecasting_Models_ARIMA_PM10.rmd

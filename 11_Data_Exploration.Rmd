@@ -32,6 +32,8 @@ air_data_2 <- readRDS("data_rds/air_data_2.rds")
 ```
 
 
+## Trends exploration
+
 We take a look to the general trend of several indicators through the last 18 years
 
 ```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
@@ -224,6 +226,77 @@ grid.arrange(plot1, plot2, plot3, plot4, ncol = 2)
 
 ```
 
+
+
+
+
+
+
+## NO2 Constitucion Station
+
+We create the dataset pm10 with PM10 values from the Constitución Station and we execute a summary
+
+
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+
+NO2 <- air_data_2 %>% filter(station == '1') %>%
+                        select(date_time_utc, NO2)
+
+summary(NO2)
+
+
+```
+
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+
+
+NO2_day_avg <- NO2 %>% group_by(day = date(date_time_utc)) %>%
+                          summarise(day_avg = mean(NO2, na.rm = TRUE))
+
+ggplot(NO2_day_avg, aes(x = day, y = day_avg, , colour = day_avg)) + 
+         geom_point(alpha = 0.5) +
+         geom_smooth(color = "grey", alpha = 0.2) +
+         scale_colour_gradientn(colours = terrain.colors(10)) +
+         theme(legend.position = c(0.3, 0.9),
+                legend.background = element_rect(colour = "transparent", fill = NA), legend.direction = "horizontal") +
+         labs(colour = "PM10 daily average (colour scale)", x = "Year", y = "PM10 daily average", title = "NO2 daily average - 2000-2017 evolution (Constitucion station)")
+
+```
+
+significantly less pronounced and the trend is smoother too.  
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+
+
+NO2_day_avg <- NO2 %>% group_by(day = date(date_time_utc)) %>%
+                          summarise(day_avg = mean(NO2, na.rm = TRUE))
+
+ggplot(NO2_day_avg, aes(y = day_avg, x = as.factor(year(day)), colour = day_avg)) + 
+         geom_boxplot(alpha = 0.5)
+
+```
+
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+
+year_const <- year_avgs_long %>% filter(grepl('Constit', station_alias), contaminante == 'NO2')
+plot1 <- ggplot(year_const, aes(x = year, y = value)) + 
+  geom_line()
+
+month_const <- month_avgs_long %>% filter(grepl('Constit', station_alias), contaminante == 'NO2')
+plot2 <- ggplot(month_const, aes(x = month, y = value)) + 
+  geom_line()
+
+week_day_const <- week_day_avgs_long %>% filter(grepl('Constit', station_alias), contaminante == 'NO2')
+plot3 <- ggplot(week_day_const, aes(x = week_day, y = value)) + 
+  geom_line()
+
+hour_const <- hour_avgs_long %>% filter(grepl('Constit', station_alias), contaminante == 'NO2')
+plot4 <- ggplot(hour_const, aes(x = hour, y = value)) + 
+  geom_line()
+
+grid.arrange(plot1, plot2, plot3, plot4, ncol = 2)
+
+```
+
 ## Relationships between variables
 
 The Constitucion Station is the only station with meteorological data. So, we are going to focus our efforts of data exploration on this station.
@@ -296,8 +369,6 @@ print(pollutants_heatmap)
 
 ```
 
-
-
 Pollutants-weather data correlations matrix
 ```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
 
@@ -363,78 +434,16 @@ print(pollutants_heatmap)
 
 ```
 
-## NO2 Constitucion Station
+The openair package is a R package especialized in the visualizations of air quality data. 
 
-We create the dataset pm10 with PM10 values from the Constitución Station and we execute a summary
-
-
-```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
-
-NO2 <- air_data_2 %>% filter(station == '1') %>%
-                        select(date_time_utc, NO2)
-
-summary(NO2)
-
-
-```
-
-```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
-
-
-NO2_day_avg <- NO2 %>% group_by(day = date(date_time_utc)) %>%
-                          summarise(day_avg = mean(NO2, na.rm = TRUE))
-
-ggplot(NO2_day_avg, aes(x = day, y = day_avg, , colour = day_avg)) + 
-         geom_point(alpha = 0.5) +
-         geom_smooth(color = "grey", alpha = 0.2) +
-         scale_colour_gradientn(colours = terrain.colors(10)) +
-         theme(legend.position = c(0.3, 0.9),
-                legend.background = element_rect(colour = "transparent", fill = NA), legend.direction = "horizontal") +
-         labs(colour = "PM10 daily average (colour scale)", x = "Year", y = "PM10 daily average", title = "NO2 daily average - 2000-2017 evolution (Constitucion station)")
-
-```
-
-significantly less pronounced and the trend is smoother too.  
-```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
-
-
-NO2_day_avg <- NO2 %>% group_by(day = date(date_time_utc)) %>%
-                          summarise(day_avg = mean(NO2, na.rm = TRUE))
-
-ggplot(NO2_day_avg, aes(y = day_avg, x = as.factor(year(day)), colour = day_avg)) + 
-         geom_boxplot(alpha = 0.5)
-
-```
-
-```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
-
-year_const <- year_avgs_long %>% filter(grepl('Constit', station_alias), contaminante == 'NO2')
-plot1 <- ggplot(year_const, aes(x = year, y = value)) + 
-  geom_line()
-
-month_const <- month_avgs_long %>% filter(grepl('Constit', station_alias), contaminante == 'NO2')
-plot2 <- ggplot(month_const, aes(x = month, y = value)) + 
-  geom_line()
-
-week_day_const <- week_day_avgs_long %>% filter(grepl('Constit', station_alias), contaminante == 'NO2')
-plot3 <- ggplot(week_day_const, aes(x = week_day, y = value)) + 
-  geom_line()
-
-hour_const <- hour_avgs_long %>% filter(grepl('Constit', station_alias), contaminante == 'NO2')
-plot4 <- ggplot(hour_const, aes(x = hour, y = value)) + 
-  geom_line()
-
-grid.arrange(plot1, plot2, plot3, plot4, ncol = 2)
-
-```
-
-Wind visualizations
+Wind visualizations (openair package)
 ```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
 
 windRose(air_data_2)
 
 ```
 
+Pollution rose ((openair package))
 ```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
 pollutionRose(air_data_2, pollutant = "PM10")
 ```
