@@ -122,17 +122,23 @@ ggplot(week_day_avgs_long, aes(x = week_day, y = value)) +
    theme(axis.text = element_text(size = 6))
 ```
 
-## PM10 Constitucion Station
-
-We create the dataset pm10 with PM10 values from the Constitución Station and we execute a summary
-
-
+We take a look to the distributions
 ```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
 
-pm10 <- air_data_2 %>% filter(station == '1') %>%
-                        select(date_time_utc, PM10)
+hist_table <- air_data_2 %>% filter(year(date_time_utc) == '2017') %>% 
+                        select(station_alias, PM10, PM25, SO2, NO2, NO, O3, BEN, CO, MXIL, TOL)
 
-summary(pm10)
+# We convert the table to long format
+
+hist_table_long <- hist_table %>% gather(pollutant, value, 2:length(hist_table))
+
+# We present the data in a grid of graphs
+
+ggplot(hist_table_long, aes(x = value)) + 
+  geom_histogram() + 
+  xlim(c(0, 150)) +
+  facet_grid(pollutant~station_alias,scales="free_y") +
+   theme(axis.text = element_text(size = 6))
 
 
 ```
