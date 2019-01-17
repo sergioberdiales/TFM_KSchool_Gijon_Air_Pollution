@@ -128,9 +128,10 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 </ul></li>
 </ul></li>
 <li class="chapter" data-level="7" data-path="data-exploration.html"><a href="data-exploration.html"><i class="fa fa-check"></i><b>7</b> Data Exploration</a><ul>
-<li class="chapter" data-level="7.1" data-path="data-exploration.html"><a href="data-exploration.html#pm10-constitucion-station"><i class="fa fa-check"></i><b>7.1</b> PM10 Constitucion Station</a></li>
-<li class="chapter" data-level="7.2" data-path="data-exploration.html"><a href="data-exploration.html#relationships-between-variables"><i class="fa fa-check"></i><b>7.2</b> Relationships between variables</a></li>
+<li class="chapter" data-level="7.1" data-path="data-exploration.html"><a href="data-exploration.html#trends-exploration"><i class="fa fa-check"></i><b>7.1</b> Trends exploration</a></li>
+<li class="chapter" data-level="7.2" data-path="data-exploration.html"><a href="data-exploration.html#pm10-constitucion-station"><i class="fa fa-check"></i><b>7.2</b> PM10 Constitucion Station</a></li>
 <li class="chapter" data-level="7.3" data-path="data-exploration.html"><a href="data-exploration.html#no2-constitucion-station"><i class="fa fa-check"></i><b>7.3</b> NO2 Constitucion Station</a></li>
+<li class="chapter" data-level="7.4" data-path="data-exploration.html"><a href="data-exploration.html#relationships-between-variables"><i class="fa fa-check"></i><b>7.4</b> Relationships between variables</a></li>
 </ul></li>
 <li class="chapter" data-level="8" data-path="forecasting-models-arima.html"><a href="forecasting-models-arima.html"><i class="fa fa-check"></i><b>8</b> Forecasting models. ARIMA</a><ul>
 <li class="chapter" data-level="8.1" data-path="forecasting-models-arima.html"><a href="forecasting-models-arima.html#data-loading"><i class="fa fa-check"></i><b>8.1</b> Data loading</a></li>
@@ -188,6 +189,8 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <span class="kw">library</span>(reshape2)</code></pre></div>
 <p>Data loading</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">air_data_<span class="dv">2</span> &lt;-<span class="st"> </span><span class="kw">readRDS</span>(<span class="st">&quot;data_rds/air_data_2.rds&quot;</span>)</code></pre></div>
+<div id="trends-exploration" class="section level2">
+<h2><span class="header-section-number">7.1</span> Trends exploration</h2>
 <p>We take a look to the general trend of several indicators through the last 18 years</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># We calcule the yearly mean of the pollutants levels.</span>
 year_avgs &lt;-<span class="st"> </span>air_data_<span class="dv">2</span> <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">select</span>(station_alias, date_time_utc, PM10, PM25, SO2, NO2, NO, O3, BEN, CO, MXIL, TOL) <span class="op">%&gt;%</span>
@@ -265,8 +268,9 @@ week_day_avgs_long &lt;-<span class="st"> </span><span class="kw">gather</span>(
 <span class="st">  </span><span class="kw">facet_grid</span>(contaminante<span class="op">~</span>station_alias,<span class="dt">scales=</span><span class="st">&quot;free_y&quot;</span>) <span class="op">+</span>
 <span class="st">   </span><span class="kw">theme</span>(<span class="dt">axis.text =</span> <span class="kw">element_text</span>(<span class="dt">size =</span> <span class="dv">6</span>))</code></pre></div>
 <p><img src="_main_files/figure-html/unnamed-chunk-60-1.png" width="\textwidth" /></p>
+</div>
 <div id="pm10-constitucion-station" class="section level2">
-<h2><span class="header-section-number">7.1</span> PM10 Constitucion Station</h2>
+<h2><span class="header-section-number">7.2</span> PM10 Constitucion Station</h2>
 <p>We create the dataset pm10 with PM10 values from the Constitución Station and we execute a summary</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">pm10 &lt;-<span class="st"> </span>air_data_<span class="dv">2</span> <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">filter</span>(station <span class="op">==</span><span class="st"> &#39;1&#39;</span>) <span class="op">%&gt;%</span>
 <span class="st">                        </span><span class="kw">select</span>(date_time_utc, PM10)
@@ -337,8 +341,60 @@ plot4 &lt;-<span class="st"> </span><span class="kw">ggplot</span>(hour_const, <
 <span class="kw">grid.arrange</span>(plot1, plot2, plot3, plot4, <span class="dt">ncol =</span> <span class="dv">2</span>)</code></pre></div>
 <p><img src="_main_files/figure-html/unnamed-chunk-68-1.png" width="\textwidth" /></p>
 </div>
+<div id="no2-constitucion-station" class="section level2">
+<h2><span class="header-section-number">7.3</span> NO2 Constitucion Station</h2>
+<p>We create the dataset pm10 with PM10 values from the Constitución Station and we execute a summary</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">NO2 &lt;-<span class="st"> </span>air_data_<span class="dv">2</span> <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">filter</span>(station <span class="op">==</span><span class="st"> &#39;1&#39;</span>) <span class="op">%&gt;%</span>
+<span class="st">                        </span><span class="kw">select</span>(date_time_utc, NO2)
+
+<span class="kw">summary</span>(NO2)</code></pre></div>
+<pre><code>##  date_time_utc                      NO2        
+##  Min.   :2000-01-01 00:00:00   Min.   :  0.00  
+##  1st Qu.:2004-06-30 23:15:00   1st Qu.: 20.00  
+##  Median :2009-01-02 00:30:00   Median : 34.00  
+##  Mean   :2008-12-31 18:50:45   Mean   : 37.26  
+##  3rd Qu.:2013-07-02 23:45:00   3rd Qu.: 51.00  
+##  Max.   :2017-12-31 23:00:00   Max.   :408.00  
+##                                NA&#39;s   :2930</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">NO2_day_avg &lt;-<span class="st"> </span>NO2 <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">group_by</span>(<span class="dt">day =</span> <span class="kw">date</span>(date_time_utc)) <span class="op">%&gt;%</span>
+<span class="st">                          </span><span class="kw">summarise</span>(<span class="dt">day_avg =</span> <span class="kw">mean</span>(NO2, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>))
+
+<span class="kw">ggplot</span>(NO2_day_avg, <span class="kw">aes</span>(<span class="dt">x =</span> day, <span class="dt">y =</span> day_avg, , <span class="dt">colour =</span> day_avg)) <span class="op">+</span><span class="st"> </span>
+<span class="st">         </span><span class="kw">geom_point</span>(<span class="dt">alpha =</span> <span class="fl">0.5</span>) <span class="op">+</span>
+<span class="st">         </span><span class="kw">geom_smooth</span>(<span class="dt">color =</span> <span class="st">&quot;grey&quot;</span>, <span class="dt">alpha =</span> <span class="fl">0.2</span>) <span class="op">+</span>
+<span class="st">         </span><span class="kw">scale_colour_gradientn</span>(<span class="dt">colours =</span> <span class="kw">terrain.colors</span>(<span class="dv">10</span>)) <span class="op">+</span>
+<span class="st">         </span><span class="kw">theme</span>(<span class="dt">legend.position =</span> <span class="kw">c</span>(<span class="fl">0.3</span>, <span class="fl">0.9</span>),
+                <span class="dt">legend.background =</span> <span class="kw">element_rect</span>(<span class="dt">colour =</span> <span class="st">&quot;transparent&quot;</span>, <span class="dt">fill =</span> <span class="ot">NA</span>), <span class="dt">legend.direction =</span> <span class="st">&quot;horizontal&quot;</span>) <span class="op">+</span>
+<span class="st">         </span><span class="kw">labs</span>(<span class="dt">colour =</span> <span class="st">&quot;PM10 daily average (colour scale)&quot;</span>, <span class="dt">x =</span> <span class="st">&quot;Year&quot;</span>, <span class="dt">y =</span> <span class="st">&quot;PM10 daily average&quot;</span>, <span class="dt">title =</span> <span class="st">&quot;NO2 daily average - 2000-2017 evolution (Constitucion station)&quot;</span>)</code></pre></div>
+<p><img src="_main_files/figure-html/unnamed-chunk-70-1.png" width="\textwidth" /></p>
+<p>significantly less pronounced and the trend is smoother too.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">NO2_day_avg &lt;-<span class="st"> </span>NO2 <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">group_by</span>(<span class="dt">day =</span> <span class="kw">date</span>(date_time_utc)) <span class="op">%&gt;%</span>
+<span class="st">                          </span><span class="kw">summarise</span>(<span class="dt">day_avg =</span> <span class="kw">mean</span>(NO2, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>))
+
+<span class="kw">ggplot</span>(NO2_day_avg, <span class="kw">aes</span>(<span class="dt">y =</span> day_avg, <span class="dt">x =</span> <span class="kw">as.factor</span>(<span class="kw">year</span>(day)), <span class="dt">colour =</span> day_avg)) <span class="op">+</span><span class="st"> </span>
+<span class="st">         </span><span class="kw">geom_boxplot</span>(<span class="dt">alpha =</span> <span class="fl">0.5</span>)</code></pre></div>
+<p><img src="_main_files/figure-html/unnamed-chunk-71-1.png" width="\textwidth" /></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">year_const &lt;-<span class="st"> </span>year_avgs_long <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">filter</span>(<span class="kw">grepl</span>(<span class="st">&#39;Constit&#39;</span>, station_alias), contaminante <span class="op">==</span><span class="st"> &#39;NO2&#39;</span>)
+plot1 &lt;-<span class="st"> </span><span class="kw">ggplot</span>(year_const, <span class="kw">aes</span>(<span class="dt">x =</span> year, <span class="dt">y =</span> value)) <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">geom_line</span>()
+
+month_const &lt;-<span class="st"> </span>month_avgs_long <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">filter</span>(<span class="kw">grepl</span>(<span class="st">&#39;Constit&#39;</span>, station_alias), contaminante <span class="op">==</span><span class="st"> &#39;NO2&#39;</span>)
+plot2 &lt;-<span class="st"> </span><span class="kw">ggplot</span>(month_const, <span class="kw">aes</span>(<span class="dt">x =</span> month, <span class="dt">y =</span> value)) <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">geom_line</span>()
+
+week_day_const &lt;-<span class="st"> </span>week_day_avgs_long <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">filter</span>(<span class="kw">grepl</span>(<span class="st">&#39;Constit&#39;</span>, station_alias), contaminante <span class="op">==</span><span class="st"> &#39;NO2&#39;</span>)
+plot3 &lt;-<span class="st"> </span><span class="kw">ggplot</span>(week_day_const, <span class="kw">aes</span>(<span class="dt">x =</span> week_day, <span class="dt">y =</span> value)) <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">geom_line</span>()
+
+hour_const &lt;-<span class="st"> </span>hour_avgs_long <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">filter</span>(<span class="kw">grepl</span>(<span class="st">&#39;Constit&#39;</span>, station_alias), contaminante <span class="op">==</span><span class="st"> &#39;NO2&#39;</span>)
+plot4 &lt;-<span class="st"> </span><span class="kw">ggplot</span>(hour_const, <span class="kw">aes</span>(<span class="dt">x =</span> hour, <span class="dt">y =</span> value)) <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">geom_line</span>()
+
+<span class="kw">grid.arrange</span>(plot1, plot2, plot3, plot4, <span class="dt">ncol =</span> <span class="dv">2</span>)</code></pre></div>
+<p><img src="_main_files/figure-html/unnamed-chunk-72-1.png" width="\textwidth" /></p>
+</div>
 <div id="relationships-between-variables" class="section level2">
-<h2><span class="header-section-number">7.2</span> Relationships between variables</h2>
+<h2><span class="header-section-number">7.4</span> Relationships between variables</h2>
 <p>The Constitucion Station is the only station with meteorological data. So, we are going to focus our efforts of data exploration on this station.</p>
 <p>Reference: <a href="http://www.sthda.com/english/wiki/ggplot2-quick-correlation-matrix-heatmap-r-software-and-data-visualization" class="uri">http://www.sthda.com/english/wiki/ggplot2-quick-correlation-matrix-heatmap-r-software-and-data-visualization</a></p>
 <p>Pollutants correlations matrix</p>
@@ -400,7 +456,7 @@ pollutants_heatmap &lt;-<span class="st"> </span>ggheatmap <span class="op">+</s
                                <span class="dt">title.position =</span> <span class="st">&quot;top&quot;</span>, <span class="dt">title.hjust =</span> <span class="fl">0.5</span>))
 
 <span class="kw">print</span>(pollutants_heatmap)</code></pre></div>
-<p><img src="_main_files/figure-html/unnamed-chunk-69-1.png" width="\textwidth" /></p>
+<p><img src="_main_files/figure-html/unnamed-chunk-73-1.png" width="\textwidth" /></p>
 <p>Pollutants-weather data correlations matrix</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">constitucion_data &lt;-<span class="st"> </span><span class="kw">readRDS</span>(<span class="st">&quot;data_rds/constitucion_data.rds&quot;</span>)
 
@@ -460,62 +516,12 @@ pollutants_heatmap &lt;-<span class="st"> </span>ggheatmap <span class="op">+</s
                                <span class="dt">title.position =</span> <span class="st">&quot;top&quot;</span>, <span class="dt">title.hjust =</span> <span class="fl">0.5</span>))
 
 <span class="kw">print</span>(pollutants_heatmap)</code></pre></div>
-<p><img src="_main_files/figure-html/unnamed-chunk-70-1.png" width="\textwidth" /></p>
-</div>
-<div id="no2-constitucion-station" class="section level2">
-<h2><span class="header-section-number">7.3</span> NO2 Constitucion Station</h2>
-<p>We create the dataset pm10 with PM10 values from the Constitución Station and we execute a summary</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">NO2 &lt;-<span class="st"> </span>air_data_<span class="dv">2</span> <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">filter</span>(station <span class="op">==</span><span class="st"> &#39;1&#39;</span>) <span class="op">%&gt;%</span>
-<span class="st">                        </span><span class="kw">select</span>(date_time_utc, NO2)
-
-<span class="kw">summary</span>(NO2)</code></pre></div>
-<pre><code>##  date_time_utc                      NO2        
-##  Min.   :2000-01-01 00:00:00   Min.   :  0.00  
-##  1st Qu.:2004-06-30 23:15:00   1st Qu.: 20.00  
-##  Median :2009-01-02 00:30:00   Median : 34.00  
-##  Mean   :2008-12-31 18:50:45   Mean   : 37.26  
-##  3rd Qu.:2013-07-02 23:45:00   3rd Qu.: 51.00  
-##  Max.   :2017-12-31 23:00:00   Max.   :408.00  
-##                                NA&#39;s   :2930</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">NO2_day_avg &lt;-<span class="st"> </span>NO2 <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">group_by</span>(<span class="dt">day =</span> <span class="kw">date</span>(date_time_utc)) <span class="op">%&gt;%</span>
-<span class="st">                          </span><span class="kw">summarise</span>(<span class="dt">day_avg =</span> <span class="kw">mean</span>(NO2, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>))
-
-<span class="kw">ggplot</span>(NO2_day_avg, <span class="kw">aes</span>(<span class="dt">x =</span> day, <span class="dt">y =</span> day_avg, , <span class="dt">colour =</span> day_avg)) <span class="op">+</span><span class="st"> </span>
-<span class="st">         </span><span class="kw">geom_point</span>(<span class="dt">alpha =</span> <span class="fl">0.5</span>) <span class="op">+</span>
-<span class="st">         </span><span class="kw">geom_smooth</span>(<span class="dt">color =</span> <span class="st">&quot;grey&quot;</span>, <span class="dt">alpha =</span> <span class="fl">0.2</span>) <span class="op">+</span>
-<span class="st">         </span><span class="kw">scale_colour_gradientn</span>(<span class="dt">colours =</span> <span class="kw">terrain.colors</span>(<span class="dv">10</span>)) <span class="op">+</span>
-<span class="st">         </span><span class="kw">theme</span>(<span class="dt">legend.position =</span> <span class="kw">c</span>(<span class="fl">0.3</span>, <span class="fl">0.9</span>),
-                <span class="dt">legend.background =</span> <span class="kw">element_rect</span>(<span class="dt">colour =</span> <span class="st">&quot;transparent&quot;</span>, <span class="dt">fill =</span> <span class="ot">NA</span>), <span class="dt">legend.direction =</span> <span class="st">&quot;horizontal&quot;</span>) <span class="op">+</span>
-<span class="st">         </span><span class="kw">labs</span>(<span class="dt">colour =</span> <span class="st">&quot;PM10 daily average (colour scale)&quot;</span>, <span class="dt">x =</span> <span class="st">&quot;Year&quot;</span>, <span class="dt">y =</span> <span class="st">&quot;PM10 daily average&quot;</span>, <span class="dt">title =</span> <span class="st">&quot;NO2 daily average - 2000-2017 evolution (Constitucion station)&quot;</span>)</code></pre></div>
-<p><img src="_main_files/figure-html/unnamed-chunk-72-1.png" width="\textwidth" /></p>
-<p>significantly less pronounced and the trend is smoother too.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">NO2_day_avg &lt;-<span class="st"> </span>NO2 <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">group_by</span>(<span class="dt">day =</span> <span class="kw">date</span>(date_time_utc)) <span class="op">%&gt;%</span>
-<span class="st">                          </span><span class="kw">summarise</span>(<span class="dt">day_avg =</span> <span class="kw">mean</span>(NO2, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>))
-
-<span class="kw">ggplot</span>(NO2_day_avg, <span class="kw">aes</span>(<span class="dt">y =</span> day_avg, <span class="dt">x =</span> <span class="kw">as.factor</span>(<span class="kw">year</span>(day)), <span class="dt">colour =</span> day_avg)) <span class="op">+</span><span class="st"> </span>
-<span class="st">         </span><span class="kw">geom_boxplot</span>(<span class="dt">alpha =</span> <span class="fl">0.5</span>)</code></pre></div>
-<p><img src="_main_files/figure-html/unnamed-chunk-73-1.png" width="\textwidth" /></p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">year_const &lt;-<span class="st"> </span>year_avgs_long <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">filter</span>(<span class="kw">grepl</span>(<span class="st">&#39;Constit&#39;</span>, station_alias), contaminante <span class="op">==</span><span class="st"> &#39;NO2&#39;</span>)
-plot1 &lt;-<span class="st"> </span><span class="kw">ggplot</span>(year_const, <span class="kw">aes</span>(<span class="dt">x =</span> year, <span class="dt">y =</span> value)) <span class="op">+</span><span class="st"> </span>
-<span class="st">  </span><span class="kw">geom_line</span>()
-
-month_const &lt;-<span class="st"> </span>month_avgs_long <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">filter</span>(<span class="kw">grepl</span>(<span class="st">&#39;Constit&#39;</span>, station_alias), contaminante <span class="op">==</span><span class="st"> &#39;NO2&#39;</span>)
-plot2 &lt;-<span class="st"> </span><span class="kw">ggplot</span>(month_const, <span class="kw">aes</span>(<span class="dt">x =</span> month, <span class="dt">y =</span> value)) <span class="op">+</span><span class="st"> </span>
-<span class="st">  </span><span class="kw">geom_line</span>()
-
-week_day_const &lt;-<span class="st"> </span>week_day_avgs_long <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">filter</span>(<span class="kw">grepl</span>(<span class="st">&#39;Constit&#39;</span>, station_alias), contaminante <span class="op">==</span><span class="st"> &#39;NO2&#39;</span>)
-plot3 &lt;-<span class="st"> </span><span class="kw">ggplot</span>(week_day_const, <span class="kw">aes</span>(<span class="dt">x =</span> week_day, <span class="dt">y =</span> value)) <span class="op">+</span><span class="st"> </span>
-<span class="st">  </span><span class="kw">geom_line</span>()
-
-hour_const &lt;-<span class="st"> </span>hour_avgs_long <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">filter</span>(<span class="kw">grepl</span>(<span class="st">&#39;Constit&#39;</span>, station_alias), contaminante <span class="op">==</span><span class="st"> &#39;NO2&#39;</span>)
-plot4 &lt;-<span class="st"> </span><span class="kw">ggplot</span>(hour_const, <span class="kw">aes</span>(<span class="dt">x =</span> hour, <span class="dt">y =</span> value)) <span class="op">+</span><span class="st"> </span>
-<span class="st">  </span><span class="kw">geom_line</span>()
-
-<span class="kw">grid.arrange</span>(plot1, plot2, plot3, plot4, <span class="dt">ncol =</span> <span class="dv">2</span>)</code></pre></div>
 <p><img src="_main_files/figure-html/unnamed-chunk-74-1.png" width="\textwidth" /></p>
-<p>Wind visualizations</p>
+<p>The openair package is a R package especialized in the visualizations of air quality data.</p>
+<p>Wind visualizations (openair package)</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">windRose</span>(air_data_<span class="dv">2</span>)</code></pre></div>
 <p><img src="_main_files/figure-html/unnamed-chunk-75-1.png" width="\textwidth" /></p>
+<p>Pollution rose ((openair package))</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">pollutionRose</span>(air_data_<span class="dv">2</span>, <span class="dt">pollutant =</span> <span class="st">&quot;PM10&quot;</span>)</code></pre></div>
 <p><img src="_main_files/figure-html/unnamed-chunk-76-1.png" width="\textwidth" /></p>
 
