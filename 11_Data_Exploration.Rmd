@@ -143,6 +143,16 @@ ggplot(hist_table_long, aes(x = value)) +
 
 ```
 
+## PM10 Constitucion Station
+
+We create the dataset pm10 with PM10 values from the Constitución Station and we execute a summary
+```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
+pm10 <- air_data_2 %>% filter(station == '1') %>%
+                        select(date_time_utc, PM10)
+
+summary(pm10)
+```
+
 25% of the values are between 44.00 and 888.00. 888.00 is a value really extreme. How many extreme values (outliers) do we have in this series? We plot all the values to visualise this:
 ```{r warning = FALSE, message= FALSE, out.width= '\\textwidth'}
 
