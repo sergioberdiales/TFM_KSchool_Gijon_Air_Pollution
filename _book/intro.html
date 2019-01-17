@@ -47,8 +47,46 @@
 
 
 
+<script src="libs/kePrint-0.0.1/kePrint.js"></script>
 
 
+<style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+</style>
 
 </head>
 
@@ -176,14 +214,15 @@
 <p>All the files and the code needed to replicate the entire work is saved in this <a href="https://github.com/sergioberdiales/TFM_KSchool_Gijon_Air_Pollution">Github repository</a>, with the exception of the final csv file with all the data used by the Tableau Public visualizations (it exceeds the Github file size limits). This file can be downloaded from <a href="https://www.kaggle.com/goseri/air-quality-data-gijn-city-2000-2017">Kaggle</a>.</p>
 <p>To reproduce the project all you need to do is to execute the following scripts in order. The rmarkdown files are locally executable, but the Python notebooks were created and executed in Google Colab. So, to assure their correct running my advice is to use the same platform:</p>
 <ul>
-<li>10_Gathering_and_cleaning_data.rmd</li>
+<li>10_Gathering_and_Cleaning_Data.rmd</li>
 <li>11_Data_Exploration.rmd</li>
 <li>_10_1_train_test_PM10_AR_datasets.rmd</li>
 <li>_10_2_train_test_PM10_NO2_MULTIVAR_datasets.rmd</li>
 <li>12_Forecasting_Models_ARIMA_PM10.rmd</li>
 <li>21_Forecasting_Models_ML_PM10_AR.ipynb</li>
 <li>22_Forecasting_Models_ML_PM10_MULTIVAR.ipynb</li>
-<li>23_Forecasting_Models_ML_NO2_MULTIVAR.ipynb <em>(ipynb notebooks to be executed on Google Colab. The links to this notebooks are avalaible in the section 4 of this document “Forecasting models”)</em></li>
+<li>23_Forecasting_Models_ML_NO2_MULTIVAR.ipynb<br />
+<em>(ipynb notebooks to be executed on Google Colab. The links to this notebooks are avalaible in the section 4 of this document “Forecasting models”)</em></li>
 </ul>
 <p>And in order to render this html book you would have to install the Bookdown package on R and follow <a href="https://bookdown.org/yihui/bookdown/usage.html">these instructions</a>.</p>
 
