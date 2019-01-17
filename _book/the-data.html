@@ -168,13 +168,10 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <div id="the-data" class="section level1">
 <h1><span class="header-section-number">2</span> The Data</h1>
 <p><strong>“In God we trust. All others must bring data.”</strong> – W. Edwards Deming, statistician, professor and author.</p>
-<p>I gathered the data used in this project from the open data web portal of the town hall of Gijón <a href="https://transparencia.gijon.es/" class="uri">https://transparencia.gijon.es/</a>. The data can be downloaded from <a href="https://transparencia.gijon.es/search/risp_dataset/page/1808-catalogo-de-datos?utf8=%E2%9C%93&amp;search=aire+&amp;search_sector=&amp;search_format=&amp;commit=Buscar&amp;authenticity_token=j8%2F3CvCuPcDkrRe%2F1NR5RBp0t%2FOOosiA7724w3T2mB4%3D">here</a>:</p>
-<p>These data files are stored in the project folder named “Data” Describe the data: kind of data stored. pollutant data, weather data, geographical data. number of monitoring stations. short description of them.</p>
-<p>I downloaded 18 csv files with air pollution and weather data of Gijón from years 2000 to 2017. I saved them in the “data” folder. I downloaded two more files from this web, a csv file with the description of the variables and another csv file with information about the measurement stations.</p>
-<p>There are more csv files, with new variables, created ad hoc for the visualizations on <a href="https://public.tableau.com/profile/sergioberdiales#!/">my Tableau Public site</a>. They are related and described in the ‘Visualizations’ section of this document.</p>
-<p>Reference to the train / test / validation datasets created.</p>
-<p>All the data files are in the Github repository project. Except the air_data_2.csv. I uploaded this file tho Kaggle.</p>
-<p>Holiday dates csv file.</p>
+<p>I gathered the data used in this project from the open data website of the Town Hall of Gijón <a href="https://transparencia.gijon.es/" class="uri">https://transparencia.gijon.es/</a>. The data can be downloaded from <a href="https://transparencia.gijon.es/search/risp_dataset/page/1808-catalogo-de-datos?utf8=%E2%9C%93&amp;search=aire+&amp;search_sector=&amp;search_format=&amp;commit=Buscar&amp;authenticity_token=j8%2F3CvCuPcDkrRe%2F1NR5RBp0t%2FOOosiA7724w3T2mB4%3D">here</a>:</p>
+<p>I downloaded 18 csv files with air pollution and weather data of Gijón from years 2000 to 2017. I saved them in the “data” project folder. I downloaded two more files from this web, a csv file with the description of the variables and another csv file with information about the measurement stations.</p>
+<p>There are more csv files, with new variables, created ad hoc for the visualizations on <a href="https://public.tableau.com/views/ContaminacinaireGijn/PM10?:embed=y&amp;:display_count=yes">my Tableau Public site</a>. They are described in the ‘Visualizations’ section of this document.</p>
+<p>All the data files are in the Github repository project, except the final dataset in csv format “air_data_2.csv”, because the Github file size limits (but there is a rds version of this file in the project folder “data_rds”). Nevertheless I uploaded this file to <a href="https://www.kaggle.com/goseri/air-quality-data-gijn-city-2000-2017">Kaggle</a>..</p>
 <div class="figure">
 <img src="imgs/gijon_stations_map.jpg" alt="Image source: Informe de calidad del aire del Principado de Asturias (2016)." />
 <p class="caption">Image source: “Informe de calidad del aire del Principado de Asturias (2016)”.</p>
@@ -205,7 +202,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <li><strong>MXIL</strong>: M-Xylene (µg/m³).</li>
 <li><strong>PM25</strong>: Particulate Matter (&lt;2.5 µg/m³).</li>
 </ul>
-<p>Relate transformations made to the original data. Short summary of the final data table. And these are the fields of the final file ‘air_data_2.csv’:</p>
+<p>And these are the fields of the final file ‘air_data_2.csv’ (or ‘air_data_2.rds’):</p>
 <ul>
 <li><strong>station</strong>: Station id.</li>
 <li><strong>station_name</strong>: Station name.</li>
